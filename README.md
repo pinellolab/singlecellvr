@@ -1,5 +1,5 @@
 # singlecellvr
 
-Sinlge cell visualization using Virtual reality (VR)  
+Sinlge cell visualization using Virtual Reality (VR)  
 
 http://www.singlecellvr.com/
