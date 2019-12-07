@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
+    <script src="https://rawgit.com/protyze/aframe-curve-component/master/dist/aframe-curve-component.min.js"></script>
+    <script src="https://rawgit.com/protyze/aframe-alongpath-component/master/dist/aframe-alongpath-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
+
+  </head>
+  <body>
+    <a-scene id="test">
+        <a-entity id="rig">
+            <a-entity camera look-controls id="curve-camera">
+                <a-cursor id="cursor"></a-cursor>
+            </a-entity>
+        </a-entity>
+      
+        <a-entity id="curve-container">
+
+        </a-entity>
+        <a-entity id="curve-draw">
+
+        </a-entity>
+        <a-entity id="cells"></a-entity>
+    </a-scene>
+    <script src="./index.js"></script>
+  </body>
+</html>
