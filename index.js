@@ -64,8 +64,12 @@ const getCurvePoints = () => {
 
         const branch_container_el = document.getElementById("curve-container");
         branch_container_el.innerHTML = branch_els.join(" ");
+        const map_branch_container = document.getElementById("curve-map");
+        map_branch_container.innerHTML = branch_els.join(" ");
         const branch_draw_container = document.getElementById("curve-draw");
         branch_draw_container.innerHTML = branch_draw_els.join(" ");
+        const map_draw_container = document.getElementById("draw-map");
+        map_draw_container.innerHTML = branch_draw_els.join(" ");
 
         return grouped_coords;
     });
