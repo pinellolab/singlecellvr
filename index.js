@@ -12,6 +12,16 @@ const mobilecheck = () => {
 const states = ["forward", "stop", "backward", "stop"]
 let currentState = "stop";
 
+const getZMax = (coords) => {
+    let maxZ = Number.NEGATIVE_INFINITY;
+    coords.forEach((coord) => {
+        if (coord.z > maxZ) {
+            maxZ = coord.z;
+        }
+    });
+    return z;
+}
+
 const getCameraTrajectory = () => {
     return fetch('curves.json')
         .then(response => response.text())
