@@ -30,12 +30,12 @@ const mobilecheck = () => {
               maxZ = coord.z;
           }
       });
-      return maxZ;
+      return maxZ * 100;
   }
   
   const getMedian = (values) => {
       const sorted = [...values].sort();
-      return sorted[Math.floor(sorted.length)/2]
+      return sorted[Math.floor(sorted.length)/2] * 100;
   }
   
   
@@ -154,10 +154,10 @@ const mobilecheck = () => {
   const moveForward = (positions) => {
       if (positionIndex !== positions.length) {
           const camera_el = document.getElementById("rig");
-          let position = positions[positionIndex];
-          if (mobilecheck()) {
+          let position = positions[positionIndex].split(" ");
+          if (true) {
               const scaled = position.map((coord) => {
-                  return coord * 50;
+                  return coord * 100;
               });
               camera_el.object3D.position.set(...scaled);
           } else {
@@ -170,10 +170,10 @@ const mobilecheck = () => {
   const moveBackward = (positions) => {
       if (positionIndex !== 0) {
           const camera_el = document.getElementById("rig");
-          let position = positions[positionIndex];
-          if (mobilecheck()) {
+          let position = positions[positionIndex].split(" ");
+          if (true) {
               const scaled = position.map((coord) => {
-                  return coord * 50;
+                  return coord * 100;
               });
               camera_el.object3D.position.set(...scaled);
           } else {
