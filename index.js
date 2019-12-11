@@ -1,6 +1,4 @@
 /* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
-
 
 const mobilecheck = () => {
   var check = false;
@@ -15,12 +13,18 @@ let currentState = "stop";
 const getZMax = (coords) => {
     let maxZ = Number.NEGATIVE_INFINITY;
     coords.forEach((coord) => {
-        if (coord.z > maxZ) {
+        if (typeof coord.z !== 'undefined' && coord.z > maxZ) {
             maxZ = coord.z;
         }
     });
-    return z;
+    return maxZ;
 }
+
+const getMedian = (values) => {
+    const sorted = [...values].sort();
+    return sorted[Math.floor(sorted.length)/2]
+}
+
 
 const getCameraTrajectory = () => {
     return fetch('curves.json')
@@ -54,34 +58,7 @@ const getCurvePoints = () => {
     return fetch('curves.json')
     .then(response => response.text())
     .then(text => {
-        const coords = JSON.parse(text);
-        const grouped_coords = groupBy(coords, coord => coord.branch_id);
-        const branches = [];
-        coords.forEach((coord, _) => {
-            if (!branches.includes(coord.branch_id)) {
-                branches.push(coord.branch_id);
-            }
-        });
-
-        const branch_els = []
-        const branch_draw_els = []
-        branches.forEach((branch, _) => {
-            const branch_el = `<a-curve id="${branch}"></a-curve>`;
-            branch_els.push(branch_el);
-            const branch_draw_el = `<a-draw-curve curveref="#${branch}" material="shader: line; color: blue;"></a-draw-curve>`;
-            branch_draw_els.push(branch_draw_el);
-        });
-
-        const branch_container_el = document.getElementById("curve-container");
-        branch_container_el.innerHTML = branch_els.join(" ");
-        const map_branch_container = document.getElementById("curve-map");
-        map_branch_container.innerHTML = branch_els.join(" ");
-        const branch_draw_container = document.getElementById("curve-draw");
-        branch_draw_container.innerHTML = branch_draw_els.join(" ");
-        const map_draw_container = document.getElementById("draw-map");
-        map_draw_container.innerHTML = branch_draw_els.join(" ");
-
-        return grouped_coords;
+        return JSON.parse(text);
     });
 }
 
@@ -109,7 +86,42 @@ const getCells = () => {
 }
 
 getCurvePoints()
-    .then((grouped_coords) => {
+    .then((coords) => {
+        const zMax = getZMax(coords);
+        const yValues = Array.from(coords.map(coord => coord.y));
+        const xValues = Array.from(coords.map(coord => coord.x));
+        const yMedian = getMedian(yValues);
+        const xMedian = getMedian(xValues);
+
+        const camera_el = document.getElementById("rig");
+        camera_el.object3D.position.set(xMedian, yMedian, zMax + .07);
+
+        const grouped_coords = groupBy(coords, coord => coord.branch_id);
+        const branches = [];
+        coords.forEach((coord, _) => {
+            if (!branches.includes(coord.branch_id)) {
+                branches.push(coord.branch_id);
+            }
+        });
+
+        const branch_els = []
+        const branch_draw_els = []
+        branches.forEach((branch, _) => {
+            const branch_el = `<a-curve id="${branch}"></a-curve>`;
+            branch_els.push(branch_el);
+            const branch_draw_el = `<a-draw-curve curveref="#${branch}" material="shader: line; color: blue;"></a-draw-curve>`;
+            branch_draw_els.push(branch_draw_el);
+        });
+
+        const branch_container_el = document.getElementById("curve-container");
+        branch_container_el.innerHTML = branch_els.join(" ");
+        const map_branch_container = document.getElementById("curve-map");
+        map_branch_container.innerHTML = branch_els.join(" ");
+        const branch_draw_container = document.getElementById("curve-draw");
+        branch_draw_container.innerHTML = branch_draw_els.join(" ");
+        const map_draw_container = document.getElementById("draw-map");
+        map_draw_container.innerHTML = branch_draw_els.join(" ");
+
         grouped_coords.forEach((group, branch) => {
             const points = createBranchPoints(group);
             const branch_el = document.getElementById(branch);
@@ -177,11 +189,13 @@ document.querySelector('a-scene').addEventListener('enter-vr', () => {
         cell_el.object3D.scale.set(50, 50, 50);
         branch_draw_container.object3D.scale.set(50, 50, 50);
     }
+    // eslint-disable-next-line no-undef
     AFRAME.scenes[0].canvas.addEventListener("touchstart", () => {
         currentState = states[clickCount % states.length];
         clickCount = clickCount + 1;
     });
 
+    // eslint-disable-next-line no-undef
     AFRAME.scenes[0].canvas.addEventListener("click", () => {
         currentState = states[clickCount % states.length];
         clickCount = clickCount + 1;

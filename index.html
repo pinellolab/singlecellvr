@@ -23,13 +23,15 @@
             </a-entity>
         </a-entity>
       
-        <a-entity id="curve-container">
+        <a-entity animation="property: rotation; dir: reverse; easing: linear; to: 0 360 0; loop: true; dur: 30000">
+          <a-entity id="curve-container">
 
+          </a-entity>
+          <a-entity id="curve-draw">
+  
+          </a-entity>
+          <a-entity id="cells"></a-entity>
         </a-entity>
-        <a-entity id="curve-draw">
-
-        </a-entity>
-        <a-entity id="cells"></a-entity>
     </a-scene>
     <script src="./index.js"></script>
   </body>
