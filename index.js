@@ -17,10 +17,10 @@ const mobilecheck = () => {
       hudMapContainer.object3D.rotation.set(drawContainerRotation._x, drawContainerRotation._y, drawContainerRotation._z);
   }, 50);
   
-  document.getElementById("menu").addEventListener("click", () => {
-    console.log("clicked");
-    const pauseGlobalRotateEl = document.getElementById("pauseGlobalRotation");
-    pauseGlobalRotateEl.setAttribute("animation", "enabled: false; property: rotation; dir: reverse; easing: linear; to: 0 360 0; loop: true; dur: 30000");
+  document.getElementById("pauseGlobalRotation").addEventListener("click", () => {
+    console.log("hello");
+    const drawContainer = document.getElementById("drawContainer");
+    drawContainer.setAttribute("animation", "enabled", "true");
   });
   
   const getZMax = (coords) => {
@@ -153,33 +153,25 @@ const mobilecheck = () => {
   let positionIndex = 0
   const moveForward = (positions) => {
       if (positionIndex !== positions.length) {
-          const camera_el = document.getElementById("rig");
-          let position = positions[positionIndex].split(" ");
-          if (true) {
-              const scaled = position.map((coord) => {
-                  return coord * 100;
-              });
-              camera_el.object3D.position.set(...scaled);
-          } else {
-              camera_el.object3D.position.set(...position.split(" "));
-          }
-          positionIndex = positionIndex + 1;
+            const camera_el = document.getElementById("rig");
+            let position = positions[positionIndex].split(" ");
+                const scaled = position.map((coord) => {
+                return coord * 100;
+            });
+            camera_el.object3D.position.set(...scaled);
+            positionIndex = positionIndex + 1;
       }
   }
   
   const moveBackward = (positions) => {
       if (positionIndex !== 0) {
-          const camera_el = document.getElementById("rig");
-          let position = positions[positionIndex].split(" ");
-          if (true) {
-              const scaled = position.map((coord) => {
-                  return coord * 100;
-              });
-              camera_el.object3D.position.set(...scaled);
-          } else {
-              camera_el.object3D.position.set(...position.split(" "));
-          }
-          positionIndex = positionIndex - 1;
+        const camera_el = document.getElementById("rig");
+        let position = positions[positionIndex].split(" ");
+        const scaled = position.map((coord) => {
+          return coord * 100;
+        });
+        camera_el.object3D.position.set(...scaled);
+        positionIndex = positionIndex - 1;
       }
   }
   

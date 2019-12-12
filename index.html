@@ -3,6 +3,7 @@
     <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
     <script src="https://rawgit.com/protyze/aframe-curve-component/master/dist/aframe-curve-component.min.js"></script>
     <script src="https://rawgit.com/blairmacintyre/aframe-look-at-billboard-component/master/dist/aframe-look-at-billboard-component.min.js"></script>
+    <script src="https://rawgit.com/rdub80/aframe-gui/master/dist/aframe-gui.min.js"></script>
     <script>
       AFRAME.registerComponent('toggle-rotation', {
         schema: {
@@ -38,12 +39,12 @@
                       </a-entity>
                   </a-entity>
                 </a-entity>
-                <a-entity id="cursor" 
-                          raycaster="near: 0; far: infinity;"
-                          cursor
-                          position="0 0 -1"
-                          geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03" material="color: black; shader: flat">
-                </a-entity>
+                <a-gui-cursor id="cursor"
+                      raycaster="objects: [gui-interactable]"
+                      fuse="true" fuse-timeout="2000"
+                      design="ring"
+                >
+                </a-gui-cursor>
             </a-entity>
         </a-entity>
         
@@ -57,12 +58,18 @@
           <a-entity id="cells"></a-entity>
         </a-entity>
       
-        <a-box id="menu" geometry="primitive: plane; width:20; height: 20;" position="20 0 0" color="gray" opacity=".9"
-                  billboard>
-            <a-entity geometry="primitive: plane; width: 19; height: 1"
-                      toggle-rotation="enabled: true;"
-                      text="align: left; value: Pause Rotation; color: red; width: 10;" id="pauseGlobalRotation"></a-entity>
-        </a-box>
+        <a-gui-flex-container 
+          flex-direction="column" justify-content="center" align-items="normal" component-padding="0.1" opacity="0.7" width="3.5" height="4.5"
+          position="20 0 0" rotation="0 0 0" billboard>
+          <a-gui-button 
+            id="pauseGlobalRotation"
+            width="2.5" height="0.75"
+            onclick="startRotation"
+            value="Toggle Rotation"
+            font-family="Arial"
+            margin="0 0 0.05 0">
+          </a-gui-button>
+        </a-gui-flex-container>
     </a-scene>
     <script src="./index.js"></script>
   </body>
