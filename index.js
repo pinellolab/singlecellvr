@@ -159,8 +159,9 @@ const getZMax = (coords) => {
 }
 
 const getMedian = (values) => {
+    console.log(values);
     const sorted = [...values].sort();
-    return sorted[Math.floor(sorted.length)/2] * 100;
+    return sorted[Math.floor(sorted.length/2)];
 }
 
 
@@ -200,26 +201,54 @@ const getFileText = (name) => {
     });
 }
 
+const parsePagaMetadata = async () => {
+  const metadata = await getFileText("metadata");
+  const clusterColors = {};
+  metadata.forEach((metadatum) => {
+    clusterColors[metadatum.cluster] = metadatum.cluster_color;
+  });
+  return clusterColors;
+}
+
+const setInitialCameraPositionPaga = (nodes) => {
+  const yValues = Array.from(nodes.map(node => node.xy.y * .0004));
+  const xValues = Array.from(nodes.map(node => node.xy.x * .0004));
+  const xMax = Math.max(...xValues);
+  const xMin = Math.min(...xValues);
+  const xRange = xMax - xMin;
+  const yMax = Math.max(...yValues);
+  const yMin = Math.min(...yValues);
+  const xMidpoint = (xMax + xMin) / 2;
+  const yMidpoint = (yMax + yMin) / 2;
+
+  const camera_el = document.getElementById("rig");
+  camera_el.object3D.position.set(xMidpoint, yMidpoint, xRange + 1);
+}
+
 const renderPaga = async () => {
   const edges = await getFileText('paga_edges');
   const nodes = await getFileText('paga_nodes');
+  setInitialCameraPositionPaga(nodes);
   // const metadata = await getFileText('metadata');
   const branches = [];
+  const edgeWeights = {};
   edges.forEach((edge, _) => {
       const edgeId = edge.nodes[0] + '_' + edge.nodes[1];
       if (!branches.includes(edgeId)) {
           branches.push(edgeId);
       }
+    edgeWeights[edgeId] = edge.weight;
   });
   const [branch_els, branch_draw_els] = createCurveEnities(branches);
-  setDrawContainerContent(branch_els, branch_draw_els);
+  // setDrawContainerContent(branch_els, branch_draw_els);
+  const clusterColors = await parsePagaMetadata();
   const cell_el = document.getElementById("cells");
   const cellEntities = [];
   const nodePositions = {};
   nodes.forEach((cell_point, _) => {
     let x = cell_point.xy.x * .0004;
     let y = cell_point.xy.y * .0004;
-    const stream_cell = `<a-sphere id="${cell_point.node_id}" position="${x} ${y} -1" color="red" radius=".05"></a-sphere>`;
+    const stream_cell = `<a-sphere text="value: ${cell_point.node_name}; width: 6; color: black; align: center;" id="${cell_point.node_id}" position="${x} ${y} -1" color="${clusterColors[cell_point.node_name]}" radius=".1"></a-sphere>`;
     cellEntities.push(stream_cell);
     nodePositions[cell_point.node_id] = {"x": x, "y": y, "z": -1};
   });
@@ -230,19 +259,16 @@ const renderPaga = async () => {
     // TODO: Bad, evil, fix!
     const curveid = curveref[1].split("=")[1];
     const [startNode, endNode] = strip(curveid).split("_");
-    const startPoint = `<a-curve-point position="${nodePositions[startNode].x} ${nodePositions[startNode].y} ${nodePositions[startNode].z}"></a-curve-point>`;
-    const endPoint = `<a-curve-point position="${nodePositions[endNode].x} ${nodePositions[endNode].y} ${nodePositions[endNode].z}"></a-curve-point>`;
-    const thickLine = `<a-entity meshline="lineWidth: 5; path: ${nodePositions[startNode].x} ${nodePositions[startNode].y} ${nodePositions[startNode].z}, ${nodePositions[endNode].x} ${nodePositions[endNode].y} ${nodePositions[endNode].z}; color: #E20049"></a-entity>`
-    const branch_el = document.getElementById(startNode + "_" + endNode);
+    const thickLine = `<a-entity meshline="lineWidth: ${edgeWeights[strip(curveid)] * 10}; path: ${nodePositions[startNode].x} ${nodePositions[startNode].y} ${nodePositions[startNode].z}, ${nodePositions[endNode].x} ${nodePositions[endNode].y} ${nodePositions[endNode].z}; color: black"></a-entity>`
     thickLines.push(thickLine);
-    branch_el.innerHTML = [startPoint, endPoint].join(" ");
   });
   document.getElementById("thicklines").innerHTML = thickLines.join(" ");
+  document.getElementById("thicklinesMap").innerHTML = thickLines.join(" ");
 }
-renderPaga();
+// renderPaga();
 
 const strip = (str) => {
-    return str.replace(/^"+|"+$/g, '');
+    return str.replace(/^\"+|\"+$/g, '');
 }
 
 const createBranchPoints = (coords) => {
@@ -258,8 +284,8 @@ const setInitialCameraPosition = (coords) => {
   const zMax = getZMax(coords);
   const yValues = Array.from(coords.map(coord => coord.y));
   const xValues = Array.from(coords.map(coord => coord.x));
-  const yMedian = getMedian(yValues);
-  const xMedian = getMedian(xValues);
+  const yMedian = getMedian(yValues) * 100;
+  const xMedian = getMedian(xValues) * 100;
 
   const camera_el = document.getElementById("rig");
   camera_el.object3D.position.set(xMedian, yMedian, zMax + 1.2);
@@ -309,7 +335,9 @@ const renderStream = async () => {
       const branch_el = document.getElementById(branch);
       branch_el.innerHTML = points.join(" ")
   });
+  renderStreamCells();
 }
+renderStream();
 
 const renderStreamCells = async () => {
   const cells = await getFileText("cells");

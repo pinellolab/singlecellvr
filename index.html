@@ -5,15 +5,17 @@
     <script src="https://rawgit.com/blairmacintyre/aframe-look-at-billboard-component/master/dist/aframe-look-at-billboard-component.min.js"></script>
     <script src="https://rawgit.com/rdub80/aframe-gui/master/dist/aframe-gui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.4.5/fuse.min.js"></script>
+    <script src="https://rawgit.com/andreasplesch/aframe-meshline-component/master/dist/aframe-meshline-component.min.js"></script>
   </head>
   <body>
     <a-scene id="test">
         <!-- TODO: Change positioning such that hud and main content cannot overlap -->
         <a-entity id="rig">
             <a-entity camera look-controls wasd-controls id="curve-camera">
-                <a-entity id="hud" geometry="primitive: plane; width: .5; height: .5;" material="color: black; opacity: .9;">
+                <a-entity id="hud" geometry="primitive: plane; width: .5; height: .5;" material="color: black; opacity: .5;">
                   <a-entity id="hudMapContainer">
-                      <a-entity scale=".01 .01 .01"  id="curve-map">
+                      <a-entity scale=".02 .02 .02" id="thicklinesMap"></a-entity>
+                      <a-entity scale=".01 .01 .01" id="curve-map">
 
                       </a-entity>
                       <a-entity scale=".01 .01 .01" id="draw-map">
@@ -33,6 +35,7 @@
       
       <a-entity id="mainContainer">
         <a-entity id="drawContainer" animation="property: rotation; dir: reverse; easing: linear; to: 0 360 0; loop: true; dur: 30000">
+          <a-entity id="thicklines"></a-entity>
           <a-entity id="curve-container">
 
           </a-entity>
