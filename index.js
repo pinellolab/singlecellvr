@@ -135,21 +135,17 @@ const viewGene = (geneFileName) => {
   });
 }
 
-// document.querySelector('a-scene').addEventListener('enter-vr', () => {
-//   const hud = document.getElementById("hud");
-//   hud.setAttribute('material', 'color', 'white');
-//   hud.object3D.position.set(-0.05, .0235, -0.04);
-//   hud.setAttribute('geometry', 'width', '.019');
-//   hud.setAttribute('geometry', 'height', '.019');
-// });
+document.querySelector('a-scene').addEventListener('enter-vr', () => {
+  const hud = document.getElementById("hud");
+  hud.setAttribute('material', 'color', 'white');
+  setHudPosition(visibleWidthAtZDepth(-1) - .5, visibleHeightAtZDepth(-1), -1);
+});
 
 
 document.querySelector('a-scene').addEventListener('exit-vr', () => {
   const hud = document.getElementById("hud");
   hud.setAttribute('material', 'color', 'gray');
-  hud.object3D.position.set(-0.06, .023, -0.04);
-  hud.setAttribute('geometry', 'width', '.022');
-  hud.setAttribute('geometry', 'height', '.022');
+  setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
 });
 
 const getZMax = (coords) => {
@@ -228,6 +224,7 @@ const renderPaga = async () => {
     nodePositions[cell_point.node_id] = {"x": x, "y": y, "z": -1};
   });
   cell_el.innerHTML = cellEntities.join(" ");
+  const thickLines = [];
   branch_els.forEach((branch) => {
     const curveref = branch.split(" ");
     // TODO: Bad, evil, fix!
@@ -235,14 +232,17 @@ const renderPaga = async () => {
     const [startNode, endNode] = strip(curveid).split("_");
     const startPoint = `<a-curve-point position="${nodePositions[startNode].x} ${nodePositions[startNode].y} ${nodePositions[startNode].z}"></a-curve-point>`;
     const endPoint = `<a-curve-point position="${nodePositions[endNode].x} ${nodePositions[endNode].y} ${nodePositions[endNode].z}"></a-curve-point>`;
+    const thickLine = `<a-entity meshline="lineWidth: 5; path: ${nodePositions[startNode].x} ${nodePositions[startNode].y} ${nodePositions[startNode].z}, ${nodePositions[endNode].x} ${nodePositions[endNode].y} ${nodePositions[endNode].z}; color: #E20049"></a-entity>`
     const branch_el = document.getElementById(startNode + "_" + endNode);
+    thickLines.push(thickLine);
     branch_el.innerHTML = [startPoint, endPoint].join(" ");
   });
+  document.getElementById("thicklines").innerHTML = thickLines.join(" ");
 }
 renderPaga();
 
 const strip = (str) => {
-    return str.replace(/^\"+|\"+$/g, '');
+    return str.replace(/^"+|"+$/g, '');
 }
 
 const createBranchPoints = (coords) => {
@@ -271,7 +271,7 @@ const createCurveEnities = (branches) => {
   branches.forEach((branch, _) => {
       const branch_el = `<a-curve id="${branch}" ></a-curve>`;
       branch_els.push(branch_el);
-      const branch_draw_el = `<a-draw-curve curveref="#${branch}" material="shader: line; color: blue;"></a-draw-curve>`;
+      const branch_draw_el = `<a-draw-curve curveref="#${branch}" material="shader: line; color: blue;" geometry="primitive: " ></a-draw-curve>`;
       branch_draw_els.push(branch_draw_el);
   });
   return [branch_els, branch_draw_els];
