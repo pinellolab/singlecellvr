@@ -60,8 +60,48 @@ let currentState = "stop";
 
 const geneList = [{"gene":"emb"}, {"gene":"epor"}, {"gene":"epx"}];
 
+const movement = (num) => {
+  let direction = new THREE.Vector3();
+  const camera = AFRAME.scenes[0].camera;
+  camera.getWorldDirection( direction );
+  direction.multiplyScalar(num);
+  const cameraEl = document.getElementById('rig');
+  var pos = cameraEl.getAttribute("position");
+  pos.x += direction.x
+  pos.y += direction.y
+  pos.z += direction.z
+  const mapPlayer = document.getElementById('mapPlayer').object3D;
+  mapPlayer.position.set((pos.x + direction.x)  * .01, (pos.y + direction.y) * .01, (pos.z + direction.z) * .01);
+  if (mapPlayer.position.x > .247 && mapPlayer.visible) {
+    mapPlayer.visible = false;
+  } else if (mapPlayer.position.y < -.247 && mapPlayer.visible) {
+    mapPlayer.visible = false
+  } else if (mapPlayer.position.x < .247 && mapPlayer.position.y > -.247 && !mapPlayer.visible) {
+    mapPlayer.visible = true;
+  }
+}
+
+// const simpleMovement = (num) => {
+//   const rig = document.getElementById('rig').object3D;
+//   const mapPlayer = document.getElementById('mapPlayer').object3D;
+//   let x = mapPlayer.position.x;
+//   let y = mapPlayer.position.y;
+//   let z = mapPlayer.position.z;
+//   rig.position.set(rig.position.x + num, rig.position.y, rig.position.z);
+//   console.log(x + (num * .01))
+//   mapPlayer.position.set(x + (num * .01), y, z);
+//   console.log(mapPlayer.position.x)
+//   if (mapPlayer.position.x > .247 && mapPlayer.visible) {
+//     mapPlayer.visible = false;
+//   } else if (mapPlayer.position.y < -.247 && mapPlayer.visible) {
+//     mapPlayer.visible = false
+//   } else if (mapPlayer.position.x < .247 && mapPlayer.position.y > -.247 && !mapPlayer.visible) {
+//     mapPlayer.visible = true;
+//   }
+// }
+
 let currentSearch = '';
-document.body.addEventListener('keypress', (e) => {
+document.body.addEventListener('keydown', (e) => {
   var options = {
     shouldSort: true,
     threshold: 0.6,
@@ -78,11 +118,17 @@ document.body.addEventListener('keypress', (e) => {
   let result2 = '';
   let result3 = '';
   if (e.code === 'Space') {
-    summonMenu()
+    summonMenu();
+    currentSearch = '';
+  } else if (e.keyCode === 38) { 
+    // moveCamera(e);
+    movement(.05);
+  } else if (e.keyCode === 40) {
+    movement(-.05);  
   } else if (e.code === 'Enter') {
     currentSearch = '';
     viewGene('cells');
-  } else {
+  } else if (e.key.length === 1) {
     currentSearch = currentSearch + e.key; 
     let fuse = new Fuse(geneList, options);
     let result = fuse.search(currentSearch);
@@ -112,6 +158,7 @@ setInterval(() => {
     hudMapContainer.object3D.rotation.set(drawContainerRotation._x, drawContainerRotation._y, drawContainerRotation._z);
 }, 50);
 
+document.getElementById("drawContainer").pause();
 document.getElementById("pauseGlobalRotation").addEventListener("click", () => {
   const drawContainer = document.getElementById("drawContainer");
   const isRotating = drawContainer.isPlaying;
@@ -164,19 +211,35 @@ const getMedian = (values) => {
     return sorted[Math.floor(sorted.length/2)];
 }
 
+const getBranchConnections = (branches) => {
+  const connections = {};
+  branches.forEach((branch) => {
+    const [start, end] = strip(branch.branch_id).split("_");
+    if (!(start in connections)) {
+      connections[start] = [end];
+    } else {
+      connections[start].push(end);
+    }
+  });
+  return connections;
+}
 
-const getCameraTrajectory = () => {
-    return fetch('curves.json')
-        .then(response => response.text())
-        .then(text => {
-            const coords = JSON.parse(text);
-            const positions = [];
-            coords.forEach((coord, _) => {
-                const position = `${coord.x} ${coord.y} ${coord.z}`;
-                positions.push(position);
-            });
-            return positions;
-        });
+const getCameraTrajectory = async () => {
+    const response = await fetch('stream.json');
+    const text = await response.text();
+    const branches = JSON.parse(text);
+    const connections = getBranchConnections(branches);
+    console.log(connections);
+    const branchPositions = {};
+    branches.forEach((branch) => {
+      const positions = [];
+      branch.xyz.forEach((coord, _) => {
+          const position = `${coord.x} ${coord.y} ${coord.z}`;
+          positions.push(position);
+      });
+      branchPositions[branch.branch_id] = positions;
+    });
+    return [branchPositions, connections];
 };
 
 const groupBy = (list, keyGetter) => {
@@ -199,6 +262,27 @@ const getFileText = (name) => {
     .then(text => {
         return JSON.parse(text);
     });
+}
+
+const createCellMetadataObject = async () => {
+  const metadata = await getFileText("metadata");
+  const cellObjects = {};
+  metadata.forEach((cell) => {
+    cellObjects[cell.cell_id] = {"label": cell.label, "label_color": cell.label_color,}
+  });
+  return cellObjects;
+}
+
+const renderPagaCells = async () => {
+  const cells = await getFileText("scatter");
+  const cellObjects = await createCellMetadataObject();
+  const cellEntities = Array.from(cells.map((cell) => {
+    const x = cell.x * .0004;
+    const y = cell.y * .0004;
+    const color = cellObjects[cell.cell_id].label_color;
+    return `<a-sphere id="${cell.cell_id}" position="${x} ${y} -1" radius=".03" color="${color}"></a-sphere>`
+  }));
+  document.getElementById('pagacells').innerHTML = cellEntities.join(" ");
 }
 
 const parsePagaMetadata = async () => {
@@ -248,7 +332,7 @@ const renderPaga = async () => {
   nodes.forEach((cell_point, _) => {
     let x = cell_point.xy.x * .0004;
     let y = cell_point.xy.y * .0004;
-    const stream_cell = `<a-sphere text="value: ${cell_point.node_name}; width: 6; color: black; align: center;" id="${cell_point.node_id}" position="${x} ${y} -1" color="${clusterColors[cell_point.node_name]}" radius=".1"></a-sphere>`;
+    const stream_cell = `<a-sphere text="value: ${cell_point.node_name}; width: 6; color: black; align: center; side: double; zOffset: .1" id="${cell_point.node_id}" position="${x} ${y} -1" color="${clusterColors[cell_point.node_name]}" radius=".1"></a-sphere>`;
     cellEntities.push(stream_cell);
     nodePositions[cell_point.node_id] = {"x": x, "y": y, "z": -1};
   });
@@ -264,6 +348,7 @@ const renderPaga = async () => {
   });
   document.getElementById("thicklines").innerHTML = thickLines.join(" ");
   document.getElementById("thicklinesMap").innerHTML = thickLines.join(" ");
+  renderPagaCells()
 }
 // renderPaga();
 
@@ -297,7 +382,7 @@ const createCurveEnities = (branches) => {
   branches.forEach((branch, _) => {
       const branch_el = `<a-curve id="${branch}" ></a-curve>`;
       branch_els.push(branch_el);
-      const branch_draw_el = `<a-draw-curve curveref="#${branch}" material="shader: line; color: blue;" geometry="primitive: " ></a-draw-curve>`;
+      const branch_draw_el = `<a-draw-curve cursor-listener class="${branch}" curveref="#${branch}" material="shader: line; color: blue;" geometry="primitive: " ></a-draw-curve>`;
       branch_draw_els.push(branch_draw_el);
   });
   return [branch_els, branch_draw_els];
@@ -317,7 +402,10 @@ const setDrawContainerContent = (branch_els, branch_draw_els) => {
 const renderStream = async () => {
   const coords = await getFileText("curves");
   setInitialCameraPosition(coords);  
-
+  const camvec = new THREE.Vector3();
+  const camera = AFRAME.scenes[0].camera;
+  camera.getWorldPosition(camvec);
+  document.getElementById('draw-map').object3D.lookAt(-camera.position.x, -camera.position.y, -camera.position.z);
   const branches = [];
   coords.forEach((coord, _) => {
       if (!branches.includes(coord.branch_id)) {
@@ -352,41 +440,54 @@ const renderStreamCells = async () => {
 
 let clickCount = 1;
 
-let positionIndex = 0
-const moveForward = (positions) => {
-    if (positionIndex !== positions.length) {
-      const camera_el = document.getElementById("rig");
-      let position = positions[positionIndex].split(" ");
-      const scaled = position.map((coord) => {
-          return coord * 100;
-      });
-      camera_el.object3D.position.set(...scaled);
-      positionIndex = positionIndex + 1;
-    }
+const move = (position) => {
+    const camera_el = document.getElementById("rig");
+    let positionSplit = position.split(" ");
+    const scaled = positionSplit.map((coord) => {
+        return coord * 100;
+    });
+    camera_el.object3D.position.set(...scaled);
 }
 
-const moveBackward = (positions) => {
-    if (positionIndex !== 0) {
-      const camera_el = document.getElementById("rig");
-      let position = positions[positionIndex].split(" ");
-      const scaled = position.map((coord) => {
-          return coord * 100;
+let positionIndex = 0;
+let currentBranch = "S0_S1";
+const moveCamera = async (e) => {
+  const [branchPositions, connections] = await getCameraTrajectory();
+  if (e.keyCode === 38) {
+    if (positionIndex !== branchPositions[currentBranch].length) {
+      makeIntersectable(["null"]);
+      move(branchPositions[currentBranch][positionIndex]);
+      positionIndex += 1;
+    } else {
+      const [start, end] = strip(currentBranch).split("_");
+      const availBranches = [];
+      connections[start].forEach((connection) => {
+        if (connection !== end) {
+          availBranches.push(`.${start}_${connection}`);
+        }
       });
-      camera_el.object3D.position.set(...scaled);
-      positionIndex = positionIndex - 1;
+      if (end in connections) {
+        connections[end].forEach((connection) => {
+          if (connection !== end) {
+            availBranches.push(`.${end}_${connection}`);
+          }
+        });
+      }
+      makeIntersectable(availBranches);
     }
+  } else if (e.keyCode === 40) {
+    if (positionIndex >= 0) {
+      positionIndex = Math.max(positionIndex-1, 0);
+      move(branchPositions[currentBranch][positionIndex])
+    }
+  }
 }
 
-const moveCamera = async () => {
-    const positions = await getCameraTrajectory();
-    setInterval(() => {
-        if (currentState === "forward") {
-            moveForward(positions);
-        }
-        else if (currentState === "backward") {
-            moveBackward(positions);
-        }
-    }, 300);
+// TODO: Quick and dirty. strips everything besides gui-interactable. Fix Later
+const makeIntersectable = (objects) => {
+  const cursor = document.getElementById("cursor");
+  const currentIntersectable = cursor.getAttribute('raycaster');
+  cursor.setAttribute('raycaster', 'objects', '[gui-interactable], ' + objects.join(", "));
 }
 
 document.querySelector('a-scene').addEventListener('enter-vr', () => {
@@ -410,6 +511,3 @@ document.querySelector('a-scene').addEventListener('enter-vr', () => {
 
 });
 
-
-
-moveCamera();
