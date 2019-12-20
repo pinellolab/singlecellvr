@@ -302,4 +302,5 @@ def update_output(uploaded_filenames, uploaded_file_contents):
 
 
 if __name__ == "__main__":
+    print(os.environ['PORT'])
     app.run_server(port=os.environ['PORT'], debug=True)
