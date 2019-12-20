@@ -58,6 +58,10 @@ def download(path):
 def serve_static(uid):
 	return render_template('index.html', name=uid)
 
+@app.server.route('/help/')
+def show_help():
+    return render_template('help.html')
+
 # @app.server.route('/view/<uid>')
 # def serve_static2(uid):
 # 	return render_template('index.html', name=uid)
@@ -97,7 +101,7 @@ app.layout = html.Div(
                 #     id="description",
                 #     children="† Single Cell Virtual Reality is a web tool for single-cell data exploration. VR Headset device required. Google Cardboard is currently the primarily supported headset for this data visualization software.",
                 # ),
-                html.Button("Help", id='button-help',disabled=True,n_clicks=0,style={'height': 40,'width':150})
+                html.A(html.Button("Help", id='button-help',disabled=False,n_clicks=0,style={'height': 40,'width':150}),href='/help/'),
             ],
         ),
         html.Div(
@@ -145,7 +149,8 @@ app.layout = html.Div(
                                         'borderStyle': 'dashed',
                                         'borderRadius': '5px',
                                         'textAlign': 'center',
-                                        'margin': '7px'
+                                        'margin': '7px',
+                                        'vertical-align': 'middle',
                                     },
                                     # Allow multiple files to be uploaded
                                     multiple=True
@@ -313,5 +318,5 @@ def update_output(uploaded_filenames, uploaded_file_contents):
 
 
 if __name__ == "__main__":
-    app.run_server(port=os.environ['PORT'])
-    # app.run_server(port=8050,debug=True)
+    # app.run_server(port=os.environ['PORT'])
+    app.run_server(port=8050,debug=True)
