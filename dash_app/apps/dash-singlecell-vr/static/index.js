@@ -543,6 +543,7 @@ const initialize = async (uuid) => {
     cameraTrajectory = getCameraTrajectory(JSON.parse(streamFile));
     makeIntersectable(branchClasses);
     document.getElementById('legend').remove();
+    document.getElementById("moveToggle").remove();
     renderStream(JSON.parse(streamFile), JSON.parse(scatterFile), JSON.parse(metadataFile));
   }
   geneList = getGeneList(result);
