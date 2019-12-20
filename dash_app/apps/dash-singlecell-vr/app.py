@@ -8,6 +8,28 @@ import dash_html_components as html
 import pandas as pd
 from dash.dependencies import Input, Output, State
 import cufflinks as cf
+from flask import Flask, send_from_directory,redirect
+from urllib.parse import quote as urlquote
+import base64
+import uuid
+
+# Load data
+
+APP_PATH = str(pathlib.Path(__file__).parent.resolve())
+
+UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
+AFRAME_DIRECTORY = os.path.join(APP_PATH,"aframe")
+
+# "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
+
+if not os.path.exists(UPLOAD_DIRECTORY):
+    os.makedirs(UPLOAD_DIRECTORY)
+
+# Normally, Dash creates its own Flask server internally. By creating our own,
+# we can create a route for downloading files directly:
+# server = Flask(__name__)
+# app = dash.Dash(server=server)
+
 
 # Initialize app
 
@@ -19,71 +41,35 @@ app = dash.Dash(
 )
 server = app.server
 
-# Load data
+@server.route("/download/<path:path>")
+def download(path):
+    """Serve a file from the upload directory."""
+    return send_from_directory(UPLOAD_DIRECTORY, path, as_attachment=True)
 
-APP_PATH = str(pathlib.Path(__file__).parent.resolve())
+@app.server.route('/aframe/<resource>')
+def serve_static(resource):
+    return send_from_directory(AFRAME_DIRECTORY, resource)
 
-df_lat_lon = pd.read_csv(
-    os.path.join(APP_PATH, os.path.join("data", "lat_lon_counties.csv"))
-)
-df_lat_lon["FIPS "] = df_lat_lon["FIPS "].apply(lambda x: str(x).zfill(5))
+# df_lat_lon = pd.read_csv(
+#     os.path.join(APP_PATH, os.path.join("data", "lat_lon_counties.csv"))
+# )
+# df_lat_lon["FIPS "] = df_lat_lon["FIPS "].apply(lambda x: str(x).zfill(5))
 
-df_full_data = pd.read_csv(
-    os.path.join(
-        APP_PATH, os.path.join("data", "age_adjusted_death_rate_no_quotes.csv")
-    )
-)
-df_full_data["County Code"] = df_full_data["County Code"].apply(
-    lambda x: str(x).zfill(5)
-)
-df_full_data["County"] = (
-    df_full_data["Unnamed: 0"] + ", " + df_full_data.County.map(str)
-)
+# df_full_data = pd.read_csv(
+#     os.path.join(
+#         APP_PATH, os.path.join("data", "age_adjusted_death_rate_no_quotes.csv")
+#     )
+# )
+# df_full_data["County Code"] = df_full_data["County Code"].apply(
+#     lambda x: str(x).zfill(5)
+# )
+# df_full_data["County"] = (
+#     df_full_data["Unnamed: 0"] + ", " + df_full_data.County.map(str)
+# )
 
-YEARS = [2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015]
 
-BINS = [
-    "0-2",
-    "2.1-4",
-    "4.1-6",
-    "6.1-8",
-    "8.1-10",
-    "10.1-12",
-    "12.1-14",
-    "14.1-16",
-    "16.1-18",
-    "18.1-20",
-    "20.1-22",
-    "22.1-24",
-    "24.1-26",
-    "26.1-28",
-    "28.1-30",
-    ">30",
-]
-
-DEFAULT_COLORSCALE = [
-    "#f2fffb",
-    "#bbffeb",
-    "#98ffe0",
-    "#79ffd6",
-    "#6df0c8",
-    "#69e7c0",
-    "#59dab2",
-    "#45d0a5",
-    "#31c194",
-    "#2bb489",
-    "#25a27b",
-    "#1e906d",
-    "#188463",
-    "#157658",
-    "#11684d",
-    "#10523e",
-]
-
-DEFAULT_OPACITY = 0.8
-
-mapbox_access_token = "pk.eyJ1IjoicGxvdGx5bWFwYm94IiwiYSI6ImNqdnBvNDMyaTAxYzkzeW5ubWdpZ2VjbmMifQ.TXcBE-xg9BFdV2ocecc_7g"
-mapbox_style = "mapbox://styles/plotlymapbox/cjvprkf3t1kns1cqjxuxmwixz"
+# mapbox_access_token = "pk.eyJ1IjoicGxvdGx5bWFwYm94IiwiYSI6ImNqdnBvNDMyaTAxYzkzeW5ubWdpZ2VjbmMifQ.TXcBE-xg9BFdV2ocecc_7g"
+# mapbox_style = "mapbox://styles/plotlymapbox/cjvprkf3t1kns1cqjxuxmwixz"
 
 # App layout
 
@@ -152,7 +138,7 @@ app.layout = html.Div(
                         html.Div(
                             id="heatmap-container2",
                             children=[
-                                html.P("Upload your data:",
+                                html.P("Or upload your data:",
                                     id="heatmap-title"),
                                 dcc.Upload(
                                     id='upload-data',
@@ -174,46 +160,12 @@ app.layout = html.Div(
                                     multiple=True
                                 ),
                                 html.Div(id='output-data-upload'),
+                                # html.P("Uploaded files:",id="heatmap-title2"),
+                                html.Ul(id="file-list"),
+                                html.Div(id='intermediate-value')
+                                # html.Div(id='intermediate-value', style={'display': 'none'})
                             ],
                         )
-                        # html.Div(
-                        #     id="heatmap-container",
-                        #     children=[
-                        #         html.P(
-                        #             "Heatmap of age adjusted mortality rates \
-                        #     from poisonings in year {0}".format(
-                        #                 min(YEARS)
-                        #             ),
-                        #             id="heatmap-title",
-                        #         ),
-                        #         dcc.Graph(
-                        #             id="county-choropleth",
-                        #             figure=dict(
-                        #                 data=[
-                        #                     dict(
-                        #                         lat=df_lat_lon["Latitude "],
-                        #                         lon=df_lat_lon["Longitude"],
-                        #                         text=df_lat_lon["Hover"],
-                        #                         type="scattermapbox",
-                        #                     )
-                        #                 ],
-                        #                 layout=dict(
-                        #                     mapbox=dict(
-                        #                         layers=[],
-                        #                         accesstoken=mapbox_access_token,
-                        #                         style=mapbox_style,
-                        #                         center=dict(
-                        #                             lat=38.72490, lon=-95.61446
-                        #                         ),
-                        #                         pitch=0,
-                        #                         zoom=3.5,
-                        #                     ),
-                        #                     autosize=True,
-                        #                 ),
-                        #             ),
-                        #         ),
-                        #     ],
-                        # ),
                     ],
                 ),
                 html.Div(
@@ -225,7 +177,11 @@ app.layout = html.Div(
                                 html.P(id="chart-selector", children="Enter VR World:"),
                                 html.Div([
                                     # html.Div(dcc.Input(id='input-box', type='text')),
-                                    html.A(html.Button("Let's fly!", id='button'),href='http://singlecellvr.com/'),
+                                    html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),
+                                    # html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href='/aframe/index.html'),
+                                    html.Div(id='output-container-button',children='')
+                                    # html.Div(dcc.Input(id='input-box', type='text')),
+                                    # html.A(html.Button("Let's fly!", id='button'),href='http://singlecellvr.com/'),
                                 ]),
                             ],
                         ),
@@ -250,6 +206,28 @@ app.layout = html.Div(
     ],
 )
 
+def save_file(name, content):
+    """Decode and store a file uploaded with Plotly Dash."""
+    data = content.encode("utf8").split(b";base64,")[1]
+    unique_id = str(uuid.uuid1())
+    with open(os.path.join(UPLOAD_DIRECTORY, unique_id+'.zip'), "wb") as fp:
+        fp.write(base64.decodebytes(data))
+    return unique_id
+
+def uploaded_files():
+    """List the files in the upload directory."""
+    files = []
+    for filename in os.listdir(UPLOAD_DIRECTORY):
+        path = os.path.join(UPLOAD_DIRECTORY, filename)
+        if ((os.path.isfile(path)) and (not filename.startswith('.'))):
+            files.append(filename)
+    return files
+
+def file_download_link(filename):
+    """Create a Plotly Dash 'A' element that downloads a file from the app."""
+    location = "/download/{}".format(urlquote(filename))
+    return html.A(filename, href=location)
+
 
 @app.callback(
     dash.dependencies.Output('dd-output-container', 'children'),
@@ -257,233 +235,57 @@ app.layout = html.Div(
 def update_output(value):
     return 'You have selected "{}"'.format(value)
 
+
 # @app.callback(
-#     Output("county-choropleth", "figure"),
-#     [Input("years-slider", "value")],
-#     [State("county-choropleth", "figure")],
-# )
-def display_map(year, figure):
-    cm = dict(zip(BINS, DEFAULT_COLORSCALE))
-
-    data = [
-        dict(
-            lat=df_lat_lon["Latitude "],
-            lon=df_lat_lon["Longitude"],
-            text=df_lat_lon["Hover"],
-            type="scattermapbox",
-            hoverinfo="text",
-            marker=dict(size=5, color="white", opacity=0),
-        )
-    ]
-
-    annotations = [
-        dict(
-            showarrow=False,
-            align="right",
-            text="<b>Age-adjusted death rate<br>per county per year</b>",
-            font=dict(color="#2cfec1"),
-            bgcolor="#1f2630",
-            x=0.95,
-            y=0.95,
-        )
-    ]
-
-    for i, bin in enumerate(reversed(BINS)):
-        color = cm[bin]
-        annotations.append(
-            dict(
-                arrowcolor=color,
-                text=bin,
-                x=0.95,
-                y=0.85 - (i / 20),
-                ax=-60,
-                ay=0,
-                arrowwidth=5,
-                arrowhead=0,
-                bgcolor="#1f2630",
-                font=dict(color="#2cfec1"),
-            )
-        )
-
-    if "layout" in figure:
-        lat = figure["layout"]["mapbox"]["center"]["lat"]
-        lon = figure["layout"]["mapbox"]["center"]["lon"]
-        zoom = figure["layout"]["mapbox"]["zoom"]
-    else:
-        lat = (38.72490,)
-        lon = (-95.61446,)
-        zoom = 3.5
-
-    layout = dict(
-        mapbox=dict(
-            layers=[],
-            accesstoken=mapbox_access_token,
-            style=mapbox_style,
-            center=dict(lat=lat, lon=lon),
-            zoom=zoom,
-        ),
-        hovermode="closest",
-        margin=dict(r=0, l=0, t=0, b=0),
-        annotations=annotations,
-        dragmode="lasso",
-    )
-
-    base_url = "https://raw.githubusercontent.com/jackparmer/mapbox-counties/master/"
-    for bin in BINS:
-        geo_layer = dict(
-            sourcetype="geojson",
-            source=base_url + str(year) + "/" + bin + ".geojson",
-            type="fill",
-            color=cm[bin],
-            opacity=DEFAULT_OPACITY,
-            # CHANGE THIS
-            fill=dict(outlinecolor="#afafaf"),
-        )
-        layout["mapbox"]["layers"].append(geo_layer)
-
-    fig = dict(data=data, layout=layout)
-    return fig
-
-
-# @app.callback(Output("heatmap-title", "children"), [Input("years-slider", "value")])
-# def update_map_title(year):
-#     return "Heatmap of age adjusted mortality rates \
-# 				from poisonings in year {0}".format(
-#         year
+#     dash.dependencies.Output('output-container-button', 'children'),
+#     [dash.dependencies.Input('button', 'n_clicks')])
+# def update_output(n_clicks, value):
+#     return 'The input value was "{}" and the button has been clicked {} times'.format(
+#         value,
+#         n_clicks
 #     )
 
 
 # @app.callback(
-#     Output("selected-data", "figure"),
-#     [
-#         # Input("county-choropleth", "selectedData"),
-#         Input("chart-dropdown", "value"),
-#         Input("years-slider", "value"),
-#     ],
-# )
-def display_selected_data(selectedData, chart_dropdown, year):
-    if selectedData is None:
-        return dict(
-            data=[dict(x=0, y=0)],
-            layout=dict(
-                title="Click-drag on the map to select counties",
-                paper_bgcolor="#1f2630",
-                plot_bgcolor="#1f2630",
-                font=dict(color="#2cfec1"),
-                margin=dict(t=75, r=50, b=100, l=75),
-            ),
-        )
-    pts = selectedData["points"]
-    fips = [str(pt["text"].split("<br>")[-1]) for pt in pts]
-    for i in range(len(fips)):
-        if len(fips[i]) == 4:
-            fips[i] = "0" + fips[i]
-    dff = df_full_data[df_full_data["County Code"].isin(fips)]
-    dff = dff.sort_values("Year")
+#     [Output('button','disabled'),Output('output-container-button', 'children')],
+#     [Input('button', 'n_clicks'),Input('intermediate-value', 'children')])
+# def update_output(n_clicks,unique_id):
+# 	files = uploaded_files()
+# 	if len(files) == 0 or n_clicks<2:
+# 		return [False,'no files yet']
+# 	else:
+# 		# return [False,[html.Li(file_download_link(filename+unique_id)) for filename in files]]
+# 		return redirect('/aframe/index.html')
 
-    regex_pat = re.compile(r"Unreliable", flags=re.IGNORECASE)
-    dff["Age Adjusted Rate"] = dff["Age Adjusted Rate"].replace(regex_pat, 0)
+@app.callback(
+    Output('output-container-button', 'children'),
+    [Input('button', 'n_clicks'),Input('intermediate-value', 'children')])
+def update_output(n_clicks,unique_id):
+	files = uploaded_files()
+	if len(files) == 0 or n_clicks<2:
+		return 'no files yet'
+	else:
+		# return [False,[html.Li(file_download_link(filename+unique_id)) for filename in files]]
+		return redirect('/aframe/index.html')
 
-    if chart_dropdown != "death_rate_all_time":
-        title = "Absolute deaths per county, <b>1999-2016</b>"
-        AGGREGATE_BY = "Deaths"
-        if "show_absolute_deaths_single_year" == chart_dropdown:
-            dff = dff[dff.Year == year]
-            title = "Absolute deaths per county, <b>{0}</b>".format(year)
-        elif "show_death_rate_single_year" == chart_dropdown:
-            dff = dff[dff.Year == year]
-            title = "Age-adjusted death rate per county, <b>{0}</b>".format(year)
-            AGGREGATE_BY = "Age Adjusted Rate"
+@app.callback(
+    [Output("file-list", "children"),Output("intermediate-value", "children")],
+    [Input("upload-data", "filename"), Input("upload-data", "contents")],
+)
+def update_output(uploaded_filenames, uploaded_file_contents):
+    """Save uploaded files and regenerate the file list."""
 
-        dff[AGGREGATE_BY] = pd.to_numeric(dff[AGGREGATE_BY], errors="coerce")
-        deaths_or_rate_by_fips = dff.groupby("County")[AGGREGATE_BY].sum()
-        deaths_or_rate_by_fips = deaths_or_rate_by_fips.sort_values()
-        # Only look at non-zero rows:
-        deaths_or_rate_by_fips = deaths_or_rate_by_fips[deaths_or_rate_by_fips > 0]
-        fig = deaths_or_rate_by_fips.iplot(
-            kind="bar", y=AGGREGATE_BY, title=title, asFigure=True
-        )
-
-        fig_layout = fig["layout"]
-        fig_data = fig["data"]
-
-        fig_data[0]["text"] = deaths_or_rate_by_fips.values.tolist()
-        fig_data[0]["marker"]["color"] = "#2cfec1"
-        fig_data[0]["marker"]["opacity"] = 1
-        fig_data[0]["marker"]["line"]["width"] = 0
-        fig_data[0]["textposition"] = "outside"
-        fig_layout["paper_bgcolor"] = "#1f2630"
-        fig_layout["plot_bgcolor"] = "#1f2630"
-        fig_layout["font"]["color"] = "#2cfec1"
-        fig_layout["title"]["font"]["color"] = "#2cfec1"
-        fig_layout["xaxis"]["tickfont"]["color"] = "#2cfec1"
-        fig_layout["yaxis"]["tickfont"]["color"] = "#2cfec1"
-        fig_layout["xaxis"]["gridcolor"] = "#5b5b5b"
-        fig_layout["yaxis"]["gridcolor"] = "#5b5b5b"
-        fig_layout["margin"]["t"] = 75
-        fig_layout["margin"]["r"] = 50
-        fig_layout["margin"]["b"] = 100
-        fig_layout["margin"]["l"] = 50
-
-        return fig
-
-    fig = dff.iplot(
-        kind="area",
-        x="Year",
-        y="Age Adjusted Rate",
-        text="County",
-        categories="County",
-        colors=[
-            "#1b9e77",
-            "#d95f02",
-            "#7570b3",
-            "#e7298a",
-            "#66a61e",
-            "#e6ab02",
-            "#a6761d",
-            "#666666",
-            "#1b9e77",
-        ],
-        vline=[year],
-        asFigure=True,
-    )
-
-    for i, trace in enumerate(fig["data"]):
-        trace["mode"] = "lines+markers"
-        trace["marker"]["size"] = 4
-        trace["marker"]["line"]["width"] = 1
-        trace["type"] = "scatter"
-        for prop in trace:
-            fig["data"][i][prop] = trace[prop]
-
-    # Only show first 500 lines
-    fig["data"] = fig["data"][0:500]
-
-    fig_layout = fig["layout"]
-
-    # See plot.ly/python/reference
-    fig_layout["yaxis"]["title"] = "Age-adjusted death rate per county per year"
-    fig_layout["xaxis"]["title"] = ""
-    fig_layout["yaxis"]["fixedrange"] = True
-    fig_layout["xaxis"]["fixedrange"] = False
-    fig_layout["hovermode"] = "closest"
-    fig_layout["title"] = "<b>{0}</b> counties selected".format(len(fips))
-    fig_layout["legend"] = dict(orientation="v")
-    fig_layout["autosize"] = True
-    fig_layout["paper_bgcolor"] = "#1f2630"
-    fig_layout["plot_bgcolor"] = "#1f2630"
-    fig_layout["font"]["color"] = "#2cfec1"
-    fig_layout["xaxis"]["tickfont"]["color"] = "#2cfec1"
-    fig_layout["yaxis"]["tickfont"]["color"] = "#2cfec1"
-    fig_layout["xaxis"]["gridcolor"] = "#5b5b5b"
-    fig_layout["yaxis"]["gridcolor"] = "#5b5b5b"
-
-    if len(fips) > 500:
-        fig["layout"][
-            "title"
-        ] = "Age-adjusted death rate per county per year <br>(only 1st 500 shown)"
-
-    return fig
+    if uploaded_filenames is not None and uploaded_file_contents is not None:
+        for name, data in zip(uploaded_filenames, uploaded_file_contents):
+            unique_id = save_file(name, data)
+            return [[html.P('File ' + name + ' has been uploaded.')],unique_id]
+    else:
+    	return [[html.P("No files yet!")],'']
+    # files = uploaded_files()
+    # if len(files) == 0:
+    #     return [html.Li("No files yet!")]
+    # else:
+    #     return [html.Li(file_download_link(filename)) for filename in files]
 
 
 if __name__ == "__main__":

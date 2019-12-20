@@ -687,6 +687,12 @@ hr {
     font-size: 2rem;
 }
 
+#heatmap-title2 {
+    margin: 0;
+    /*padding: 1rem;*/
+    font-size: 2rem;
+}
+
 #upload-data {
     margin: 0;
     padding: 10rem 3rem 3rem 3rem;
