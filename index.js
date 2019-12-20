@@ -511,7 +511,6 @@ const makeIntersectable = (objects) => {
   const cursor = document.getElementById("cursor");
   const currentIntersectable = cursor.getAttribute('raycaster');
   cursor.setAttribute('raycaster', 'objects', '[gui-interactable], ' + objects.join(", "));
-  console.log(cursor.getAttribute('raycaster').objects);
 }
 
 const getGeneList = (report) => {
@@ -543,6 +542,7 @@ const initialize = async (uuid) => {
     cameraTrajectory = getCameraTrajectory(JSON.parse(streamFile));
     makeIntersectable(branchClasses);
     document.getElementById('legend').remove();
+    document.getElementById("moveToggle").remove();
     renderStream(JSON.parse(streamFile), JSON.parse(scatterFile), JSON.parse(metadataFile));
   }
   geneList = getGeneList(result);
