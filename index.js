@@ -1,5 +1,25 @@
 /* eslint-disable no-unused-vars */
-/*global Fuse, THREE, AFRAME*/
+/*global Fuse, THREE, AFRAME, JSZip*/
+
+let report = {};
+let freeMove = true;
+let positionIndex = 0;
+let currentBranch = null;
+let cameraTrajectory = null;
+const branchClasses = [];
+const cellColors = {};
+
+document.getElementById("moveToggle").addEventListener("click", () => {
+  freeMove = !freeMove;
+});
+
+const unzip = async () => {
+  const zipper = new JSZip();
+  const response = await fetch('https://cdn.glitch.com/f09ba84c-8d76-41f9-982e-38302812164a%2Fstream_report.zip?v=1576780693327');
+  const blob = await response.blob();
+  const result = await zipper.loadAsync(blob)
+  return result;
+}
 
 const mobilecheck = () => {
   var check = false;
@@ -55,13 +75,24 @@ const initializeGui = () => {
 }
 initializeGui();
 
-const states = ["forward", "stop", "backward", "stop"];
-let currentState = "stop";
+let geneList = [];
 
-const geneList = [{"gene":"emb"}, {"gene":"epor"}, {"gene":"epx"}];
+const movement = (num) => {
+  let direction = new THREE.Vector3();
+  const camera = AFRAME.scenes[0].camera;
+  camera.getWorldDirection( direction );
+  direction.multiplyScalar(num);
+  const cameraEl = document.getElementById('rig');
+  var pos = cameraEl.getAttribute("position");
+  pos.x += direction.x
+  pos.y += direction.y
+  pos.z += direction.z
+  const mapPlayer = document.getElementById('mapPlayer').object3D;
+  mapPlayer.position.set((pos.x + direction.x)  * .01, (pos.y + direction.y) * .01, (pos.z + direction.z) * .01);
+}
 
 let currentSearch = '';
-document.body.addEventListener('keypress', (e) => {
+document.body.addEventListener('keydown', (e) => {
   var options = {
     shouldSort: true,
     threshold: 0.6,
@@ -78,11 +109,32 @@ document.body.addEventListener('keypress', (e) => {
   let result2 = '';
   let result3 = '';
   if (e.code === 'Space') {
-    summonMenu()
+    summonMenu();
+    currentSearch = '';
+  } else if (e.key === "Shift") {
+    if (mobilecheck()) {
+      const hud = document.getElementById("hud").object3D;
+      if (!hud.visible) {
+        hud.position.set(0, 0, -.5);
+        hud.visible = true;
+      }
+    }
+  } else if (e.keyCode === 38) { 
+    if (freeMove) {
+      movement(.05);
+    } else {
+      moveCamera(e);  
+    }
+  } else if (e.keyCode === 40) {
+    if (freeMove) {
+      movement(-.05);
+    } else {
+      moveCamera(e);  
+    } 
   } else if (e.code === 'Enter') {
     currentSearch = '';
-    viewGene('cells');
-  } else {
+    viewGene('metadata', 'label_color');
+  } else if (e.key.length === 1) {
     currentSearch = currentSearch + e.key; 
     let fuse = new Fuse(geneList, options);
     let result = fuse.search(currentSearch);
@@ -97,11 +149,22 @@ document.body.addEventListener('keypress', (e) => {
   document.getElementById("result3").setAttribute('text', 'value', result3);
 });
 
+document.body.addEventListener('keyup', (e) => {
+  if (e.key === "Shift") {
+    if (mobilecheck()) {
+      const hud = document.getElementById("hud").object3D;
+      if (hud.visible) {
+        hud.visible = false;
+      }
+    }
+  }
+});
+
 const resultElements = ["result1", "result2", "result3"];
 resultElements.forEach((element) => {
   const result = document.getElementById(element);
   result.addEventListener("click", () => {
-    viewGene('gene_' + result.getAttribute('text').value);  
+    viewGene('gene_' + result.getAttribute('text').value, 'color');  
   });
 });
 
@@ -122,22 +185,23 @@ document.getElementById("pauseGlobalRotation").addEventListener("click", () => {
   }
 });
 
-const viewGene = (geneFileName) => {
+const viewGene = async (geneFileName, colorField) => {
+  const gene = await report.file(geneFileName + ".json").async("string");
+  const cellsByGene = JSON.parse(gene);
   const cellsContainer = document.getElementById("cells");
-  fetch(geneFileName + '.json')
-      .then(response => response.text())
-      .then(text => {
-          const cellText = JSON.parse(text);
-          cellText.forEach((cell) => {
-              const cellElement = document.getElementById(cell.cell_id);
-              cellElement.setAttribute("color", cell.color);
-          })
+  cellsByGene.forEach((cell) => {
+    const cellElement = document.getElementById(cell.cell_id);
+    cellElement.setAttribute("color", cell[colorField]);
   });
 }
 
 document.querySelector('a-scene').addEventListener('enter-vr', () => {
   const hud = document.getElementById("hud");
   hud.setAttribute('material', 'color', 'white');
+  const labels = document.getElementById("curve-labels").childNodes;
+  labels.forEach((label) => {
+    label.setAttribute("text", "color", "white");
+  })
   setHudPosition(visibleWidthAtZDepth(-1) - .5, visibleHeightAtZDepth(-1), -1);
 });
 
@@ -145,38 +209,43 @@ document.querySelector('a-scene').addEventListener('enter-vr', () => {
 document.querySelector('a-scene').addEventListener('exit-vr', () => {
   const hud = document.getElementById("hud");
   hud.setAttribute('material', 'color', 'gray');
+  const labels = document.getElementById("curve-labels").childNodes;
+  labels.forEach((label) => {
+    label.setAttribute("text", "color", "black");
+  })
   setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
 });
 
-const getZMax = (coords) => {
+const getZMax = (curves) => {
     let maxZ = Number.NEGATIVE_INFINITY;
-    coords.forEach((coord) => {
+    curves.forEach((curve) => {
+      curve.xyz.forEach((coord) => {
         if (typeof coord.z !== 'undefined' && Math.abs(coord.z) > maxZ) {
             maxZ = Math.abs(coord.z);
         }
+      });
     });
     return maxZ * 100;
 }
 
 const getMedian = (values) => {
-    console.log(values);
     const sorted = [...values].sort();
     return sorted[Math.floor(sorted.length/2)];
 }
 
-
-const getCameraTrajectory = () => {
-    return fetch('curves.json')
-        .then(response => response.text())
-        .then(text => {
-            const coords = JSON.parse(text);
-            const positions = [];
-            coords.forEach((coord, _) => {
-                const position = `${coord.x} ${coord.y} ${coord.z}`;
-                positions.push(position);
-            });
-            return positions;
-        });
+const getCameraTrajectory = (branches) => {
+  currentBranch = branches[0].branch_id;
+  const branchPositions = {};
+  branches.forEach((branch) => {
+    const positions = [];
+    branch.xyz.forEach((coord, _) => {
+        const position = `${coord.x} ${coord.y} ${coord.z}`;
+        positions.push(position);
+    });
+    branchPositions[branch.branch_id] = positions;
+    branchClasses.push('.' + branch.branch_id);
+  });
+  return branchPositions;
 };
 
 const groupBy = (list, keyGetter) => {
@@ -201,13 +270,22 @@ const getFileText = (name) => {
     });
 }
 
-const parsePagaMetadata = async () => {
-  const metadata = await getFileText("metadata");
-  const clusterColors = {};
-  metadata.forEach((metadatum) => {
-    clusterColors[metadatum.cluster] = metadatum.cluster_color;
+const createCellMetadataObject = (metadata) => {
+  const cellObjects = {};
+  metadata.forEach((cell) => {
+    cellObjects[cell.cell_id] = {"label": cell.label, "label_color": cell.label_color,}
   });
-  return clusterColors;
+  return cellObjects;
+}
+
+const renderPagaCells = (cells, cellMetadata) => {
+  const cellEntities = Array.from(cells.map((cell) => {
+    const x = cell.x * .0004;
+    const y = cell.y * .0004;
+    const color = cellMetadata[cell.cell_id].label_color;
+    return `<a-sphere id="${cell.cell_id}" position="${x} ${y} -1" radius=".03" color="${color}"></a-sphere>`
+  }));
+  document.getElementById('pagacells').innerHTML = cellEntities.join(" ");
 }
 
 const setInitialCameraPositionPaga = (nodes) => {
@@ -225,11 +303,8 @@ const setInitialCameraPositionPaga = (nodes) => {
   camera_el.object3D.position.set(xMidpoint, yMidpoint, xRange + 1);
 }
 
-const renderPaga = async () => {
-  const edges = await getFileText('paga_edges');
-  const nodes = await getFileText('paga_nodes');
+const renderPaga = (edges, nodes, scatter, metadata) => {
   setInitialCameraPositionPaga(nodes);
-  // const metadata = await getFileText('metadata');
   const branches = [];
   const edgeWeights = {};
   edges.forEach((edge, _) => {
@@ -241,14 +316,14 @@ const renderPaga = async () => {
   });
   const [branch_els, branch_draw_els] = createCurveEnities(branches);
   // setDrawContainerContent(branch_els, branch_draw_els);
-  const clusterColors = await parsePagaMetadata();
+  const clusterColors = createCellMetadataObject(metadata);
   const cell_el = document.getElementById("cells");
   const cellEntities = [];
   const nodePositions = {};
   nodes.forEach((cell_point, _) => {
     let x = cell_point.xy.x * .0004;
     let y = cell_point.xy.y * .0004;
-    const stream_cell = `<a-sphere text="value: ${cell_point.node_name}; width: 6; color: black; align: center;" id="${cell_point.node_id}" position="${x} ${y} -1" color="${clusterColors[cell_point.node_name]}" radius=".1"></a-sphere>`;
+    const stream_cell = `<a-sphere text="value: ${cell_point.node_name}; width: 6; color: black; align: center; side: double; zOffset: .1" id="${cell_point.node_id}" position="${x} ${y} -1" color="${clusterColors[cell_point.node_name]}" radius=".1"></a-sphere>`;
     cellEntities.push(stream_cell);
     nodePositions[cell_point.node_id] = {"x": x, "y": y, "z": -1};
   });
@@ -264,40 +339,59 @@ const renderPaga = async () => {
   });
   document.getElementById("thicklines").innerHTML = thickLines.join(" ");
   document.getElementById("thicklinesMap").innerHTML = thickLines.join(" ");
+  renderPagaCells(scatter, clusterColors);
 }
-// renderPaga();
 
 const strip = (str) => {
     return str.replace(/^\"+|\"+$/g, '');
 }
 
-const createBranchPoints = (coords) => {
-    const curvePoints = [];
-    coords.forEach((coord, _) => {
-        const curvePoint = `<a-curve-point position="${coord.x * 100} ${coord.y * 100} ${coord.z * 100}"></a-curve-point>`;
-        curvePoints.push(curvePoint);
-    });
-    return curvePoints;
+const createBranchPoints = (curve) => {
+  const curvePoints = [];
+  const midpoint = curve.xyz[Math.floor(curve.xyz.length / 2)];
+  const labelEntity = document.createElement("a-entity");
+  const textValue = `value: ${curve.branch_id}; color:black; align: center; side: double; width: 6`;
+  labelEntity.setAttribute("text", textValue);
+  const labelPosition = `${midpoint.x * 100} ${midpoint.y * 100} ${midpoint.z * 100}`;
+  labelEntity.setAttribute("position", labelPosition);
+  labelEntity.setAttribute("billboard", "");
+  labelEntity.className = curve.branch_id;
+  labelEntity.addEventListener('click', () => {
+    currentBranch = curve.branch_id;
+  })
+  const curveLabels = document.getElementById('curve-labels');
+  curveLabels.appendChild(labelEntity);
+  curve.xyz.forEach((coord, _) => {
+      const curvePoint = `<a-curve-point position="${coord.x * 100} ${coord.y * 100} ${coord.z * 100}"></a-curve-point>`;
+      curvePoints.push(curvePoint);
+  });
+  return curvePoints;
 }
 
-const setInitialCameraPosition = (coords) => {
-  const zMax = getZMax(coords);
-  const yValues = Array.from(coords.map(coord => coord.y));
-  const xValues = Array.from(coords.map(coord => coord.x));
+const setInitialCameraPosition = (curves) => {
+  const zMax = getZMax(curves);
+  const yValues = Array.from(curves.flatMap((curve) => {
+    return Array.from(curve.xyz.map(coord => coord.y));
+  }));
+  const xValues = Array.from(curves.flatMap((curve) => {
+    return Array.from(curve.xyz.map(coord => coord.x))
+  }));
   const yMedian = getMedian(yValues) * 100;
   const xMedian = getMedian(xValues) * 100;
 
   const camera_el = document.getElementById("rig");
   camera_el.object3D.position.set(xMedian, yMedian, zMax + 1.2);
+  const mapPlayer = document.getElementById("mapPlayer");
+  mapPlayer.object3D.position.set(xMedian * .01, yMedian * .01, (zMax + 1.2) * .01)
 }
 
 const createCurveEnities = (branches) => {
-  const branch_els = []
-  const branch_draw_els = []
+  const branch_els = [];
+  const branch_draw_els = [];
   branches.forEach((branch, _) => {
       const branch_el = `<a-curve id="${branch}" ></a-curve>`;
       branch_els.push(branch_el);
-      const branch_draw_el = `<a-draw-curve curveref="#${branch}" material="shader: line; color: blue;" geometry="primitive: " ></a-draw-curve>`;
+      const branch_draw_el = `<a-draw-curve cursor-listener curveref="#${branch}" material="shader: line; color: blue;" geometry="primitive: " ></a-draw-curve>`;
       branch_draw_els.push(branch_draw_el);
   });
   return [branch_els, branch_draw_els];
@@ -314,12 +408,14 @@ const setDrawContainerContent = (branch_els, branch_draw_els) => {
   map_draw_container.innerHTML = branch_draw_els.join(" ");
 }
 
-const renderStream = async () => {
-  const coords = await getFileText("curves");
-  setInitialCameraPosition(coords);  
-
+const renderStream = async (curves, cells, metadata) => {
+  setInitialCameraPosition(curves);  
+  const camvec = new THREE.Vector3();
+  const camera = AFRAME.scenes[0].camera;
+  camera.getWorldPosition(camvec);
+  document.getElementById('draw-map').object3D.lookAt(-camera.position.x, -camera.position.y, -camera.position.z);
   const branches = [];
-  coords.forEach((coord, _) => {
+  curves.forEach((coord, _) => {
       if (!branches.includes(coord.branch_id)) {
           branches.push(coord.branch_id);
       }
@@ -329,22 +425,24 @@ const renderStream = async () => {
 
   setDrawContainerContent(branch_els, branch_draw_els);
 
-  const grouped_coords = groupBy(coords, coord => coord.branch_id);
-  grouped_coords.forEach((group, branch) => {
-      const points = createBranchPoints(group);
-      const branch_el = document.getElementById(branch);
-      branch_el.innerHTML = points.join(" ")
-  });
-  renderStreamCells();
-}
-renderStream();
+  curves.forEach((curve) => {
+    const points = createBranchPoints(curve);
+    const branch_el = document.getElementById(curve.branch_id);
+    branch_el.innerHTML = points.join(" ")
+  })
 
-const renderStreamCells = async () => {
-  const cells = await getFileText("cells");
+  metadata.forEach((cell) => {
+    cellColors[cell.cell_id] = cell.label_color;
+  });
+  
+  renderStreamCells(cells);
+}
+
+const renderStreamCells = async (cells) => {
   const cell_el = document.getElementById("cells");
   const cellEntities = [];
   cells.forEach((cell_point, _) => {
-    const stream_cell = `<a-sphere id="${cell_point.cell_id}" position="${cell_point.x * 100} ${cell_point.y * 100} ${cell_point.z * 100}" color="${cell_point.color}" radius=".05" shadow></a-sphere>`;
+    const stream_cell = `<a-sphere id="${cell_point.cell_id}" position="${cell_point.x * 100} ${cell_point.y * 100} ${cell_point.z * 100}" color="${cellColors[cell_point.cell_id]}" radius=".05" shadow></a-sphere>`;
     cellEntities.push(stream_cell);
   });
   cell_el.innerHTML = cellEntities.join(" ");
@@ -352,64 +450,78 @@ const renderStreamCells = async () => {
 
 let clickCount = 1;
 
-let positionIndex = 0
-const moveForward = (positions) => {
-    if (positionIndex !== positions.length) {
-      const camera_el = document.getElementById("rig");
-      let position = positions[positionIndex].split(" ");
-      const scaled = position.map((coord) => {
-          return coord * 100;
-      });
-      camera_el.object3D.position.set(...scaled);
-      positionIndex = positionIndex + 1;
-    }
+const move = (position) => {
+    const camera_el = document.getElementById("rig");
+    let positionSplit = position.split(" ");
+    const scaled = positionSplit.map((coord) => {
+        return coord * 100;
+    });
+    camera_el.object3D.position.set(...scaled);
 }
 
-const moveBackward = (positions) => {
-    if (positionIndex !== 0) {
-      const camera_el = document.getElementById("rig");
-      let position = positions[positionIndex].split(" ");
-      const scaled = position.map((coord) => {
-          return coord * 100;
-      });
-      camera_el.object3D.position.set(...scaled);
-      positionIndex = positionIndex - 1;
+
+const moveCamera = (e) => {
+  if (e.keyCode === 38) {
+    if (positionIndex !== cameraTrajectory[currentBranch].length) {
+      move(cameraTrajectory[currentBranch][positionIndex]);
+      positionIndex += 1;
     }
+  } else if (e.keyCode === 40) {
+    if (positionIndex >= 0) {
+      positionIndex = Math.max(positionIndex-1, 0);
+      move(cameraTrajectory[currentBranch][positionIndex])
+    }
+  }
 }
 
-const moveCamera = async () => {
-    const positions = await getCameraTrajectory();
-    setInterval(() => {
-        if (currentState === "forward") {
-            moveForward(positions);
-        }
-        else if (currentState === "backward") {
-            moveBackward(positions);
-        }
-    }, 300);
+// TODO: Quick and dirty. strips everything besides gui-interactable. Fix Later
+const makeIntersectable = (objects) => {
+  const cursor = document.getElementById("cursor");
+  const currentIntersectable = cursor.getAttribute('raycaster');
+  cursor.setAttribute('raycaster', 'objects', '[gui-interactable], ' + objects.join(", "));
+  console.log(cursor.getAttribute('raycaster').objects);
 }
 
 document.querySelector('a-scene').addEventListener('enter-vr', () => {
     const cell_el = document.getElementById("cells");
     const branch_draw_container = document.getElementById("curve-draw");
     if (mobilecheck()) {
-        cell_el.object3D.scale.set(50, 50, 50);
-        branch_draw_container.object3D.scale.set(50, 50, 50);
+        // cell_el.object3D.scale.set(50, 50, 50);
+        // branch_draw_container.object3D.scale.set(50, 50, 50);
+      document.getElementById('hud').object3D.visible = false;
+      
     }
-    // eslint-disable-next-line no-undef
-    AFRAME.scenes[0].canvas.addEventListener("touchstart", () => {
-        currentState = states[clickCount % states.length];
-        clickCount = clickCount + 1;
-    });
-
-    // eslint-disable-next-line no-undef
-    AFRAME.scenes[0].canvas.addEventListener("click", () => {
-        currentState = states[clickCount % states.length];
-        clickCount = clickCount + 1;
-    });
-
 });
 
+const getGeneList = (report) => {
+  const allFileNames = Object.keys(report.files);
+  const geneNames = [];
+  allFileNames.forEach((file) => {
+    const splitName = file.split("_");
+    if (splitName.length > 1 && splitName[0] === 'gene') {
+      geneNames.push({'gene': splitName[1].split('.')[0]})
+    }
+  });
+  return geneNames;
+}
 
-
-moveCamera();
+const initialize = async () => {
+  const result = await unzip();
+  report = result;
+  if (Object.keys(result.files).includes("paga_nodes.json")) {
+    const edges = await result.file("paga_edges.json").async("string");
+    const nodes = await result.file("paga_nodes.json").async("string");
+    const scatter = await result.file("scatter.json").async("string");
+    const metadata = await result.file("metadata.json").async("string");
+    renderPaga(JSON.parse(edges), JSON.parse(nodes), JSON.parse(scatter), JSON.parse(metadata));
+  } else {
+    const streamFile = await result.file("stream.json").async("string");
+    const scatterFile = await result.file("scatter.json").async("string");
+    const metadataFile = await result.file("metadata.json").async("string");
+    cameraTrajectory = getCameraTrajectory(JSON.parse(streamFile));
+    makeIntersectable(branchClasses);
+    renderStream(JSON.parse(streamFile), JSON.parse(scatterFile), JSON.parse(metadataFile));
+  }
+  geneList = getGeneList(result);
+}
+initialize();
