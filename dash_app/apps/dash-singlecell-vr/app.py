@@ -302,4 +302,4 @@ def update_output(uploaded_filenames, uploaded_file_contents):
 
 
 if __name__ == "__main__":
-    app.run_server(host='https://singlecellvr.herokuapp.com/', port=os.environ['PORT'], debug=True)
+    app.run_server(host='https://singlecellvr.herokuapp.com', port=os.environ['PORT'], debug=True)
