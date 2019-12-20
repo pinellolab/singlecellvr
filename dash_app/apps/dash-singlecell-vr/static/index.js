@@ -13,9 +13,9 @@ document.getElementById("moveToggle").addEventListener("click", () => {
   freeMove = !freeMove;
 });
 
-const unzip = async () => {
+const unzip = async (uuid) => {
   const zipper = new JSZip();
-  const response = await fetch('https://cdn.glitch.com/f09ba84c-8d76-41f9-982e-38302812164a%2Fstream_report.zip?v=1576780693327');
+  const response = await fetch('//singlecellvr.herokuapp.com/download/' + uuid + '.zip');
   const blob = await response.blob();
   const result = await zipper.loadAsync(blob)
   return result;
@@ -118,6 +118,7 @@ document.body.addEventListener('keydown', (e) => {
         hud.position.set(0, 0, -.5);
         hud.visible = true;
       }
+      document.getElementById("cursor").object3D.visible = false;
     }
   } else if (e.keyCode === 38) { 
     if (freeMove) {
@@ -156,6 +157,7 @@ document.body.addEventListener('keyup', (e) => {
       if (hud.visible) {
         hud.visible = false;
       }
+      document.getElementById("cursor").object3D.visible = true;
     }
   }
 });
@@ -180,6 +182,7 @@ document.getElementById("pauseGlobalRotation").addEventListener("click", () => {
   const isRotating = drawContainer.isPlaying;
   if (isRotating) {
     drawContainer.pause();
+    drawContainer.setAttribute("rotation", "0 0 0");
   } else {
     drawContainer.play();
   }
@@ -203,6 +206,13 @@ document.querySelector('a-scene').addEventListener('enter-vr', () => {
     label.setAttribute("text", "color", "white");
   })
   setHudPosition(visibleWidthAtZDepth(-1) - .5, visibleHeightAtZDepth(-1), -1);
+  if (mobilecheck()) {
+    document.getElementById('hud').object3D.visible = false;
+  }
+  const legend = document.getElementById('legend');
+  if (legend !== null) {
+    document.getElementById('legend').setAttribute('panel-color', 'black');
+  }
 });
 
 
@@ -214,6 +224,10 @@ document.querySelector('a-scene').addEventListener('exit-vr', () => {
     label.setAttribute("text", "color", "black");
   })
   setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
+  const legend = document.getElementById('legend');
+  if (legend !== null) {
+    document.getElementById('legend').setAttribute('panel-color', 'white');
+  }
 });
 
 const getZMax = (curves) => {
@@ -273,7 +287,7 @@ const getFileText = (name) => {
 const createCellMetadataObject = (metadata) => {
   const cellObjects = {};
   metadata.forEach((cell) => {
-    cellObjects[cell.cell_id] = {"label": cell.label, "label_color": cell.label_color,}
+    cellObjects[cell.cell_id] = {"label": cell.label, "label_color": cell.label_color, "cluster_color": cell.cluster_color}
   });
   return cellObjects;
 }
@@ -282,15 +296,15 @@ const renderPagaCells = (cells, cellMetadata) => {
   const cellEntities = Array.from(cells.map((cell) => {
     const x = cell.x * .0004;
     const y = cell.y * .0004;
-    const color = cellMetadata[cell.cell_id].label_color;
+    const color = cellMetadata[cell.cell_id].cluster_color;
     return `<a-sphere id="${cell.cell_id}" position="${x} ${y} -1" radius=".03" color="${color}"></a-sphere>`
   }));
   document.getElementById('pagacells').innerHTML = cellEntities.join(" ");
 }
 
 const setInitialCameraPositionPaga = (nodes) => {
-  const yValues = Array.from(nodes.map(node => node.xy.y * .0004));
-  const xValues = Array.from(nodes.map(node => node.xy.x * .0004));
+  const yValues = Array.from(Object.values(nodes).map(node => node.xy.y * .0004));
+  const xValues = Array.from(Object.values(nodes).map(node => node.xy.x * .0004));
   const xMax = Math.max(...xValues);
   const xMin = Math.min(...xValues);
   const xRange = xMax - xMin;
@@ -303,8 +317,26 @@ const setInitialCameraPositionPaga = (nodes) => {
   camera_el.object3D.position.set(xMidpoint, yMidpoint, xRange + 1);
 }
 
+const renderLegend = (metadata) => {
+  const legendColors = {};
+  metadata.forEach((metadatum) => {
+    legendColors[metadatum.cluster] = metadatum.cluster_color;
+  });
+  const legend = document.getElementById('legend');
+  Object.keys(legendColors).forEach((key) => {
+    const el = document.createElement("a-gui-button");
+    el.setAttribute("width", "2.5");
+    el.setAttribute("height", ".25");
+    el.setAttribute("value", key);
+    el.setAttribute("font-color", "black");
+    el.setAttribute("background-color", legendColors[key]);
+    legend.appendChild(el);
+  });
+}
+
 const renderPaga = (edges, nodes, scatter, metadata) => {
   setInitialCameraPositionPaga(nodes);
+  renderLegend(metadata);
   const branches = [];
   const edgeWeights = {};
   edges.forEach((edge, _) => {
@@ -320,12 +352,12 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
   const cell_el = document.getElementById("cells");
   const cellEntities = [];
   const nodePositions = {};
-  nodes.forEach((cell_point, _) => {
+  Object.values(nodes).forEach((cell_point, _) => {
     let x = cell_point.xy.x * .0004;
     let y = cell_point.xy.y * .0004;
-    const stream_cell = `<a-sphere text="value: ${cell_point.node_name}; width: 6; color: black; align: center; side: double; zOffset: .1" id="${cell_point.node_id}" position="${x} ${y} -1" color="${clusterColors[cell_point.node_name]}" radius=".1"></a-sphere>`;
+    const stream_cell = `<a-sphere text="value: ${cell_point.node_name}; width: 6; color: black; align: center; side: double; zOffset: .1" id="${cell_point.node_name}" position="${x} ${y} -1" color="${clusterColors[cell_point.node_name]}" radius=".1" billboard></a-sphere>`;
     cellEntities.push(stream_cell);
-    nodePositions[cell_point.node_id] = {"x": x, "y": y, "z": -1};
+    nodePositions[cell_point.node_name.replace(/\D/g,'')] = {"x": x, "y": y, "z": -1};
   });
   cell_el.innerHTML = cellEntities.join(" ");
   const thickLines = [];
@@ -482,17 +514,6 @@ const makeIntersectable = (objects) => {
   console.log(cursor.getAttribute('raycaster').objects);
 }
 
-document.querySelector('a-scene').addEventListener('enter-vr', () => {
-    const cell_el = document.getElementById("cells");
-    const branch_draw_container = document.getElementById("curve-draw");
-    if (mobilecheck()) {
-        // cell_el.object3D.scale.set(50, 50, 50);
-        // branch_draw_container.object3D.scale.set(50, 50, 50);
-      document.getElementById('hud').object3D.visible = false;
-      
-    }
-});
-
 const getGeneList = (report) => {
   const allFileNames = Object.keys(report.files);
   const geneNames = [];
@@ -505,14 +526,15 @@ const getGeneList = (report) => {
   return geneNames;
 }
 
-const initialize = async () => {
-  const result = await unzip();
+const initialize = async (uuid) => {
+  const result = await unzip(uuid);
   report = result;
   if (Object.keys(result.files).includes("paga_nodes.json")) {
     const edges = await result.file("paga_edges.json").async("string");
     const nodes = await result.file("paga_nodes.json").async("string");
     const scatter = await result.file("scatter.json").async("string");
     const metadata = await result.file("metadata.json").async("string");
+    document.getElementById("moveToggle").remove();
     renderPaga(JSON.parse(edges), JSON.parse(nodes), JSON.parse(scatter), JSON.parse(metadata));
   } else {
     const streamFile = await result.file("stream.json").async("string");
@@ -520,8 +542,13 @@ const initialize = async () => {
     const metadataFile = await result.file("metadata.json").async("string");
     cameraTrajectory = getCameraTrajectory(JSON.parse(streamFile));
     makeIntersectable(branchClasses);
+    document.getElementById('legend').remove();
     renderStream(JSON.parse(streamFile), JSON.parse(scatterFile), JSON.parse(metadataFile));
   }
   geneList = getGeneList(result);
 }
-initialize();
+
+window.onload = () => {
+  const uuid = window.location.href.split("/").slice(-1)[0];
+  initialize(uuid);
+}

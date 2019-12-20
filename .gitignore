@@ -2,3 +2,5 @@ node_modules
 .eslintrc.json
 *.json
 *.log
+__pycache__
+app_uploaded_files
