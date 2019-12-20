@@ -17,8 +17,9 @@ import uuid
 
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 
+DATASET_DIRECTORY = os.path.join(APP_PATH, "app_datasets")
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
-AFRAME_DIRECTORY = os.path.join(APP_PATH,"templates")
+
 
 # "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
 
@@ -49,6 +50,11 @@ def download(path):
 @app.server.route('/view/<uid>')
 def serve_static(uid):
 	return render_template('index.html', name=uid)
+
+@app.server.route('/download/<uid>')
+def serve_static2(uid):
+	return render_template('index.html', name=uid)
+	
 # df_lat_lon = pd.read_csv(
 #     os.path.join(APP_PATH, os.path.join("data", "lat_lon_counties.csv"))
 # )
@@ -125,13 +131,13 @@ app.layout = html.Div(
                                 dcc.Dropdown(
                                     id='chart-dropdown',
                                     options=[
-                                        {'label': 'Dataset1', 'value': 'Dataset1'},
-                                        {'label': 'Dataset2', 'value': 'Dataset2'},
-                                        {'label': 'Dataset3', 'value': 'Dataset3'}
+                                        {'label': 'Nestorowa2016-STREAM', 'value': 'Nestorowa2016-STREAM'},
+                                        {'label': 'Paul2015-PAGA', 'value': 'Paul2015-PAGA'},
                                     ],
-                                    value='Dataset1'
+                                    value='Nestorowa2016-STREAM'
                                 ),
                                 html.Div(id='dd-output-container'),
+                                html.Div(id='intermediate-value2', style={'display': 'none'})
                             ],
                         ),
                         html.Div(
@@ -178,7 +184,8 @@ app.layout = html.Div(
                                     # html.Div(dcc.Input(id='input-box', type='text')),
                                     # html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),
                                     # html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href='/view/123'),
-                                    html.Div(id='output-container-button',children='')
+                                    html.Div(id='output-container-button',children=''),
+                                    # html.Div(id='output-container-button2',children='')
                                     # html.Div(dcc.Input(id='input-box', type='text')),
                                     # html.A(html.Button("Let's fly!", id='button'),href='http://singlecellvr.com/'),
                                 ]),
@@ -229,11 +236,27 @@ def file_download_link(filename):
 
 
 @app.callback(
-    dash.dependencies.Output('dd-output-container', 'children'),
-    [dash.dependencies.Input('chart-dropdown', 'value')])
+    [Output('dd-output-container', 'children'),Output("intermediate-value2", "children")],
+    [Input('chart-dropdown', 'value')])
 def update_output(value):
-    return 'You have selected "{}"'.format(value)
+    if(value=="Nestorowa2016-STREAM"):
+        file_id = 'stream_report'
+    elif(value=="Paul2015-PAGA"):
+        file_id = 'paga_report'
+    else:
+        file_id = ''
+    return ['You have selected "{}"'.format(value),file_id]
 
+# @app.callback(
+#     Output('output-container-button2', 'children'),
+#     [Input('intermediate-value2', 'children')])
+# def update_output(unique_id):
+#     # files = uploaded_files()
+#     if unique_id=='':
+#         # return 'no files yet'
+#         return html.Button("Let's fly!", id='button',disabled=True,n_clicks=0)
+#     else:
+#         return html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href="/view/"+str(unique_id)),
 
 # @app.callback(
 #     dash.dependencies.Output('output-container-button', 'children'),
@@ -271,15 +294,16 @@ def update_output(value):
 
 @app.callback(
     Output('output-container-button', 'children'),
-    [Input('intermediate-value', 'children')])
-def update_output(unique_id):
+    [Input('intermediate-value', 'children'),Input('intermediate-value2', 'children')])
+def update_output(unique_id,file_id):
 	# files = uploaded_files()
-	if unique_id=='':
+	if(unique_id=='' and file_id==''):
 		# return 'no files yet'
 		return html.Button("Let's fly!", id='button',disabled=True,n_clicks=0)
-	else:
-		return html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href="/view/"+str(unique_id)),
-		# html.A(unique_id, href="/view/"+str(unique_id))
+	if(unique_id !=''):
+		return html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href="/view/"+str(unique_id))
+	if(file_id !=''):
+		return html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href="/download/"+str(file_id))
 
 @app.callback(
     [Output("file-list", "children"),Output("intermediate-value", "children")],
