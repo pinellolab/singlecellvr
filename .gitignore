@@ -2,3 +2,4 @@ node_modules
 .eslintrc.json
 *.json
 *.log
+__pycache__
