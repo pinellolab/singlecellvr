@@ -13,9 +13,9 @@ document.getElementById("moveToggle").addEventListener("click", () => {
   freeMove = !freeMove;
 });
 
-const unzip = async () => {
+const unzip = async (uuid) => {
   const zipper = new JSZip();
-  const response = await fetch('https://cdn.glitch.com/f09ba84c-8d76-41f9-982e-38302812164a%2Fpaga_report.zip?v=1576804502795');
+  const response = await fetch('https://singlecellvr.herokuapp.com/download/' + uuid);
   const blob = await response.blob();
   const result = await zipper.loadAsync(blob)
   return result;
@@ -182,6 +182,7 @@ document.getElementById("pauseGlobalRotation").addEventListener("click", () => {
   const isRotating = drawContainer.isPlaying;
   if (isRotating) {
     drawContainer.pause();
+    drawContainer.setAttribute("rotation", "0 0 0");
   } else {
     drawContainer.play();
   }
@@ -507,8 +508,8 @@ const getGeneList = (report) => {
   return geneNames;
 }
 
-const initialize = async () => {
-  const result = await unzip();
+const initialize = async (uuid) => {
+  const result = await unzip(uuid);
   report = result;
   if (Object.keys(result.files).includes("paga_nodes.json")) {
     const edges = await result.file("paga_edges.json").async("string");
@@ -526,4 +527,8 @@ const initialize = async () => {
   }
   geneList = getGeneList(result);
 }
-initialize();
+
+window.onload = () => {
+  const uuid = window.location.href.split("/")[-1]
+  initialize(uuid);
+}
