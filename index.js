@@ -287,7 +287,7 @@ const getFileText = (name) => {
 const createCellMetadataObject = (metadata) => {
   const cellObjects = {};
   metadata.forEach((cell) => {
-    cellObjects[cell.cell_id] = {"label": cell.label, "label_color": cell.label_color,}
+    cellObjects[cell.cell_id] = {"label": cell.label, "label_color": cell.label_color, "cluster_color": cell.cluster_color}
   });
   return cellObjects;
 }
@@ -296,15 +296,15 @@ const renderPagaCells = (cells, cellMetadata) => {
   const cellEntities = Array.from(cells.map((cell) => {
     const x = cell.x * .0004;
     const y = cell.y * .0004;
-    const color = cellMetadata[cell.cell_id].label_color;
+    const color = cellMetadata[cell.cell_id].cluster_color;
     return `<a-sphere id="${cell.cell_id}" position="${x} ${y} -1" radius=".03" color="${color}"></a-sphere>`
   }));
   document.getElementById('pagacells').innerHTML = cellEntities.join(" ");
 }
 
 const setInitialCameraPositionPaga = (nodes) => {
-  const yValues = Array.from(nodes.map(node => node.xy.y * .0004));
-  const xValues = Array.from(nodes.map(node => node.xy.x * .0004));
+  const yValues = Array.from(Object.values(nodes).map(node => node.xy.y * .0004));
+  const xValues = Array.from(Object.values(nodes).map(node => node.xy.x * .0004));
   const xMax = Math.max(...xValues);
   const xMin = Math.min(...xValues);
   const xRange = xMax - xMin;
@@ -347,16 +347,17 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
     edgeWeights[edgeId] = edge.weight;
   });
   const [branch_els, branch_draw_els] = createCurveEnities(branches);
+  // setDrawContainerContent(branch_els, branch_draw_els);
   const clusterColors = createCellMetadataObject(metadata);
   const cell_el = document.getElementById("cells");
   const cellEntities = [];
   const nodePositions = {};
-  nodes.forEach((cell_point, _) => {
+  Object.values(nodes).forEach((cell_point, _) => {
     let x = cell_point.xy.x * .0004;
     let y = cell_point.xy.y * .0004;
-    const stream_cell = `<a-sphere text="value: ${cell_point.node_name}; width: 6; color: black; align: center; side: double; zOffset: .1" id="${cell_point.node_id}" position="${x} ${y} -1" color="${clusterColors[cell_point.node_name]}" radius=".1" billboard></a-sphere>`;
+    const stream_cell = `<a-sphere text="value: ${cell_point.node_name}; width: 6; color: black; align: center; side: double; zOffset: .1" id="${cell_point.node_name}" position="${x} ${y} -1" color="${clusterColors[cell_point.node_name]}" radius=".1" billboard></a-sphere>`;
     cellEntities.push(stream_cell);
-    nodePositions[cell_point.node_id] = {"x": x, "y": y, "z": -1};
+    nodePositions[cell_point.node_name.replace(/\D/g,'')] = {"x": x, "y": y, "z": -1};
   });
   cell_el.innerHTML = cellEntities.join(" ");
   const thickLines = [];
