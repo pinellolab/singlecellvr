@@ -1,0 +1,107 @@
+<html>
+  <head>
+    <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
+    <script src="https://rawgit.com/protyze/aframe-curve-component/master/dist/aframe-curve-component.min.js"></script>
+    <script src="https://rawgit.com/blairmacintyre/aframe-look-at-billboard-component/master/dist/aframe-look-at-billboard-component.min.js"></script>
+    <script src="https://rawgit.com/rdub80/aframe-gui/master/dist/aframe-gui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.4.5/fuse.min.js"></script>
+    <script src="https://rawgit.com/andreasplesch/aframe-meshline-component/master/dist/aframe-meshline-component.min.js"></script>
+    <script src="jszip.min.js"></script>
+    <script>
+      AFRAME.registerComponent('cursor-listener', {
+        init: function () {
+          this.el.addEventListener('click', function (evt) {
+            console.log(evt.detail.intersection.object.el.className);
+            currentBranch = evt.detail.intersection.object.el.className;
+            positionIndex = 0;
+          });
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <a-scene id="test">
+        <!-- TODO: Change positioning such that hud and main content cannot overlap -->
+        <a-entity id="rig">
+            <a-entity camera look-controls id="curve-camera">
+                <a-entity id="hud" geometry="primitive: plane; width: .5; height: .5;" material="opacity: .3; color:gray; transparent: true;">
+                  <a-sphere id="mapPlayer" radius=".006" color="red"></a-sphere>
+                  <a-entity id="hudMapContainer" >
+                      <a-entity scale=".02 .02 .02" id="thicklinesMap"></a-entity>
+                      
+                      <a-entity scale=".01 .01 .01" id="curve-map">
+
+                      </a-entity>
+                      <a-entity scale=".01 .01 .01" id="draw-map">
+
+                      </a-entity>
+                  </a-entity>
+                </a-entity>
+                <a-gui-cursor id="cursor"
+                      raycaster="objects: [gui-interactable], .S0_S1, .S0_S2, .S0_S3"
+                      fuse="true" fuse-timeout="2000"
+                      design="ring"
+                >
+                </a-gui-cursor>
+            </a-entity>
+        </a-entity>
+        
+      
+      <a-entity id="mainContainer">
+        <a-entity id="drawContainer" animation="enabled: false; property: rotation; dir: reverse; easing: linear; to: 0 360 0; loop: true; dur: 30000">
+          <a-entity id="thicklines"></a-entity>
+          <a-entity id="pagacells"></a-entity>
+          <a-entity id="curve-container"></a-entity>
+          <a-entity id="curve-draw"></a-entity>
+          <a-entity id="cells"></a-entity>
+          <a-entity id="curve-labels"></a-entity>
+        </a-entity>
+      
+        <a-gui-flex-container 
+          flex-direction="column" justify-content="center" align-items="normal" component-padding="0.1" opacity="0.7" width="3.7" height="5"
+          position="10 0 0" rotation="0 0 0" billboard id="menu">
+          <a-gui-button 
+            id="pauseGlobalRotation"
+            width="2.7" height="0.75"
+            value="Toggle Rotation"
+            font-family="Arial"
+            margin="0 0 0.05 0">
+          </a-gui-button>
+          <a-gui-toggle
+            id="moveToggle"
+            width="2.7" height="0.75"
+            value="Follow Curves"
+            font-family="Arial"
+            margin="0 0 0.05 0"
+          >
+          </a-gui-toggle>
+          <a-gui-input id="test_input"
+               width="2.7" height="0.7"
+               text="value: Search:; width: 6; color: black; align: center;"
+               value="placeholder"
+          >
+          </a-gui-input>
+          <a-gui-input 
+            id="result1"
+            width="2.7" height="0.75"
+            text="value: ; width: 6; color: black; align: center;"
+          >
+          </a-gui-input>
+          <a-gui-input 
+            id="result2"
+            width="2.7" height="0.75"
+            text="value: ; width: 6; color: black; align: center;"
+          >
+          </a-gui-input>
+          <a-gui-input
+            id="result3"
+            width="2.7" height="0.75"
+            text="value: ; width: 6; color: black; align: center;"
+          >
+          </a-gui-input>
+        </a-gui-flex-container>
+      </a-entity>
+    </a-scene>
+    <script src="./index.js"></script>
+  </body>
+</html>

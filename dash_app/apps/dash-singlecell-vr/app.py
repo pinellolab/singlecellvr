@@ -8,7 +8,7 @@ import dash_html_components as html
 import pandas as pd
 from dash.dependencies import Input, Output, State
 import cufflinks as cf
-from flask import Flask, send_from_directory,redirect
+from flask import Flask, send_from_directory,redirect,render_template
 from urllib.parse import quote as urlquote
 import base64
 import uuid
@@ -18,7 +18,7 @@ import uuid
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
-AFRAME_DIRECTORY = os.path.join(APP_PATH,"aframe")
+AFRAME_DIRECTORY = os.path.join(APP_PATH,"templates")
 
 # "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
 
@@ -46,10 +46,9 @@ def download(path):
     """Serve a file from the upload directory."""
     return send_from_directory(UPLOAD_DIRECTORY, path, as_attachment=True)
 
-@app.server.route('/aframe/<resource>')
-def serve_static(resource):
-    return send_from_directory(AFRAME_DIRECTORY, resource)
-
+@app.server.route('/view/<uid>')
+def serve_static(uid):
+	return render_template('index.html', name=uid)
 # df_lat_lon = pd.read_csv(
 #     os.path.join(APP_PATH, os.path.join("data", "lat_lon_counties.csv"))
 # )
@@ -162,8 +161,8 @@ app.layout = html.Div(
                                 html.Div(id='output-data-upload'),
                                 # html.P("Uploaded files:",id="heatmap-title2"),
                                 html.Ul(id="file-list"),
-                                html.Div(id='intermediate-value')
-                                # html.Div(id='intermediate-value', style={'display': 'none'})
+                                # html.Div(id='intermediate-value')
+                                html.Div(id='intermediate-value', style={'display': 'none'})
                             ],
                         )
                     ],
@@ -177,8 +176,8 @@ app.layout = html.Div(
                                 html.P(id="chart-selector", children="Enter VR World:"),
                                 html.Div([
                                     # html.Div(dcc.Input(id='input-box', type='text')),
-                                    html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),
-                                    # html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href='/aframe/index.html'),
+                                    # html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),
+                                    # html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href='/view/123'),
                                     html.Div(id='output-container-button',children='')
                                     # html.Div(dcc.Input(id='input-box', type='text')),
                                     # html.A(html.Button("Let's fly!", id='button'),href='http://singlecellvr.com/'),
@@ -257,16 +256,30 @@ def update_output(value):
 # 		# return [False,[html.Li(file_download_link(filename+unique_id)) for filename in files]]
 # 		return redirect('/aframe/index.html')
 
+# @app.callback(
+#     Output('output-container-button', 'children'),
+#     [Input('button', 'n_clicks'),Input('intermediate-value', 'children')])
+# def update_output(n_clicks,unique_id):
+# 	# files = uploaded_files()
+# 	if n_clicks<1:
+# 		return 'no files yet'
+# 	else:
+# 		return html.A(unique_id, href="/aframe/index.html?view={}".format(urlquote(unique_id)))
+	# else:
+	# 	# return [False,[html.Li(file_download_link(filename+unique_id)) for filename in files]]
+	# 	return redirect('/aframe/index.html')
+
 @app.callback(
     Output('output-container-button', 'children'),
-    [Input('button', 'n_clicks'),Input('intermediate-value', 'children')])
-def update_output(n_clicks,unique_id):
-	files = uploaded_files()
-	if len(files) == 0 or n_clicks<2:
-		return 'no files yet'
+    [Input('intermediate-value', 'children')])
+def update_output(unique_id):
+	# files = uploaded_files()
+	if unique_id=='':
+		# return 'no files yet'
+		return html.Button("Let's fly!", id='button',disabled=True,n_clicks=0)
 	else:
-		# return [False,[html.Li(file_download_link(filename+unique_id)) for filename in files]]
-		return redirect('/aframe/index.html')
+		return html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href="/view/"+str(unique_id)),
+		# html.A(unique_id, href="/view/"+str(unique_id))
 
 @app.callback(
     [Output("file-list", "children"),Output("intermediate-value", "children")],
