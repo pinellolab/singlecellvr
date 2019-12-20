@@ -1,0 +1,1 @@
+web: python ./dash_app/apps/dash-singlecell-vr/app.py
