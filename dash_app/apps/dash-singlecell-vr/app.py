@@ -42,6 +42,13 @@ app = dash.Dash(
 )
 server = app.server
 
+@app.before_request
+def before_request():
+    if request.url.startswith('https://'):
+        url = request.url.replace('https://', 'http://', 1)
+        code = 301
+        return redirect(url, code=code)
+
 @server.route("/download/<path:path>")
 def download(path):
     """Serve a file from the upload directory."""
