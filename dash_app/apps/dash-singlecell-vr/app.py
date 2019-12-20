@@ -84,13 +84,13 @@ app.layout = html.Div(
         html.Div(
             id="header",
             children=[
-                html.Img(id="logo", src=app.get_asset_url("SCVR_logo.png"),style={'height':'15%', 'width':'15%'}),
-                html.H4(children="Single Cell VR"),
-                html.P(
-                    id="description",
-                    children="† Single Cell Virtual Reality is a web tool for single-cell data exploration.\
-                    VR Headset device required. Google Cardboard is currently the primarily supported headset for this data visualization software.",
-                ),
+                html.Img(id='logo',src=app.get_asset_url("SCVR_logo.png"),style={'height':'15%', 'width':'30%'}),
+                # html.H4(children="Single Cell VR"),
+                # html.P(
+                #     id="description",
+                #     children="† Single Cell Virtual Reality is a web tool for single-cell data exploration. VR Headset device required. Google Cardboard is currently the primarily supported headset for this data visualization software.",
+                # ),
+                html.Button("Help", id='button-help',disabled=True,n_clicks=0,style={'height': 40,'width':150})
             ],
         ),
         html.Div(
@@ -109,8 +109,8 @@ app.layout = html.Div(
                                 dcc.Dropdown(
                                     id='chart-dropdown',
                                     options=[
-                                        {'label': 'Nestorowa2016-STREAM', 'value': 'Nestorowa2016-STREAM'},
-                                        {'label': 'Paul2015-PAGA', 'value': 'Paul2015-PAGA'},
+                                        {'label': 'Mouse blood developmental trajectories', 'value': 'Nestorowa2016-STREAM'},
+                                        {'label': 'Mouse myeloid and erythroid differentiation graph', 'value': 'Paul2015-PAGA'},
                                     ],
                                     # value='Nestorowa2016-STREAM'
                                     value=None
@@ -132,13 +132,13 @@ app.layout = html.Div(
                                     ]),
                                     style={
                                         'width': '100%',
-                                        'height': '60px',
+                                        'height': '100px',
                                         'lineHeight': '60px',
                                         'borderWidth': '1px',
                                         'borderStyle': 'dashed',
                                         'borderRadius': '5px',
                                         'textAlign': 'center',
-                                        'margin': '5px'
+                                        'margin': '7px'
                                     },
                                     # Allow multiple files to be uploaded
                                     multiple=True
@@ -146,7 +146,12 @@ app.layout = html.Div(
                                 html.Div(id='output-data-upload'),
                                 # html.P("Uploaded files:",id="heatmap-title2"),
                                 html.Ul(id="file-list"),
-                                html.Div(id='intermediate-value', style={'display': 'none'})
+                                html.Div(id='intermediate-value', style={'display': 'none'}),
+                                html.P("How to prepare for your submission:",id="heatmap-title2"),
+                                dcc.Markdown('''
+                                    * [Generate STREAM trajectories](https://nbviewer.jupyter.org/github/pinellolab/scATAC-benchmarking/blob/master/Real_Data/Buenrostro_2018/extra_clustering/cisTopic/cisTopic_buenrostro2018.ipynb?flush_cache=true)
+                                    * [Generate PAGA graph](https://nbviewer.jupyter.org/github/pinellolab/scATAC-benchmarking/blob/master/Real_Data/Buenrostro_2018/extra_clustering/Cusanovich2018/Cusanovich2018_buenrostro2018.ipynb?flush_cache=true)
+                                    ''')
                             ],
                         )
                     ],
@@ -217,11 +222,14 @@ def file_download_link(filename):
     [Output('dd-output-container', 'children'),Output("intermediate-value2", "children")],
     [Input('chart-dropdown', 'value')])
 def update_output(value):
-    if(value=="Nestorowa2016-STREAM"):
-        file_id = 'nestorowa2016_stream_report'
-    elif(value=="Paul2015-PAGA"):
-        file_id = 'paul2015_paga_report'
-    return ['You have selected "{}"'.format(value),file_id]
+    if(value != None):
+        if(value=="Nestorowa2016-STREAM"):
+            file_id = 'nestorowa2016_stream_report'
+        elif(value=="Paul2015-PAGA"):
+            file_id = 'paul2015_paga_report'
+        return ['You have selected "{}"'.format(value),file_id]
+    else:
+        return ['No dataset is selected yet',None]
 
 # @app.callback(
 #     Output('output-container-button2', 'children'),
@@ -276,7 +284,7 @@ def update_output(unique_id,file_id):
 
 	if(unique_id==None and file_id==None):
 		# return 'no files yet'
-		return html.Button("Let's fly!", id='button',disabled=True,n_clicks=0)
+		return html.Button("Please choose or upload dataset!", id='button',disabled=True,n_clicks=0)
 	if(unique_id !=None):
 		return html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href="/view/"+str(unique_id))
 	if(file_id !=None):
@@ -294,9 +302,9 @@ def update_output(uploaded_filenames, uploaded_file_contents):
             unique_id = save_file(name, data)
             return [[html.P('File ' + name + ' has been uploaded.')],unique_id]
     else:
-    	return [[html.P("No files yet!")],'','']
+    	return [[html.P("No files yet!")],None]
 
 
 if __name__ == "__main__":
     app.run_server(port=os.environ['PORT'])
-    # app.run_server(port=8050)
+    # app.run_server(port=8050,debug=True)

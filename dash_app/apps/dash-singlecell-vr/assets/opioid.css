@@ -314,7 +314,7 @@ p {
 
 #heatmap-title {
     font-size: 2rem;
-    margin-bottom: 5rem;
+    margin-bottom: 1rem;
 }
 
 #description {
@@ -326,9 +326,19 @@ p {
 }
 
 #logo {
-    height: 15rem;
-    margin-bottom: 1rem;
+    height: 12rem;
+    margin-bottom: 5rem;
 }
+
+#button-help{
+    margin-top: 8rem;
+    margin-right: 3rem;
+}
+
+#file-list{
+    margin-bottom: 8rem;
+}
+
 
 #slider-text, #chart-selector {
     margin-bottom: 2rem !important;
@@ -386,7 +396,8 @@ input[type="button"] {
     display: inline-block;
     height: 38px;
     padding: 0 30px;
-    color: #555;
+    /*color: #555;*/
+    color: #A7DBFB;
     text-align: center;
     font-size: 11px;
     font-weight: 600;
@@ -412,7 +423,8 @@ button:focus,
 input[type="submit"]:focus,
 input[type="reset"]:focus,
 input[type="button"]:focus {
-    color: #333;
+    /*color: #333;*/
+    color:#F5FAFD;
     border-color: #888;
     outline: 0;
 }
@@ -688,15 +700,16 @@ hr {
 }
 
 #heatmap-title2 {
-    margin: 0;
+    margin: 2.5rem 0 1.0rem 0;
     /*padding: 1rem;*/
     font-size: 2rem;
 }
 
 #upload-data {
     margin: 0;
-    padding: 10rem 3rem 3rem 3rem;
+    padding: 2em 3rem 3rem 3rem;
     font-size: 2rem;
+    margin-top: 1rem;
 }
 
 #county-choropleth {
@@ -808,8 +821,13 @@ hr {
 @media (min-width: 1251px) {
     /*For desktop*/
     #logo {
+/*        float: left;
+        padding-right: 2rem;*/
+    }
+
+    #button-help {
         float: right;
-        padding-right: 2rem;
+        /*padding-right: 6rem;*/
     }
 
     #header p {
