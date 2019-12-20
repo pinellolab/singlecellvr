@@ -3,3 +3,4 @@ node_modules
 *.json
 *.log
 __pycache__
+app_uploaded_files
