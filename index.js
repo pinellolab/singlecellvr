@@ -320,7 +320,7 @@ const setInitialCameraPositionPaga = (nodes) => {
 const renderLegend = (metadata) => {
   const legendColors = {};
   metadata.forEach((metadatum) => {
-    legendColors[metadatum.label] = metadatum.label_color;
+    legendColors[metadatum.cluster] = metadatum.cluster_color;
   });
   const legend = document.getElementById('legend');
   Object.keys(legendColors).forEach((key) => {
@@ -347,7 +347,6 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
     edgeWeights[edgeId] = edge.weight;
   });
   const [branch_els, branch_draw_els] = createCurveEnities(branches);
-  // setDrawContainerContent(branch_els, branch_draw_els);
   const clusterColors = createCellMetadataObject(metadata);
   const cell_el = document.getElementById("cells");
   const cellEntities = [];
