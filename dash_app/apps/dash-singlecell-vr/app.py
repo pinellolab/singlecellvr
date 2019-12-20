@@ -17,7 +17,7 @@ import uuid
 
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 
-DATASET_DIRECTORY = os.path.join(APP_PATH, "app_datasets")
+# DATASET_DIRECTORY = os.path.join(APP_PATH, "app_datasets")
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
 
 
@@ -51,9 +51,9 @@ def download(path):
 def serve_static(uid):
 	return render_template('index.html', name=uid)
 
-@app.server.route('/download/<uid>')
-def serve_static2(uid):
-	return render_template('index.html', name=uid)
+# @app.server.route('/view/<uid>')
+# def serve_static2(uid):
+# 	return render_template('index.html', name=uid)
 	
 # df_lat_lon = pd.read_csv(
 #     os.path.join(APP_PATH, os.path.join("data", "lat_lon_counties.csv"))
@@ -99,28 +99,6 @@ app.layout = html.Div(
                 html.Div(
                     id="left-column",
                     children=[
-                        # html.Div(
-                        #     id="slider-container",
-                        #     children=[
-                        #         html.P(
-                        #             id="slider-text",
-                        #             children="Drag the slider to change the year:",
-                        #         ),
-                        #         dcc.Slider(
-                        #             id="years-slider",
-                        #             min=min(YEARS),
-                        #             max=max(YEARS),
-                        #             value=min(YEARS),
-                        #             marks={
-                        #                 str(year): {
-                        #                     "label": str(year),
-                        #                     "style": {"color": "#7fafdf"},
-                        #                 }
-                        #                 for year in YEARS
-                        #             },
-                        #         ),
-                        #     ],
-                        # ),
                         html.Div(
                             id="dropdown-container",
                             children=[
@@ -134,7 +112,8 @@ app.layout = html.Div(
                                         {'label': 'Nestorowa2016-STREAM', 'value': 'Nestorowa2016-STREAM'},
                                         {'label': 'Paul2015-PAGA', 'value': 'Paul2015-PAGA'},
                                     ],
-                                    value='Nestorowa2016-STREAM'
+                                    # value='Nestorowa2016-STREAM'
+                                    value=None
                                 ),
                                 html.Div(id='dd-output-container'),
                                 html.Div(id='intermediate-value2', style={'display': 'none'})
@@ -167,7 +146,6 @@ app.layout = html.Div(
                                 html.Div(id='output-data-upload'),
                                 # html.P("Uploaded files:",id="heatmap-title2"),
                                 html.Ul(id="file-list"),
-                                # html.Div(id='intermediate-value')
                                 html.Div(id='intermediate-value', style={'display': 'none'})
                             ],
                         )
@@ -240,11 +218,9 @@ def file_download_link(filename):
     [Input('chart-dropdown', 'value')])
 def update_output(value):
     if(value=="Nestorowa2016-STREAM"):
-        file_id = 'stream_report'
+        file_id = 'nestorowa2016_stream_report'
     elif(value=="Paul2015-PAGA"):
-        file_id = 'paga_report'
-    else:
-        file_id = ''
+        file_id = 'paul2015_paga_report'
     return ['You have selected "{}"'.format(value),file_id]
 
 # @app.callback(
@@ -297,13 +273,14 @@ def update_output(value):
     [Input('intermediate-value', 'children'),Input('intermediate-value2', 'children')])
 def update_output(unique_id,file_id):
 	# files = uploaded_files()
-	if(unique_id=='' and file_id==''):
+
+	if(unique_id==None and file_id==None):
 		# return 'no files yet'
 		return html.Button("Let's fly!", id='button',disabled=True,n_clicks=0)
-	if(unique_id !=''):
+	if(unique_id !=None):
 		return html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href="/view/"+str(unique_id))
-	if(file_id !=''):
-		return html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href="/download/"+str(file_id))
+	if(file_id !=None):
+		return html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href="/view/"+str(file_id))
 
 @app.callback(
     [Output("file-list", "children"),Output("intermediate-value", "children")],
@@ -317,13 +294,9 @@ def update_output(uploaded_filenames, uploaded_file_contents):
             unique_id = save_file(name, data)
             return [[html.P('File ' + name + ' has been uploaded.')],unique_id]
     else:
-    	return [[html.P("No files yet!")],'']
-    # files = uploaded_files()
-    # if len(files) == 0:
-    #     return [html.Li("No files yet!")]
-    # else:
-    #     return [html.Li(file_download_link(filename)) for filename in files]
+    	return [[html.P("No files yet!")],'','']
 
 
 if __name__ == "__main__":
-    app.run_server(port=os.environ['PORT'])
+    # app.run_server(port=os.environ['PORT'])
+    app.run_server(port=8050)
