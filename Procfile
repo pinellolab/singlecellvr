@@ -1,1 +1,1 @@
-web: gunicorn --pythonpath apps/dash-singlecell-vr app:server --timeout 300
+web: gunicorn ./apps/dash-singlecell-vr/app:server --timeout 300
