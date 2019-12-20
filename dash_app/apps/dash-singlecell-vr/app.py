@@ -156,8 +156,8 @@ app.layout = html.Div(
                                 html.Div(id='intermediate-value', style={'display': 'none'}),
                                 html.P("How to prepare for your submission:",id="heatmap-title2"),
                                 dcc.Markdown('''
-                                    * [Generate STREAM trajectories](https://nbviewer.jupyter.org/github/pinellolab/scATAC-benchmarking/blob/master/Real_Data/Buenrostro_2018/extra_clustering/cisTopic/cisTopic_buenrostro2018.ipynb?flush_cache=true)
-                                    * [Generate PAGA graph](https://nbviewer.jupyter.org/github/pinellolab/scATAC-benchmarking/blob/master/Real_Data/Buenrostro_2018/extra_clustering/Cusanovich2018/Cusanovich2018_buenrostro2018.ipynb?flush_cache=true)
+                                    * [Generate STREAM trajectories](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/dash_app/apps/dash-singlecell-vr/assets/reformat_files_STREAM.ipynb?flush_cache=true)
+                                    * [Generate PAGA graph](https://github.com/pinellolab/singlecellvr/blob/master/dash_app/apps/dash-singlecell-vr/assets/reformat_files_PAGA.ipynb?flush_cache=true)
                                     ''')
                             ],
                         )
