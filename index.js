@@ -15,7 +15,7 @@ document.getElementById("moveToggle").addEventListener("click", () => {
 
 const unzip = async () => {
   const zipper = new JSZip();
-  const response = await fetch('https://cdn.glitch.com/f09ba84c-8d76-41f9-982e-38302812164a%2Fstream_report.zip?v=1576780693327');
+  const response = await fetch('https://cdn.glitch.com/f09ba84c-8d76-41f9-982e-38302812164a%2Fpaga_report.zip?v=1576804502795');
   const blob = await response.blob();
   const result = await zipper.loadAsync(blob)
   return result;
@@ -118,6 +118,7 @@ document.body.addEventListener('keydown', (e) => {
         hud.position.set(0, 0, -.5);
         hud.visible = true;
       }
+      document.getElementById("cursor").object3D.visible = false;
     }
   } else if (e.keyCode === 38) { 
     if (freeMove) {
@@ -156,6 +157,7 @@ document.body.addEventListener('keyup', (e) => {
       if (hud.visible) {
         hud.visible = false;
       }
+      document.getElementById("cursor").object3D.visible = true;
     }
   }
 });

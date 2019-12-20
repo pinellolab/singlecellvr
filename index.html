@@ -7,17 +7,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.4.5/fuse.min.js"></script>
     <script src="https://rawgit.com/andreasplesch/aframe-meshline-component/master/dist/aframe-meshline-component.min.js"></script>
     <script src="jszip.min.js"></script>
-    <script>
-      AFRAME.registerComponent('cursor-listener', {
-        init: function () {
-          this.el.addEventListener('click', function (evt) {
-            console.log(evt.detail.intersection.object.el.className);
-            currentBranch = evt.detail.intersection.object.el.className;
-            positionIndex = 0;
-          });
-        }
-      });
-    </script>
   </head>
   <body>
     <a-scene id="test">
@@ -38,7 +27,7 @@
                   </a-entity>
                 </a-entity>
                 <a-gui-cursor id="cursor"
-                      raycaster="objects: [gui-interactable], .S0_S1, .S0_S2, .S0_S3"
+                      raycaster="objects: [gui-interactable]"
                       fuse="true" fuse-timeout="2000"
                       design="ring"
                 >
@@ -48,7 +37,7 @@
         
       
       <a-entity id="mainContainer">
-        <a-entity id="drawContainer" animation="enabled: false; property: rotation; dir: reverse; easing: linear; to: 0 360 0; loop: true; dur: 30000">
+        <a-entity id="drawContainer" animation="property: rotation; dir: reverse; easing: linear; to: 0 360 0; loop: true; dur: 30000">
           <a-entity id="thicklines"></a-entity>
           <a-entity id="pagacells"></a-entity>
           <a-entity id="curve-container"></a-entity>
