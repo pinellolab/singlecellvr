@@ -6,6 +6,7 @@
     <script src="https://rawgit.com/rdub80/aframe-gui/master/dist/aframe-gui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.4.5/fuse.min.js"></script>
     <script src="https://rawgit.com/andreasplesch/aframe-meshline-component/master/dist/aframe-meshline-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
     <script src="/static/jszip.min.js"></script>
   </head>
   <body>
@@ -95,6 +96,8 @@
           position="10 -6 0" panel-color="white" rotation="0 0 0" billboard id="legend">
         </a-gui-flex-container>
       </a-entity>
+
+      <a-entity environment="skyType: atmosphere; ground: none; dressing: cylinder; dressingAmount: 10; dressingColor: #228B22; grid: none;"></a-entity>
     </a-scene>
     <script src="/static/index.js"></script>
   </body>
