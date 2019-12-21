@@ -7,7 +7,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
 from dash.dependencies import Input, Output, State
-import cufflinks as cf
 from flask import Flask, send_from_directory,redirect,render_template
 from urllib.parse import quote as urlquote
 import base64
@@ -319,4 +318,4 @@ def update_output(uploaded_filenames, uploaded_file_contents):
 
 if __name__ == "__main__":
     # app.run_server(port=os.environ['PORT'])
-    app.run_server(port=8050,debug=True)
+    app.run_server(port=8050,debug=True,host='0.0.0.0',ssl_context='adhoc')

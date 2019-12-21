@@ -15,7 +15,7 @@ document.getElementById("moveToggle").addEventListener("click", () => {
 
 const unzip = async (uuid) => {
   const zipper = new JSZip();
-  const response = await fetch('//singlecellvr.herokuapp.com/download/' + uuid + '.zip');
+  const response = await fetch('/download/' + uuid + '.zip');
   const blob = await response.blob();
   const result = await zipper.loadAsync(blob)
   return result;
@@ -36,7 +36,7 @@ const visibleHeightAtZDepth = ( depth ) => {
   else depth += cameraOffset;
 
   // vertical fov in radians
-  const vFOV = camera.fov * Math.PI / 180; 
+  const vFOV = camera.fov * Math.PI / 180;
 
   // Math.abs to ensure the result is always positive
   return 2 * Math.tan( vFOV / 2 ) * Math.abs( depth );
@@ -120,28 +120,28 @@ document.body.addEventListener('keydown', (e) => {
       }
       document.getElementById("cursor").object3D.visible = false;
     }
-  } else if (e.keyCode === 38) { 
+  } else if (e.keyCode === 38) {
     if (freeMove) {
       movement(.05);
     } else {
-      moveCamera(e);  
+      moveCamera(e);
     }
   } else if (e.keyCode === 40) {
     if (freeMove) {
       movement(-.05);
     } else {
-      moveCamera(e);  
-    } 
+      moveCamera(e);
+    }
   } else if (e.code === 'Enter') {
     currentSearch = '';
     viewGene('metadata', 'label_color');
   } else if (e.key.length === 1) {
-    currentSearch = currentSearch + e.key; 
+    currentSearch = currentSearch + e.key;
     let fuse = new Fuse(geneList, options);
     let result = fuse.search(currentSearch);
     result1 = result.length > 0 ? result[0].gene : "";
     result2 = result.length > 1 ? result[1].gene : "";
-    result3 = result.length > 2 ? result[2].gene : ""; 
+    result3 = result.length > 2 ? result[2].gene : "";
 
   }
   resultsEntity.setAttribute('text', 'value', "Search: " + currentSearch);
@@ -166,7 +166,7 @@ const resultElements = ["result1", "result2", "result3"];
 resultElements.forEach((element) => {
   const result = document.getElementById(element);
   result.addEventListener("click", () => {
-    viewGene('gene_' + result.getAttribute('text').value, 'color');  
+    viewGene('gene_' + result.getAttribute('text').value, 'color');
   });
 });
 
@@ -441,7 +441,7 @@ const setDrawContainerContent = (branch_els, branch_draw_els) => {
 }
 
 const renderStream = async (curves, cells, metadata) => {
-  setInitialCameraPosition(curves);  
+  setInitialCameraPosition(curves);
   const camvec = new THREE.Vector3();
   const camera = AFRAME.scenes[0].camera;
   camera.getWorldPosition(camvec);
@@ -466,7 +466,7 @@ const renderStream = async (curves, cells, metadata) => {
   metadata.forEach((cell) => {
     cellColors[cell.cell_id] = cell.label_color;
   });
-  
+
   renderStreamCells(cells);
 }
 
