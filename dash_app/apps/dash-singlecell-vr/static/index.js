@@ -313,6 +313,7 @@ const setInitialCameraPositionPaga = (nodes) => {
   const xMidpoint = (xMax + xMin) / 2;
   const yMidpoint = (yMax + yMin) / 2;
 
+  document.getElementsByClassName('environmentGround')[0].object3D.position.set(0, Math.min(yMin, -12), 0);
   const camera_el = document.getElementById("rig");
   camera_el.object3D.position.set(xMidpoint, yMidpoint, xRange + 1);
 }
@@ -411,6 +412,7 @@ const setInitialCameraPosition = (curves) => {
   const yMedian = getMedian(yValues) * 100;
   const xMedian = getMedian(xValues) * 100;
 
+  document.getElementsByClassName('environmentGround')[0].object3D.position.set(0, Math.min(...yValues, -12), 0);
   const camera_el = document.getElementById("rig");
   camera_el.object3D.position.set(xMedian, yMedian, zMax + 1.2);
   const mapPlayer = document.getElementById("mapPlayer");
