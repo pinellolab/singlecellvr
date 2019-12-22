@@ -2,15 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>About SingleCellVR</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>About Single Cell VR</title>
+    <link rel="stylesheet" type="text/css" href="/static/help.css">
 </head>
 <body>
- 	<h1><center>Coming soon!</center></h1>
- 	<p>Single Cell Virtual Reality is a web tool for single-cell data exploration. VR Headset device required. Google Cardboard is currently the primarily supported headset for this data visualization software.</p>
+    <h1>Single Cell VR Help</h1>
+    <h3>What is Single Cell VR</h3>
+    <p>SingleCellVR is a website that allows users to interactively explore published studies or new data through an innovative VR interface. In a 3D space, users can explore developmental trajectories, cellular composition, and stable cell states. In addition, cells can be colored based on metadata such as cell type, respective clustering, and gene expression.</p>
+    <br>
+    <br><img src="/static/screenshot1.png" alt="Figure1" width="50%" height="50%"></p>
+    <br>
 
- 
-<!-- your content will go there..  -->
+    <h3>What can I do with Single Cell VR?</h3>
+    <p>SingleCellVR can be used to visualize two types of analysis results on transcriptomic data:</p>
+
+    <p>(1) STREAM trajectories:
+        <ul>
+            You can visualize and explore the cellular developmental trajectories, cell states, and their gene expression patterns at single-cell level <a href="https://github.com/pinellolab/STREAM">https://github.com/pinellolab/STREAM</a>.
+        </ul>
+    </p>
+
+    <p>(2) PAGA graph:
+        <ul>
+            You can visualize and explore the coarse-grained connectivity structures of cellular complex manifolds, cell states and their gene expression patterns at single-cell level <a href="https://github.com/theislab/paga">https://github.com/theislab/paga</a>.
+        </ul>
+    </p>
+
+    <h3>How can I use it?</h3>
+    <p>Single Cell Virtual Reality is a web tool for single-cell data exploration. VR Headset device required. Google Cardboard is currently the primarily supported headset for this data visualization software.</p>
+
+    <h4>What type of hardware do I need?</h4>
+    <p>There are several similar versions of a cardboard adapter available for ~$15. This can be purchased on websites like Amazon.com or Google. You can also simply use your computer screen to do initial exploration of the data in 2-D. It is advisable to use a keyboard to unlock the full set of interactive functionalities associated with these key shortcuts:</p>
+    <ul class="ul1">
+        <li><b>Space bar</b>: Summons the menu in front of the camera</li>
+        <li><b>Shift (mobile only)</b>: Summons the minimap</li>
+        <li><b>Alphanumeric keys</b>: Allow user to search for genes to display</li>
+        <li><b>Enter</b>: Resets cell colors and the search results</li>
+        <li><b>Up and down arrows</b>: Move user in direction or opposite direction of where they are looking</li>
+    </ul>
+    <p>You can easily connect a keyboard with your smartphone using a bluetooth enabled keyboard (a small portable keyboard can be purchased from Amazon for ~$15).However, you can still use a normal computer and your browser and explore with your mouse and keyboard the 3d transcriptional space with cells, trajectories and the graph abstraction.</p>
+
+
+    <h4>What should I do if I’m seeing double vision in VR mode?</h4>
+    <p>The following should resolve the issue for an android phone - the issue has not yet been reported for iOS phones. 
+    <ul class="ul2">
+        <li>Ensure your phone is set to the highest resolution</li>
+        <li>Download and install the Google Cardboard app</li>
+        <li>If you do not have a standard visor, scan the QR barcode on your visor or on a website like the following: https://www.hypergridbusiness.com/faq/vr-headset-qr-codes/</li>
+    </ul>
+
+    <h3>How much does it cost to use Single-Cell VR?</h3>
+    <p>Single-Cell VR is free!</p>
+
+    <h3>How can I cite Single-Cell VR?</h3>
+    <p>For now, you can simply use the link to the website. </p>
+
+
+
+    <h3>Credits</h3>
+    <p>Core team members:<br />
+    David Stein, Huidong Chen, Michael Vinyard, Luca Pinello</p>
+
+    <p>Team members from Hackseq 2019 Project 15: Virtual and Augmented Reality for Single-Cell Data Exploration:<br />
+    Michelle Crown, Alexander Dungate, David Lin, Sepand Dyanatkar Motaghed</p>
  
 </body>
 </html>
