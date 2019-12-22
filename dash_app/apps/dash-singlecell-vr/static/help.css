@@ -1,0 +1,42 @@
+h1{
+	margin-right: 10px;
+  	margin-left: 10px;
+ }
+
+h3{
+	margin-right: 20px;
+  	margin-left: 20px;
+ }
+
+h4{
+	margin-right: 30px;
+  	margin-left: 30px;
+ }
+
+
+p {
+	margin-right: 40px;
+  	margin-left: 40px;
+}
+
+img {
+  	margin-right: 20px;
+  	margin-left: 20px;
+}
+
+li
+{    
+
+}
+
+.ul1>li
+{
+	margin-right: 30px;
+  	margin-left: 30px;
+}
+
+.ul2>li
+{
+	margin-right: 30px;
+  	margin-left: 30px;
+}
