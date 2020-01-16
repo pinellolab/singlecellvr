@@ -95,18 +95,16 @@ app.layout = dbc.Container(
     fluid=True, 
     children=[
         dbc.Row(
-            id="header", className="justify-content-between align-items-center",
+            id="header", className="justify-content-between align-items-center flex-nowrap",
             children=[
-                html.Img(id='logo', className="col-4", src=app.get_asset_url("SCVR_logo.png")),
-                html.A(className="col-2", href='/help/', children=[dbc.Button("Help", id='button-help', color="dark", disabled=False,n_clicks=0)]),
+                html.Img(id='logo', className="col-xs-6 col-sm-6 col-lg-4", src=app.get_asset_url("SCVR_logo.png")),
+                html.A(className="col-xs-2 col-sm-2 col-lg-2", href='/help/', children=[dbc.Button("Help", id='button-help', color="dark", disabled=False,n_clicks=0)]),
             ],
-        ),
+        ), 
         dbc.Row(
-            className="content-row",
             children=[
                 dbc.Col( 
-                    width=4,
-                    className="col-container",
+                    className="col-container col-lg-4 col-sm-12 col-xs-12 pull-left",
                     children=[
                         html.Div(
                             id="dropdown-container",
@@ -130,6 +128,7 @@ app.layout = dbc.Container(
                             ],
                         ),
                     ]),
+                html.Div(className="clearfix visible-xs-block visible-sm-block visible-md-block visible-lg-block"),
                 dbc.Col(
                     className="col-container",
                     children=[
@@ -154,8 +153,7 @@ app.layout = dbc.Container(
         dbc.Row( 
             children=[
                 dbc.Col(
-                    className="col-container",
-                    width=4,
+                    className="col-container col-lg-4 col-sm-12 col-xs-12",
                     children=[
                         html.Div(
                             id="heatmap-container2",
@@ -191,16 +189,11 @@ app.layout = dbc.Container(
                     children=[
                         html.Div(
                             id="video-container",
-                            className="col-content",
+                            className="col-content col-sm-12 col-xs-12",
                             children=[
                                 html.H3(id="chart-selector2", children="Video tutorial:"),
-                                # html.Div([
-                                #     # html.Div(dcc.Input(id='input-box', type='text')),
-                                #     html.A(html.Button("Let's fly!", id='button'),href='http://singlecellvr.com/'),
-                                # ]),
                                 html.Div([
-                                    # html.Div(dcc.Input(id='input-box', type='text')),
-                                    html.Iframe(id='demo_video',src="https://www.youtube.com/embed/i4Zt3JZejbg", width="640",height="380"),
+                                    html.Iframe(id='demo_video',src="https://www.youtube.com/embed/i4Zt3JZejbg"),
                                 ]),
                             ],
                         ),
