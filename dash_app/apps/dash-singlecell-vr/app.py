@@ -3,6 +3,7 @@ import pathlib
 import re
 
 import dash
+import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
@@ -11,7 +12,7 @@ from flask import Flask, send_from_directory,redirect,render_template
 from urllib.parse import quote as urlquote
 import base64
 import uuid
-
+  
 # Load data
 
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
@@ -38,6 +39,7 @@ app = dash.Dash(
     meta_tags=[
         {"name": "viewport", "content": "width=device-width, initial-scale=1.0"}
     ],
+    external_stylesheets=[dbc.themes.BOOTSTRAP]
 )
 server = app.server
 
@@ -69,7 +71,7 @@ def show_help():
 #     os.path.join(APP_PATH, os.path.join("data", "lat_lon_counties.csv"))
 # )
 # df_lat_lon["FIPS "] = df_lat_lon["FIPS "].apply(lambda x: str(x).zfill(5))
-
+  
 # df_full_data = pd.read_csv(
 #     os.path.join(
 #         APP_PATH, os.path.join("data", "age_adjusted_death_rate_no_quotes.csv")
@@ -86,33 +88,31 @@ def show_help():
 # mapbox_access_token = "pk.eyJ1IjoicGxvdGx5bWFwYm94IiwiYSI6ImNqdnBvNDMyaTAxYzkzeW5ubWdpZ2VjbmMifQ.TXcBE-xg9BFdV2ocecc_7g"
 # mapbox_style = "mapbox://styles/plotlymapbox/cjvprkf3t1kns1cqjxuxmwixz"
 
-# App layout
+# App layout 
 
-app.layout = html.Div(
+app.layout = dbc.Container(
     id="root",
+    fluid=True, 
     children=[
-        html.Div(
-            id="header",
+        dbc.Row(
+            id="header", className="justify-content-between align-items-center",
             children=[
-                html.Img(id='logo',src=app.get_asset_url("SCVR_logo.png"),style={'height':'15%', 'width':'30%'}),
-                # html.H4(children="Single Cell VR"),
-                # html.P(
-                #     id="description",
-                #     children="† Single Cell Virtual Reality is a web tool for single-cell data exploration. VR Headset device required. Google Cardboard is currently the primarily supported headset for this data visualization software.",
-                # ),
-                html.A(html.Button("Help", id='button-help',disabled=False,n_clicks=0,style={'height': 40,'width':150}),href='/help/'),
+                html.Img(id='logo', className="col-4", src=app.get_asset_url("SCVR_logo.png")),
+                html.A(className="col-2", href='/help/', children=[dbc.Button("Help", id='button-help', color="dark", disabled=False,n_clicks=0)]),
             ],
         ),
-        html.Div(
-            id="app-container",
+        dbc.Row(
+            className="content-row",
             children=[
-                html.Div(
-                    id="left-column",
+                dbc.Col( 
+                    width=4,
+                    className="col-container",
                     children=[
                         html.Div(
                             id="dropdown-container",
-                            children=[
-                                html.P(
+                            className="col-content",
+                            children=[ 
+                                html.H3(
                                     id="slider-text",
                                     children="Choose dataset:",
                                 ),
@@ -126,31 +126,50 @@ app.layout = html.Div(
                                     value=None
                                 ),
                                 html.Div(id='dd-output-container'),
-                                html.Div(id='intermediate-value2', style={'display': 'none'})
+                                html.Div(id='intermediate-value2', style={'display': 'none'})       
                             ],
                         ),
+                    ]),
+                dbc.Col(
+                    className="col-container",
+                    children=[
+                        html.Div(
+                            id="graph-container2",
+                            className="col-content",
+                            children=[
+                                html.H3(id="chart-selector", children="Enter VR World:"),
+                                html.Div([
+                                    # html.Div(dcc.Input(id='input-box', type='text')),
+                                    # html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),
+                                    # html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href='/view/123'),
+                                    html.Div(id='output-container-button', children=''),
+                                    # html.Div(id='output-container-button2',children='')
+                                    # html.Div(dcc.Input(id='input-box', type='text')),
+                                    # html.A(html.Button("Let's fly!", id='button'),href='http://singlecellvr.com/'),
+                                ]),
+                            ],
+                        ),
+                    ]),
+            ]),
+        dbc.Row( 
+            children=[
+                dbc.Col(
+                    className="col-container",
+                    width=4,
+                    children=[
                         html.Div(
                             id="heatmap-container2",
+                            className="col-content",
                             children=[
-                                html.P("Or upload your data:",
+                                html.H3("Or upload your data:",
                                     id="heatmap-title"),
                                 dcc.Upload(
                                     id='upload-data',
-                                    children=html.Div([
+                                    className="dropper",
+                                    children=html.Div(className="dropper-text", children=[
                                         'Drag and Drop or ',
                                         html.A('Select Files')
                                     ]),
-                                    style={
-                                        'width': '100%',
-                                        'height': '100px',
-                                        'lineHeight': '60px',
-                                        'borderWidth': '1px',
-                                        'borderStyle': 'dashed',
-                                        'borderRadius': '5px',
-                                        'textAlign': 'center',
-                                        'margin': '7px',
-                                        'vertical-align': 'middle',
-                                    },
                                     # Allow multiple files to be uploaded
                                     multiple=True
                                 ),
@@ -158,37 +177,23 @@ app.layout = html.Div(
                                 # html.P("Uploaded files:",id="heatmap-title2"),
                                 html.Ul(id="file-list"),
                                 html.Div(id='intermediate-value', style={'display': 'none'}),
-                                html.P("How to prepare for your submission:",id="heatmap-title2"),
-                                dcc.Markdown('''
-                                    * [Generate STREAM trajectories](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/dash_app/apps/dash-singlecell-vr/assets/reformat_files_STREAM.ipynb?flush_cache=true)
-                                    * [Generate PAGA graph](https://github.com/pinellolab/singlecellvr/blob/master/dash_app/apps/dash-singlecell-vr/assets/reformat_files_PAGA.ipynb?flush_cache=true)
-                                    ''')
-                            ],
-                        )
-                    ],
-                ),
-                html.Div(
-                    id="right-column",
+                                html.Div(
+                                    children=[
+                                        html.P("How to prepare for your submission:",id="heatmap-title2"),
+                                        dcc.Markdown('''
+                                            * [Generate STREAM trajectories](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/dash_app/apps/dash-singlecell-vr/assets/reformat_files_STREAM.ipynb?flush_cache=true)
+                                            * [Generate PAGA graph](https://github.com/pinellolab/singlecellvr/blob/master/dash_app/apps/dash-singlecell-vr/assets/reformat_files_PAGA.ipynb?flush_cache=true)
+                                        ''')
+                                ])
+                        ])]),
+                dbc.Col(
+                    className="col-container",
                     children=[
                         html.Div(
-                            id="graph-container2",
-                            children=[
-                                html.P(id="chart-selector", children="Enter VR World:"),
-                                html.Div([
-                                    # html.Div(dcc.Input(id='input-box', type='text')),
-                                    # html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),
-                                    # html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href='/view/123'),
-                                    html.Div(id='output-container-button',children=''),
-                                    # html.Div(id='output-container-button2',children='')
-                                    # html.Div(dcc.Input(id='input-box', type='text')),
-                                    # html.A(html.Button("Let's fly!", id='button'),href='http://singlecellvr.com/'),
-                                ]),
-                            ],
-                        ),
-                        html.Div(
                             id="video-container",
+                            className="col-content",
                             children=[
-                                html.P(id="chart-selector2", children="Video tutorial:"),
+                                html.H3(id="chart-selector2", children="Video tutorial:"),
                                 # html.Div([
                                 #     # html.Div(dcc.Input(id='input-box', type='text')),
                                 #     html.A(html.Button("Let's fly!", id='button'),href='http://singlecellvr.com/'),
@@ -204,7 +209,7 @@ app.layout = html.Div(
             ],
         ),
     ],
-)
+)  
 
 def save_file(name, content):
     """Decode and store a file uploaded with Plotly Dash."""
@@ -295,12 +300,12 @@ def update_output(unique_id,file_id):
 
 	if(unique_id==None and file_id==None):
 		# return 'no files yet'
-		return html.Button("Please choose or upload dataset!", id='button',disabled=True,n_clicks=0)
+		return dbc.Button("Please choose or upload dataset!", id='button', className="fly-button", color="link", disabled=True,n_clicks=0)
 	if(unique_id !=None):
-		return html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href="/view/"+str(unique_id))
-	if(file_id !=None):
-		return html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href="/view/"+str(file_id))
-
+		return html.A(dbc.Button("Let's fly!", id='button',disabled=False,n_clicks=0, color="link", className="fly-button"),href="/view/"+str(unique_id))
+	if(file_id !=None):     
+		return html.A(dbc.Button("Let's fly!", id='button',disabled=False,n_clicks=0, color="link", className="fly-button"),href="/view/"+str(file_id))
+ 
 @app.callback(
     [Output("file-list", "children"),Output("intermediate-value", "children")],
     [Input("upload-data", "filename"), Input("upload-data", "contents")],
@@ -313,7 +318,7 @@ def update_output(uploaded_filenames, uploaded_file_contents):
             unique_id = save_file(name, data)
             return [[html.P('File ' + name + ' has been uploaded.')],unique_id]
     else:
-    	return [[html.P("No files yet!")],None]
+    	return [[html.P("")],None]
 
 
 if __name__ == "__main__":

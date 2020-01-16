@@ -1,0 +1,111 @@
+#root {
+    background-color: #1F2630;
+    padding: 3%;
+    min-height: 100vh;
+}
+
+body {
+    font-size: .8rem;
+    line-height: 1.6;
+    font-weight: 400;
+    font-family: "Open Sans", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color:#7fafdf;
+}
+
+#header {
+    margin-bottom: 1%;
+}
+
+.col-container {
+    background-color:#252E3F;
+    margin: 10px;
+}
+
+.col-container h3 {
+    font-size: 1rem;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+#chart-dropdown, #output-container-button {
+    margin-bottom: 15px;
+}
+
+#button-help {
+    width: 80%;
+}
+
+.col-content {
+    padding: 10px 15px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+}
+
+.Select div {
+    color: #7fafdf;
+    background-color: #252e3f;
+}
+
+.Select-control {
+    color: #7fafdf !important;
+}
+
+.Select-placeholder {
+    border: 1px solid #7fafdf !important;
+    border-radius: 4px !important;
+}
+
+.Select-control .Select-value, .Select-placeholder {
+    color: #aaa !important;
+}
+
+.content-row {
+    min-height: 10%;
+}
+
+.fly-button, #button-help {
+    font-size: .8rem;
+    color: #A7DBFB;
+    border: 1px solid #bbb;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 0 30px;
+    height: 2.4rem;
+}
+
+.fly-button:hover, #button-help:hover {
+    color:#F5FAFD;
+    border-color:#888;
+    outline: 0;
+    text-decoration: none;
+}
+
+#upload-data {
+    align-self: center;
+    width: 80%;
+}
+
+.dropper {
+    height: 7rem;
+    border-width: 1px;
+    border-style: dashed;
+    border-radius: 5px;
+    text-align: center;
+    margin: 7px;
+    vertical-align: middle;
+}
+
+.dropper-text {
+    margin-top: 15px;
+    font-size: 1rem;
+}
+
+.dropper-text a {
+    text-decoration: underline;
+}
+
+.Select-value-label {
+    color: #7fafdf !important;
+}

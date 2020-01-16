@@ -4,3 +4,4 @@ node_modules
 *.log
 __pycache__
 app_uploaded_files
+*.pyc
