@@ -103,7 +103,7 @@ app.layout = dbc.Container(
         ), 
         dbc.Row(
             children=[
-                dbc.Col( 
+                html.Div( 
                     className="col-container col-lg-4 col-md-12 col-sm-12",
                     children=[
                         html.Div(
@@ -120,7 +120,6 @@ app.layout = dbc.Container(
                                         {'label': 'Mouse blood developmental trajectories', 'value': 'Nestorowa2016-STREAM'},
                                         {'label': 'Mouse myeloid and erythroid differentiation graph', 'value': 'Paul2015-PAGA'},
                                     ],
-                                    # value='Nestorowa2016-STREAM'
                                     value=None
                                 ),
                                 html.Div(id='dd-output-container'),
