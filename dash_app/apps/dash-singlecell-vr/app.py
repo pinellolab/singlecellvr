@@ -104,7 +104,7 @@ app.layout = dbc.Container(
         dbc.Row(
             children=[
                 dbc.Col( 
-                    className="col-container col-lg-4 col-sm-12 col-xs-12 pull-left",
+                    className="col-container col-lg-4 col-md-12 col-sm-12",
                     children=[
                         html.Div(
                             id="dropdown-container",
