@@ -100,7 +100,7 @@ app.layout = dbc.Container(
                 html.Img(id='logo', className="col-xs-6 col-sm-6 col-lg-4", src=app.get_asset_url("SCVR_logo.png")),
                 html.A(className="col-xs-2 col-sm-2 col-lg-2", href='/help/', children=[dbc.Button("Help", id='button-help', color="dark", disabled=False,n_clicks=0)]),
             ],
-        ), 
+        ),  
         dbc.Row(
             children=[
                 html.Div( 
@@ -151,7 +151,7 @@ app.layout = dbc.Container(
             ]),
         dbc.Row( 
             children=[
-                dbc.Col(
+                html.Div(
                     className="col-container col-lg-4 col-sm-12 col-xs-12",
                     children=[
                         html.Div(
