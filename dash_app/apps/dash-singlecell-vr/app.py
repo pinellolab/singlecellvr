@@ -37,7 +37,8 @@ if not os.path.exists(UPLOAD_DIRECTORY):
 app = dash.Dash(
     __name__,
     meta_tags=[
-        {"name": "viewport", "content": "width=device-width, initial-scale=1.0"}
+        # {"name": "viewport", "content": "width=device-width, initial-scale=1.0"}
+        {"name": "viewport", "content": "width=device-width, initial-scale=1 maximum-scale=1.0, user-scalable=no"}
     ],
     external_stylesheets=[dbc.themes.BOOTSTRAP]
 )
