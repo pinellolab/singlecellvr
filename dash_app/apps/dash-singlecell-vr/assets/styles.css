@@ -3,6 +3,7 @@
     padding: 3%;
     min-height: 100vh;
     max-width: 100vw;
+    overflow: hidden;
 }
 
 body {
