@@ -95,11 +95,11 @@ app.layout = dbc.Container(
     fluid=True, 
     children=[
         dbc.Row(
-            id="header", className="justify-content-between align-items-center flex-nowrap",
+            id="header", className="justify-content-between align-items-center",
             children=[
-                html.Img(id='logo', className="col-lg-4 ", src=app.get_asset_url("SCVR_logo.png")),
+                html.Img(id='logo', className="col-lg-4", src=app.get_asset_url("SCVR_logo.png")),
                 html.Div(className="clearfix visible-xs-block visible-sm-block visible-md-block visible-lg-block"),
-                html.A(className="col-lg-2 ", href='/help/', children=[dbc.Button("Help", id='button-help', color="dark", disabled=False,n_clicks=0)]),
+                html.A(className="col-lg-2", href='/help/', children=[dbc.Button("Help", id='button-help', color="dark", disabled=False,n_clicks=0)]),
             ],
         ),  
         dbc.Row(

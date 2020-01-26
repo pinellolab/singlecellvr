@@ -16,6 +16,7 @@ body {
 
 #demo-video {
     min-width: 100%;
+    max-width: 100%;
 }
 
 #header {
@@ -38,6 +39,7 @@ body {
 }
 
 #button-help {
+    margin-top: 15px;
     width: 80%;
 }
 
