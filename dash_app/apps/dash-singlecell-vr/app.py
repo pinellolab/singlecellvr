@@ -97,9 +97,9 @@ app.layout = dbc.Container(
         dbc.Row(
             id="header", className="justify-content-between align-items-center flex-nowrap",
             children=[
-                html.Img(id='logo', className="col-lg-4 col-sm-12 col-xs-12", src=app.get_asset_url("SCVR_logo.png")),
+                html.Img(id='logo', className="col-lg-4 ", src=app.get_asset_url("SCVR_logo.png")),
                 html.Div(className="clearfix visible-xs-block visible-sm-block visible-md-block visible-lg-block"),
-                html.A(className="col-lg-2 col-sm-12 col-xs-12", href='/help/', children=[dbc.Button("Help", id='button-help', color="dark", disabled=False,n_clicks=0)]),
+                html.A(className="col-lg-2 ", href='/help/', children=[dbc.Button("Help", id='button-help', color="dark", disabled=False,n_clicks=0)]),
             ],
         ),  
         dbc.Row(
