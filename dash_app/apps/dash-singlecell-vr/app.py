@@ -37,7 +37,7 @@ if not os.path.exists(UPLOAD_DIRECTORY):
 app = dash.Dash(
     __name__,
     meta_tags=[
-        {"name": "viewport", "content": "width=device-width, initial-scale=1 maximum-scale=1.0, user-scalable=no"}
+        {"name": "viewport", "content": "width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1.0, user-scalable=no"}
     ],
     external_stylesheets=[dbc.themes.BOOTSTRAP]
 )
@@ -97,9 +97,9 @@ app.layout = dbc.Container(
         dbc.Row(
             id="header", className="justify-content-between align-items-center",
             children=[
-                html.Img(id='logo', className="col-lg-4", src=app.get_asset_url("SCVR_logo.png")),
-                html.Div(className="clearfix visible-xs-block visible-sm-block visible-md-block visible-lg-block"),
-                html.A(className="col-lg-2", href='/help/', children=[dbc.Button("Help", id='button-help', color="dark", disabled=False,n_clicks=0)]),
+                html.Img(id='logo', className="col-lg-4 col-md-4 col-sm-12", src=app.get_asset_url("SCVR_logo.png")),
+                # html.Div(className="clearfix visible-xs-block visible-sm-block visible-md-block visible-lg-block"),
+                html.A(className="col-lg-2 col-md-2 col-sm-2", href='/help/', children=[dbc.Button("Help", id='button-help', color="dark", disabled=False, n_clicks=0)]),
             ],
         ),  
         dbc.Row(

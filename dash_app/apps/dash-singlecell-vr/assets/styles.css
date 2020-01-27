@@ -14,9 +14,17 @@ body {
     color:#7fafdf;
 }
 
-#demo-video {
-    min-width: 100%;
-    max-width: 100%;
+#video-container {
+	position: relative;
+	padding-bottom: 56.25%; /* 16:9 */
+	height: 0;
+}
+
+
+#demo_video {
+    position: absolute;
+	width: 80%;
+	height: 80%;
 }
 
 #header {
@@ -116,9 +124,4 @@ body {
 
 .Select-value-label {
     color: #7fafdf !important;
-}
-
-#logo {
-    max-width: 100%;
-    max-height: 100%;
 }
