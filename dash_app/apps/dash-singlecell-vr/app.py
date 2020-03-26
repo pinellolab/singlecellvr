@@ -12,6 +12,7 @@ from flask import Flask, send_from_directory,redirect,render_template
 from urllib.parse import quote as urlquote
 import base64
 import uuid
+import qrcode
   
 # Load data
 
@@ -43,13 +44,6 @@ app = dash.Dash(
 )
 server = app.server
 
-# @app.before_request
-# def before_request():
-#     if request.url.startswith('https://'):
-#         url = request.url.replace('https://', 'http://', 1)
-#         code = 301
-#         return redirect(url, code=code)
-
 @server.route("/download/<path:path>")
 def download(path):
     """Serve a file from the upload directory."""
@@ -62,31 +56,6 @@ def serve_static(uid):
 @app.server.route('/help/')
 def show_help():
     return render_template('help.html')
-
-# @app.server.route('/view/<uid>')
-# def serve_static2(uid):
-# 	return render_template('index.html', name=uid)
-	
-# df_lat_lon = pd.read_csv(
-#     os.path.join(APP_PATH, os.path.join("data", "lat_lon_counties.csv"))
-# )
-# df_lat_lon["FIPS "] = df_lat_lon["FIPS "].apply(lambda x: str(x).zfill(5))
-  
-# df_full_data = pd.read_csv(
-#     os.path.join(
-#         APP_PATH, os.path.join("data", "age_adjusted_death_rate_no_quotes.csv")
-#     )
-# )
-# df_full_data["County Code"] = df_full_data["County Code"].apply(
-#     lambda x: str(x).zfill(5)
-# )
-# df_full_data["County"] = (
-#     df_full_data["Unnamed: 0"] + ", " + df_full_data.County.map(str)
-# )
-
-
-# mapbox_access_token = "pk.eyJ1IjoicGxvdGx5bWFwYm94IiwiYSI6ImNqdnBvNDMyaTAxYzkzeW5ubWdpZ2VjbmMifQ.TXcBE-xg9BFdV2ocecc_7g"
-# mapbox_style = "mapbox://styles/plotlymapbox/cjvprkf3t1kns1cqjxuxmwixz"
 
 # App layout 
 
@@ -138,13 +107,7 @@ app.layout = dbc.Container(
                             children=[
                                 html.H3(id="chart-selector", children="Enter VR World:"),
                                 html.Div([
-                                    # html.Div(dcc.Input(id='input-box', type='text')),
-                                    # html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),
-                                    # html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href='/view/123'),
                                     html.Div(id='output-container-button', children=''),
-                                    # html.Div(id='output-container-button2',children='')
-                                    # html.Div(dcc.Input(id='input-box', type='text')),
-                                    # html.A(html.Button("Let's fly!", id='button'),href='http://singlecellvr.com/'),
                                 ]),
                             ],
                         ),
@@ -182,7 +145,8 @@ app.layout = dbc.Container(
                                             * [Generate STREAM trajectories](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/dash_app/apps/dash-singlecell-vr/assets/reformat_files_STREAM.ipynb?flush_cache=true)
                                             * [Generate PAGA graph](https://github.com/pinellolab/singlecellvr/blob/master/dash_app/apps/dash-singlecell-vr/assets/reformat_files_PAGA.ipynb?flush_cache=true)
                                         ''')
-                                ])
+                                ]),
+                                html.Div(id="qr-output"),
                         ])]),
                 dbc.Col(
                     className="col-container",
@@ -226,6 +190,16 @@ def file_download_link(filename):
     location = "/download/{}".format(urlquote(filename))
     return html.A(filename, href=location)
 
+@app.callback(
+    Output(component_id='qr-output', component_property='children'),
+    [Input(component_id='intermediate-value', component_property='children')]
+)
+def generate_qrcode(unique_id):
+    img = qrcode.make("https://singlecellvr.herokuapp.com/view/" + str(unique_id))
+    i = img.get_image()
+    if unique_id:
+        i.save('./assets/' + str(unique_id) + '.bmp')
+        return html.Img(src='/assets/' + str(unique_id) + '.bmp', style={'width': '40%', 'margin-top': '10%'})
 
 @app.callback(
     [Output('dd-output-container', 'children'),Output("intermediate-value2", "children")],
@@ -239,51 +213,6 @@ def update_output(value):
         return ['You have selected "{}"'.format(value),file_id]
     else:
         return ['No dataset is selected yet',None]
-
-# @app.callback(
-#     Output('output-container-button2', 'children'),
-#     [Input('intermediate-value2', 'children')])
-# def update_output(unique_id):
-#     # files = uploaded_files()
-#     if unique_id=='':
-#         # return 'no files yet'
-#         return html.Button("Let's fly!", id='button',disabled=True,n_clicks=0)
-#     else:
-#         return html.A(html.Button("Let's fly!", id='button',disabled=False,n_clicks=0),href="/view/"+str(unique_id)),
-
-# @app.callback(
-#     dash.dependencies.Output('output-container-button', 'children'),
-#     [dash.dependencies.Input('button', 'n_clicks')])
-# def update_output(n_clicks, value):
-#     return 'The input value was "{}" and the button has been clicked {} times'.format(
-#         value,
-#         n_clicks
-#     )
-
-
-# @app.callback(
-#     [Output('button','disabled'),Output('output-container-button', 'children')],
-#     [Input('button', 'n_clicks'),Input('intermediate-value', 'children')])
-# def update_output(n_clicks,unique_id):
-# 	files = uploaded_files()
-# 	if len(files) == 0 or n_clicks<2:
-# 		return [False,'no files yet']
-# 	else:
-# 		# return [False,[html.Li(file_download_link(filename+unique_id)) for filename in files]]
-# 		return redirect('/aframe/index.html')
-
-# @app.callback(
-#     Output('output-container-button', 'children'),
-#     [Input('button', 'n_clicks'),Input('intermediate-value', 'children')])
-# def update_output(n_clicks,unique_id):
-# 	# files = uploaded_files()
-# 	if n_clicks<1:
-# 		return 'no files yet'
-# 	else:
-# 		return html.A(unique_id, href="/aframe/index.html?view={}".format(urlquote(unique_id)))
-	# else:
-	# 	# return [False,[html.Li(file_download_link(filename+unique_id)) for filename in files]]
-	# 	return redirect('/aframe/index.html')
 
 @app.callback(
     Output('output-container-button', 'children'),
