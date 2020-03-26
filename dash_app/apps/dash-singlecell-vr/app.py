@@ -199,8 +199,6 @@ def generate_qrcode(unique_id):
     img = qrcode.make("https://singlecellvr.herokuapp.com/view/" + str(unique_id))
     i = img.get_image()
     if unique_id:
-        # with open(os.path.join(QR_DIRECTORY, unique_id+'.bmp'), "wb") as fp:
-        #     fp.write(i.tobitmap())
         i.save(os.path.join(QR_DIRECTORY) + '/' + str(unique_id) + '.bmp')
         return html.Img(src='/assets/' + str(unique_id) + '.bmp', style={'width': '40%', 'margin-top': '10%'})
 
