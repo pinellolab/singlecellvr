@@ -20,6 +20,7 @@ APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 
 # DATASET_DIRECTORY = os.path.join(APP_PATH, "app_datasets")
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
+QR_DIRECTORY = os.path.join(APP_PATH, "assets")
 
 
 # "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
@@ -198,7 +199,9 @@ def generate_qrcode(unique_id):
     img = qrcode.make("https://singlecellvr.herokuapp.com/view/" + str(unique_id))
     i = img.get_image()
     if unique_id:
-        i.save('./assets/' + str(unique_id) + '.bmp')
+        # with open(os.path.join(QR_DIRECTORY, unique_id+'.bmp'), "wb") as fp:
+        #     fp.write(i.tobitmap())
+        i.save(os.path.join(QR_DIRECTORY) + '/' + str(unique_id) + '.bmp')
         return html.Img(src='/assets/' + str(unique_id) + '.bmp', style={'width': '40%', 'margin-top': '10%'})
 
 @app.callback(
