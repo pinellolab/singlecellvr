@@ -294,18 +294,18 @@ const createCellMetadataObject = (metadata) => {
 
 const renderPagaCells = (cells, cellMetadata) => {
   const cellEntities = Array.from(cells.map((cell) => {
-    const x = cell.x * .05;
-    const y = cell.y * .05;
-    const z = cell.z * .05;
+    const x = cell.x * .1;
+    const y = cell.y * .1;
+    const z = cell.z * .1;
     const color = cellMetadata[cell.cell_id].label_color;
-    return `<a-sphere id="${cell.cell_id}" position="${x} ${y} ${z}" radius=".002" color="${color}"></a-sphere>`
+    return `<a-sphere id="${cell.cell_id}" position="${x} ${y} ${z}" radius=".004" color="${color}"></a-sphere>`
   }));
   document.getElementById('pagacells').innerHTML = cellEntities.join(" ");
 }
 
 const setInitialCameraPositionPaga = (nodes) => {
-  const yValues = Array.from(Object.values(nodes).map(node => node.xyz.y * .005));
-  const xValues = Array.from(Object.values(nodes).map(node => node.xyz.x * .005));
+  const yValues = Array.from(Object.values(nodes).map(node => node.xyz.y * .04));
+  const xValues = Array.from(Object.values(nodes).map(node => node.xyz.x * .04));
   const xMax = Math.max(...xValues);
   const xMin = Math.min(...xValues);
   const xRange = xMax - xMin;
@@ -354,10 +354,10 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
   const cellEntities = [];
   const nodePositions = {};
   Object.values(nodes).forEach((cell_point, _) => {
-    let x = cell_point.xyz.x * .05;
-    let y = cell_point.xyz.y * .05;
-    let z = cell_point.xyz.z * .05;
-    const stream_cell = `<a-sphere text="value: ${cell_point.node_name}; width: .8; color: black; align: center; side: double; zOffset: .01" id="${cell_point.node_name}" position="${x} ${y} ${z}" color="${clusterColors[cell_point.node_name].label_color}" radius=".008" billboard></a-sphere>`;
+    let x = cell_point.xyz.x * .1;
+    let y = cell_point.xyz.y * .1;
+    let z = cell_point.xyz.z * .1;
+    const stream_cell = `<a-sphere text="value: ${cell_point.node_name}; width: 1.5; color: black; align: center; side: double; zOffset: .02" id="${cell_point.node_name}" position="${x} ${y} ${z}" color="${clusterColors[cell_point.node_name].label_color}" radius=".015" billboard></a-sphere>`;
     cellEntities.push(stream_cell);
     nodePositions[cell_point.node_name.replace(/\D/g,'')] = {"x": x, "y": y, "z": z};
   });
@@ -368,7 +368,7 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
     // TODO: Bad, evil, fix!
     const curveid = curveref[1].split("=")[1];
     const [startNode, endNode] = strip(curveid).split("_");
-    const thickLine = `<a-entity meshline="lineWidth: ${edgeWeights[strip(curveid)] * 7}; path: ${nodePositions[startNode].x} ${nodePositions[startNode].y} ${nodePositions[startNode].z}, ${nodePositions[endNode].x} ${nodePositions[endNode].y} ${nodePositions[endNode].z}; color: black"></a-entity>`
+    const thickLine = `<a-entity meshline="lineWidth: ${edgeWeights[strip(curveid)] * 10}; path: ${nodePositions[startNode].x} ${nodePositions[startNode].y} ${nodePositions[startNode].z}, ${nodePositions[endNode].x} ${nodePositions[endNode].y} ${nodePositions[endNode].z}; color: black"></a-entity>`
     thickLines.push(thickLine);
   });
   document.getElementById("thicklines").innerHTML = thickLines.join(" ");
