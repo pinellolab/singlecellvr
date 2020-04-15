@@ -442,7 +442,7 @@ const createCurveEnities = (branches) => {
   branches.forEach((branch, _) => {
       const branch_el = `<a-curve id="${branch}" ></a-curve>`;
       branch_els.push(branch_el);
-      const branch_draw_el = `<a-draw-curve cursor-listener curveref="#${branch}" material="shader: line; color: blue;" geometry="primitive: " ></a-draw-curve>`;
+      const branch_draw_el = `<a-draw-curve cursor-listener curveref="#${branch}" material="shader: line; color: black;" geometry="primitive: " ></a-draw-curve>`;
       branch_draw_els.push(branch_draw_el);
   });
   return [branch_els, branch_draw_els];
