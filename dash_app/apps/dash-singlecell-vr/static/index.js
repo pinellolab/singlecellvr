@@ -198,6 +198,18 @@ const viewGene = async (geneFileName, colorField) => {
   });
 }
 
+const scaleLines = (f) => {
+  const line_els = Array.from(document.getElementById("thicklines").children);
+  line_els.forEach(line_el => {
+    let oldWidth = line_el.getAttribute("meshline").lineWidth;
+    line_el.setAttribute("meshline", "lineWidth", f(oldWidth,2));
+  })
+}
+
+const multiply = (a, b) => a * b;
+
+const divide = (a,b) => a / b;
+
 document.querySelector('a-scene').addEventListener('enter-vr', () => {
   const hud = document.getElementById("hud");
   hud.setAttribute('material', 'color', 'white');
@@ -208,6 +220,7 @@ document.querySelector('a-scene').addEventListener('enter-vr', () => {
   setHudPosition(visibleWidthAtZDepth(-1) - .5, visibleHeightAtZDepth(-1), -1);
   if (mobilecheck()) {
     document.getElementById('hud').object3D.visible = false;
+    scaleLines(divide);
   }
   const legend = document.getElementById('legend');
   if (legend !== null) {
@@ -227,6 +240,9 @@ document.querySelector('a-scene').addEventListener('exit-vr', () => {
   const legend = document.getElementById('legend');
   if (legend !== null) {
     document.getElementById('legend').setAttribute('panel-color', 'white');
+  }
+  if (mobilecheck()) {
+    scaleLines(multiply);
   }
 });
 
