@@ -373,7 +373,7 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
     let x = cell_point.xyz.x * .1;
     let y = cell_point.xyz.y * .1;
     let z = cell_point.xyz.z * .1;
-    const stream_cell = `<a-sphere text="value: ${cell_point.node_name}; width: 1.5; color: black; align: center; side: double; zOffset: .02" id="${cell_point.node_name}" position="${x} ${y} ${z}" color="${clusterColors[cell_point.node_name].label_color}" radius=".015" billboard></a-sphere>`;
+    const stream_cell = `<a-sphere text="value: ${cell_point.node_name}; width: 1.5; color: black; align: center; side: double; zOffset: .02" id="${cell_point.node_name}" position="${x} ${y} ${z}" radius=".015" billboard></a-sphere>`;
     cellEntities.push(stream_cell);
     nodePositions[cell_point.node_name.replace(/\D/g,'')] = {"x": x, "y": y, "z": z};
   });
