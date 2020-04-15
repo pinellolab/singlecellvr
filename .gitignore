@@ -6,3 +6,5 @@ __pycache__
 app_uploaded_files
 *.pyc
 *.bmp
+.DS_Store
+.ipynb_checkpoints
