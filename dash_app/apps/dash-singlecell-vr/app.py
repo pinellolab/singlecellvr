@@ -143,8 +143,8 @@ app.layout = dbc.Container(
                                     children=[
                                         html.P("How to prepare for your submission:",id="heatmap-title2"),
                                         dcc.Markdown('''
-                                            * [Generate STREAM trajectories](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/dash_app/apps/dash-singlecell-vr/assets/reformat_files_STREAM.ipynb?flush_cache=true)
-                                            * [Generate PAGA graph](https://github.com/pinellolab/singlecellvr/blob/master/dash_app/apps/dash-singlecell-vr/assets/reformat_files_PAGA.ipynb?flush_cache=true)
+                                            * [Generate STREAM trajectories](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/examples/stream_nestorowa16/reformat_stream_nestorowa16.ipynb?flush_cache=true)
+                                            * [Generate PAGA graph](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/examples/paga3d_paul15/reformat_paga3d_paul15.ipynb?flush_cache=true)
                                         ''')
                                 ]),
                                 html.Div(id="qr-output"),
