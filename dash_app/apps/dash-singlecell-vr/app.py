@@ -58,8 +58,9 @@ def serve_static(uid):
 def show_help():
     return render_template('help.html')
 
-# App layout 
+app.title = "SingleCellVR"
 
+# App layout 
 app.layout = dbc.Container(
     id="root",
     fluid=True, 
