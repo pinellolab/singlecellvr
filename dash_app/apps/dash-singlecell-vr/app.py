@@ -149,6 +149,8 @@ app.layout = dbc.Container(
                                         ''')
                                 ]),
                                 html.Div(id="qr-output"),
+                                # Evil hack
+                                html.Div(id="qr-output-secondary")
                         ])]),
                 dbc.Col(
                     className="col-container",
@@ -196,15 +198,26 @@ def file_download_link(filename):
     Output(component_id='qr-output', component_property='children'),
     [Input(component_id='intermediate-value', component_property='children')]
 )
-def generate_qrcode(unique_id):
+def render_qrcode(unique_id):
+    if unique_id:
+        save_qr_image(unique_id)
+        return html.Div(
+                    children=[
+                        html.P("Uploaded dataset:"),
+                        html.Img(src='/assets/' + str(unique_id) + '.bmp', style={'width': '40%', 'margin-bottom': '20px'}),
+                    ]
+                )
+
+def save_qr_image(unique_id):
     img = qrcode.make("https://singlecellvr.herokuapp.com/view/" + str(unique_id))
     i = img.get_image()
     if unique_id:
         i.save(os.path.join(QR_DIRECTORY) + '/' + str(unique_id) + '.bmp')
-        return html.Img(src='/assets/' + str(unique_id) + '.bmp', style={'width': '40%', 'margin-top': '10%'})
 
 @app.callback(
-    [Output('dd-output-container', 'children'),Output("intermediate-value2", "children")],
+    [Output('dd-output-container', 'children'),
+     Output('intermediate-value2', 'children'), 
+     Output('qr-output-secondary', 'children')],
     [Input('chart-dropdown', 'value')])
 def update_output(value):
     if(value != None):
@@ -212,9 +225,17 @@ def update_output(value):
             file_id = 'nestorowa2016_stream_report'
         elif(value=="Paul2015-PAGA"):
             file_id = 'paul2015_paga_report'
-        return ['You have selected "{}"'.format(value),file_id]
+        save_qr_image(file_id)
+        return ['You have selected "{}"'.format(value),
+                file_id, 
+                html.Div(
+                    children=[
+                        html.P("Preprocessed dataset:"),
+                        html.Img(src='/assets/' + str(file_id) + '.bmp', style={'width': '40%'}),
+                    ]
+                )]
     else:
-        return ['No dataset is selected yet',None]
+        return ['No dataset is selected yet',None,None]
 
 @app.callback(
     Output('output-container-button', 'children'),
