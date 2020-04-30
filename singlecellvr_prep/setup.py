@@ -19,5 +19,10 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
+    install_requires=[
+          'pandas>=0.21',
+          'numpy>=1.14.0',
+          'networkx==2.1'
+      ],
     entry_points = {'console_scripts': ['scvr_prep=scvr_prep.command_line:main']}
 )
