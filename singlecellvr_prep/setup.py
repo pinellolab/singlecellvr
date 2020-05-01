@@ -22,7 +22,9 @@ setuptools.setup(
     install_requires=[
           'pandas>=0.21',
           'numpy>=1.14.0',
-          'networkx==2.1'
+          'networkx>=2.1',
+          'anndata>=0.7',
+          'matplotlib>=3.0'
       ],
     entry_points = {'console_scripts': ['scvr_prep=scvr_prep.command_line:main']}
 )

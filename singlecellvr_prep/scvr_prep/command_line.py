@@ -10,6 +10,7 @@ warnings.filterwarnings('ignore')
 __tool_name__='scvr_prep'
 
 import pandas as pd
+import anndata as ad
 import argparse
 import os
 import shutil
@@ -24,7 +25,7 @@ def main():
     parser.add_argument("-f", "--filename", dest="filename",default = None,required=True,
                         help="Analysis result file name", metavar="FILE")
     parser.add_argument("-t", "--toolname",dest="toolname", default=None,required=True,
-                        type = str.lower,choices=['paga','stream'],
+                        type = str.lower,choices=['paga','seurat','stream'],
                         help="Tool name used to generate the analysis result.")
     parser.add_argument("-g","--genes",dest="genes", default=None,
                         help="Gene list file name. It contains the genes to visualize in one column")
@@ -56,16 +57,17 @@ def main():
         gene_list = None
 
     if(toolname=='paga'):
-        try:
-            import scanpy as sc
-        except ImportError:
-            raise ImportError(
-                'Please install Scanpy: `conda install -c bioconda scanpy` or `pip install scanpy`.'
-            )
-        adata = sc.read_h5ad(filename)
+        print('reading in h5ad file ...')
+        adata = ad.read_h5ad(filename)
         adata.uns['paga']['pos'] = scvr_prep.get_paga3d_pos(adata)
         scvr_prep.output_paga_graph(adata,reportdir=output)
         scvr_prep.output_paga_cells(adata,label=label,genes=gene_list,reportdir=output)
+        shutil.make_archive(base_name=output, format='zip',root_dir=output)
+        shutil.rmtree(output)
+    if(toolname=='seurat'):
+        print('reading in loom file ...')
+        adata = ad.read_loom(filename)
+        scvr_prep.output_seurat_cells(adata,label=label,genes=gene_list,reportdir=output)
         shutil.make_archive(base_name=output, format='zip',root_dir=output)
         shutil.rmtree(output)
     if(toolname=='stream'):
@@ -75,6 +77,7 @@ def main():
             raise ImportError(
                 'Please install STREAM >=0.4.2: `conda install -c bioconda stream`.'
             )
+        print('reading in pkl file ...')
         adata = st.read(filename,file_format='pkl',workdir='./')
         st.save_vr_report(adata,genes=gene_list,file_name=output)
 

@@ -1,13 +1,42 @@
 import numpy as np
 import pandas as pd
-# import scanpy as sc
 import os
 import json
 import shutil
 import networkx as nx
+import matplotlib as mpl
 
+from . import palettes
 
 def get_colors(adata,label):
+    df_cell_colors = pd.DataFrame(index=adata.obs.index)
+    df_cell_colors['label_color'] = ''
+    
+    adata.obs[label] = adata.obs[label].astype('category')
+    categories = adata.obs[label].cat.categories
+    length = len(categories)
+
+    # check if default matplotlib palette has enough colors
+    # mpl.style.use('default')
+    if len(mpl.rcParams['axes.prop_cycle'].by_key()['color']) >= length:
+        cc = mpl.rcParams['axes.prop_cycle']()
+        palette = [next(cc)['color'] for _ in range(length)]
+    else:
+        if length <= 20:
+            palette = palettes.default_20
+        elif length <= 28:
+            palette = palettes.default_28
+        elif length <= len(palettes.default_102):  # 103 colors
+            palette = palettes.default_102
+        else:
+            rgb_rainbow = cm.rainbow(np.linspace(0,1,length))
+            palette = [mpl.colors.rgb2hex(rgb_rainbow[i,:-1]) for i in range(length)]
+    for i,x in enumerate(categories):
+        id_cells = np.where(adata.obs[label]==x)[0]
+        df_cell_colors.loc[df_cell_colors.index[id_cells],'label_color'] = palette[i]
+    return(df_cell_colors['label_color'].tolist())
+
+def get_paga_colors(adata,label):
     df_cell_colors = pd.DataFrame(index=adata.obs.index)
     df_cell_colors['label_color'] = ''
     labels_unique = adata.obs[label].cat.categories
@@ -67,7 +96,8 @@ def output_paga_graph(adata,node_name = None,reportdir='./paga_report'):
         with open(os.path.join(reportdir,'paga_edges.json'), 'w') as f:
             json.dump(list_edges, f)
     except:
-        print(traceback.format_exc())
+        print("PAGA: graph failed!")
+        raise
     else:
         print("PAGA: graph finished!")
 
@@ -89,7 +119,7 @@ def output_paga_cells(adata,reportdir='./paga_report',label='louvain',genes=None
 
         ## output metadata file of cells
         list_metadata = []
-        label_colors = get_colors(adata,label)
+        label_colors = get_paga_colors(adata,label)
         for i in range(adata.shape[0]):
             dict_metadata = dict()
             dict_metadata['cell_id'] = adata.obs_names[i]
@@ -114,6 +144,55 @@ def output_paga_cells(adata,reportdir='./paga_report',label='louvain',genes=None
                 with open(os.path.join(reportdir,'gene_'+g+'.json'), 'w') as f:
                     json.dump(list_genes, f)      
     except:
-        print(traceback.format_exc())
+        print("PAGA: cells failed!")
+        raise
     else:
         print("PAGA: cells finished!")
+
+def output_seurat_cells(adata,reportdir='./seurat_report',label='seurat_clusters',genes=None):
+    try:
+        if(not os.path.exists(reportdir)):
+                os.makedirs(reportdir)    
+        ## output coordinates of cells
+        list_cells = []
+        for i in range(adata.shape[0]):
+            dict_coord_cells = dict()
+            dict_coord_cells['cell_id'] = adata.obs_names[i]
+            dict_coord_cells['x'] = str(adata.obsm['umap_cell_embeddings'][i,0])
+            dict_coord_cells['y'] = str(adata.obsm['umap_cell_embeddings'][i,1])
+            dict_coord_cells['z'] = str(adata.obsm['umap_cell_embeddings'][i,2])
+            list_cells.append(dict_coord_cells)    
+        with open(os.path.join(reportdir,'scatter.json'), 'w') as f:
+            json.dump(list_cells, f)    
+
+        ## output metadata file of cells
+        list_metadata = []
+        label_colors = get_colors(adata,label)
+        for i in range(adata.shape[0]):
+            dict_metadata = dict()
+            dict_metadata['cell_id'] = adata.obs_names[i]
+            dict_metadata['label'] = adata.obs[label].tolist()[i]
+            dict_metadata['label_color'] = label_colors[i]
+            list_metadata.append(dict_metadata)
+        with open(os.path.join(reportdir,'metadata.json'), 'w') as f:
+            json.dump(list_metadata, f)
+
+        ## output gene expression of cells
+        if(genes is not None):
+            df_genes = pd.DataFrame(adata.layers['norm_data'].toarray(),index=adata.obs_names,columns=adata.var_names)
+            cm = mpl.cm.get_cmap('viridis',512)
+            for g in genes:
+                list_genes = []
+                norm = mpl.colors.Normalize(vmin=0, vmax=max(df_genes[g]),clip=True)
+                for x in adata.obs_names:
+                    dict_genes = dict()
+                    dict_genes['cell_id'] = x
+                    dict_genes['color'] = mpl.colors.to_hex(cm(norm(df_genes.loc[x,g])))
+                    list_genes.append(dict_genes)
+                with open(os.path.join(reportdir,'gene_'+g+'.json'), 'w') as f:
+                    json.dump(list_genes, f)      
+    except:
+        print("Seurat: cells failed!")
+        raise
+    else:
+        print("Seurat: cells Finished!")
