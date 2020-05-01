@@ -8,41 +8,43 @@ import matplotlib as mpl
 
 from . import palettes
 
-def get_colors(adata,label):
-    df_cell_colors = pd.DataFrame(index=adata.obs.index)
-    df_cell_colors['label_color'] = ''
-    
-    adata.obs[label] = adata.obs[label].astype('category')
-    categories = adata.obs[label].cat.categories
-    length = len(categories)
+def get_colors(adata,ann_list):
+    dict_colors = dict()
+    for ann in ann_list:
+        df_cell_colors = pd.DataFrame(index=adata.obs.index)
+        df_cell_colors[ann+'_color'] = ''
 
-    # check if default matplotlib palette has enough colors
-    # mpl.style.use('default')
-    if len(mpl.rcParams['axes.prop_cycle'].by_key()['color']) >= length:
-        cc = mpl.rcParams['axes.prop_cycle']()
-        palette = [next(cc)['color'] for _ in range(length)]
-    else:
-        if length <= 20:
-            palette = palettes.default_20
-        elif length <= 28:
-            palette = palettes.default_28
-        elif length <= len(palettes.default_102):  # 103 colors
-            palette = palettes.default_102
+        adata.obs[ann] = adata.obs[ann].astype('category')
+        categories = adata.obs[ann].cat.categories
+        length = len(categories)
+        # check if default matplotlib palette has enough colors
+        # mpl.style.use('default')
+        if len(mpl.rcParams['axes.prop_cycle'].by_key()['color']) >= length:
+            cc = mpl.rcParams['axes.prop_cycle']()
+            palette = [next(cc)['color'] for _ in range(length)]
         else:
-            rgb_rainbow = cm.rainbow(np.linspace(0,1,length))
-            palette = [mpl.colors.rgb2hex(rgb_rainbow[i,:-1]) for i in range(length)]
-    for i,x in enumerate(categories):
-        id_cells = np.where(adata.obs[label]==x)[0]
-        df_cell_colors.loc[df_cell_colors.index[id_cells],'label_color'] = palette[i]
-    return(df_cell_colors['label_color'].tolist())
+            if length <= 20:
+                palette = palettes.default_20
+            elif length <= 28:
+                palette = palettes.default_28
+            elif length <= len(palettes.default_102):  # 103 colors
+                palette = palettes.default_102
+            else:
+                rgb_rainbow = cm.rainbow(np.linspace(0,1,length))
+                palette = [mpl.colors.rgb2hex(rgb_rainbow[i,:-1]) for i in range(length)]
+        for i,x in enumerate(categories):
+            id_cells = np.where(adata.obs[ann]==x)[0]
+            df_cell_colors.loc[df_cell_colors.index[id_cells],ann+'_color'] = palette[i]
+        dict_colors[ann] = df_cell_colors[ann+'_color'].tolist()
+    return(dict_colors)
 
-def get_paga_colors(adata,label):
+def get_paga_colors(adata,ann_list):
     df_cell_colors = pd.DataFrame(index=adata.obs.index)
     df_cell_colors['label_color'] = ''
-    labels_unique = adata.obs[label].cat.categories
+    labels_unique = adata.obs[ann].cat.categories
     for i,x in enumerate(labels_unique):
-        id_cells = np.where(adata.obs[label]==x)[0]
-        df_cell_colors.loc[df_cell_colors.index[id_cells],'label_color'] = adata.uns[label+'_colors'][i]
+        id_cells = np.where(adata.obs[ann]==x)[0]
+        df_cell_colors.loc[df_cell_colors.index[id_cells],'label_color'] = adata.uns[ann+'_colors'][i]
     return(df_cell_colors['label_color'].tolist()) 
 
 def get_paga3d_pos(adata):
@@ -101,7 +103,7 @@ def output_paga_graph(adata,node_name = None,reportdir='./paga_report'):
     else:
         print("PAGA: graph finished!")
 
-def output_paga_cells(adata,reportdir='./paga_report',label='louvain',genes=None):
+def output_paga_cells(adata,reportdir='./paga_report',ann='louvain',genes=None):
     try:
         if(not os.path.exists(reportdir)):
                 os.makedirs(reportdir)    
@@ -119,11 +121,11 @@ def output_paga_cells(adata,reportdir='./paga_report',label='louvain',genes=None
 
         ## output metadata file of cells
         list_metadata = []
-        label_colors = get_paga_colors(adata,label)
+        label_colors = get_paga_colors(adata,ann)
         for i in range(adata.shape[0]):
             dict_metadata = dict()
             dict_metadata['cell_id'] = adata.obs_names[i]
-            dict_metadata['label'] = adata.obs[label].tolist()[i]
+            dict_metadata['ann'] = adata.obs[ann].tolist()[i]
             dict_metadata['label_color'] = label_colors[i]
             list_metadata.append(dict_metadata)
         with open(os.path.join(reportdir,'metadata.json'), 'w') as f:
@@ -149,7 +151,11 @@ def output_paga_cells(adata,reportdir='./paga_report',label='louvain',genes=None
     else:
         print("PAGA: cells finished!")
 
-def output_seurat_cells(adata,reportdir='./seurat_report',label='seurat_clusters',genes=None):
+def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',genes=None):
+    ### make sure all labels exist
+    for ann in ann_list:
+        if ann not in adata.obs.columns:
+            raise ValueError('could not find %s in %s'  % (ann,adata.obs.columns))
     try:
         if(not os.path.exists(reportdir)):
                 os.makedirs(reportdir)    
@@ -163,16 +169,17 @@ def output_seurat_cells(adata,reportdir='./seurat_report',label='seurat_clusters
             dict_coord_cells['z'] = str(adata.obsm['umap_cell_embeddings'][i,2])
             list_cells.append(dict_coord_cells)    
         with open(os.path.join(reportdir,'scatter.json'), 'w') as f:
-            json.dump(list_cells, f)    
+            json.dump(list_cells, f)
 
         ## output metadata file of cells
         list_metadata = []
-        label_colors = get_colors(adata,label)
+        dict_colors = get_colors(adata,ann_list)
         for i in range(adata.shape[0]):
             dict_metadata = dict()
             dict_metadata['cell_id'] = adata.obs_names[i]
-            dict_metadata['label'] = adata.obs[label].tolist()[i]
-            dict_metadata['label_color'] = label_colors[i]
+            for ann in ann_list:     
+                dict_metadata[ann] = adata.obs[ann].tolist()[i]
+                dict_metadata[ann+'_color'] = dict_colors[ann][i]
             list_metadata.append(dict_metadata)
         with open(os.path.join(reportdir,'metadata.json'), 'w') as f:
             json.dump(list_metadata, f)
