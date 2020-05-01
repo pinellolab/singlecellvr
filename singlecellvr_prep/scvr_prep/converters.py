@@ -46,8 +46,8 @@ def get_paga_colors(adata,ann_list):
             categories = adata.obs[ann].cat.categories
             for i,x in enumerate(categories):
                 id_cells = np.where(adata.obs[ann]==x)[0]
-                df_cell_colors.loc[df_cell_colors.index[id_cells],'label_color'] = adata.uns[ann+'_colors'][i]
-            dict_colors[ann] = df_cell_colors[ann+'_colors'].tolist()
+                df_cell_colors.loc[df_cell_colors.index[id_cells],ann+'_color'] = adata.uns[ann+'_colors'][i]
+            dict_colors[ann] = df_cell_colors[ann+'_color'].tolist()
         else:
             dict_colors[ann] = get_colors(adata,ann)
     return(dict_colors) 
@@ -130,7 +130,7 @@ def output_paga_cells(adata,ann_list,reportdir='./paga_report',genes=None):
 
         ## output metadata file of cells
         list_metadata = []
-        dict_colors = get_paga_colors(adata,ann)
+        dict_colors = get_paga_colors(adata,ann_list)
         for i in range(adata.shape[0]):
             dict_metadata = dict()
             dict_metadata['cell_id'] = adata.obs_names[i]
