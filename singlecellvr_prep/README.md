@@ -44,8 +44,8 @@ optional arguments:
 Examples:
 ---------
 * PAGA:  
-`scvr_prep -f ./paga_result/paga3d_paul15.h5ad -a annotations.txt -g genes.txt -o paga_report -t paga`
-> PAGA To generate the `paga3d_paul15.h5ad`, 
+`scvr_prep -f ./paga_result/paga3d_paul15.h5ad -t paga -a annotations.txt -g genes.txt -o paga_report`
+> To generate the `paga3d_paul15.h5ad`, check out PAGA analysis script: 
 
 * Seurat:  
 `scvr_prep -f ./seurat_result/seurat3d_10xpbmc.loom -a annotations.txt -g genes.txt -o seurat_report -t seurat`
