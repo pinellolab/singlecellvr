@@ -5,9 +5,9 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="scvr_prep", # Replace with your own username
-    version="1.0",
+    version="1.1",
     author="Huidong Chen",
-    author_email="huidong.chen AT mgh DOT harvard DOT edu",
+    author_email="huidong.chen@mgh.harvard.edu",
     description="single cell VR preprocess",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -24,6 +24,7 @@ setuptools.setup(
           'numpy>=1.14.0',
           'networkx>=2.1',
           'anndata>=0.7',
+          'loompy>=2.0',
           'matplotlib>=3.0'
       ],
     entry_points = {'console_scripts': ['scvr_prep=scvr_prep.command_line:main']}
