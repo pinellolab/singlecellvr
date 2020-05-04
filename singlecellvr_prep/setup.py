@@ -1,11 +1,12 @@
 import setuptools
+import scvr_prep
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="scvr_prep", # Replace with your own username
-    version="1.1",
+    version=scvr_prep.__version__,
     author="Huidong Chen",
     author_email="huidong.chen@mgh.harvard.edu",
     description="single cell VR preprocess",

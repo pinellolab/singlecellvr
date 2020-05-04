@@ -24,15 +24,15 @@ def main():
     parser = argparse.ArgumentParser(description='%s Parameters' % __tool_name__ ,formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-f", "--filename", dest="filename",default = None,required=True,
                         help="Analysis result file name", metavar="FILE")
-    parser.add_argument("-g","--genes",dest="genes", default=None,
-                        help="Gene list file name. It contains the genes to visualize in one column")
-    parser.add_argument("-a","--annotations",dest="annotations", default=None,
-                        help="Annotation file name. It contains cell annotations used to color cells")
     parser.add_argument("-t", "--toolname",dest="toolname", default=None,required=True,
                         type = str.lower,choices=['paga','seurat','stream'],
-                        help="Tool name used to generate the analysis result.")
+                        help="Tool used to generate the analysis result.")
+    parser.add_argument("-a","--annotations",dest="annotations", default=None,
+                        help="Annotation file name. It contains the cell annotation(s) used to color cells")
+    parser.add_argument("-g","--genes",dest="genes", default=None,
+                        help="Gene list file name. It contains the genes to visualize in one column")
     parser.add_argument("-o","--output",dest="output", default='vr_report',
-                        help="Output folder (default: vr_report)")
+                        help="Output folder name")
 
     args = parser.parse_args()
     filename = args.filename
@@ -72,6 +72,7 @@ def main():
         gene_list = None
 
     if(toolname=='paga'):
+        assert (filename.lower().endswith(('.h5ad'))), "For PAGA only .h5ad file is supported."
         print('reading in h5ad file ...')
         adata = ad.read_h5ad(filename)
         adata.uns['paga']['pos'] = scvr_prep.get_paga3d_pos(adata)
@@ -80,6 +81,7 @@ def main():
         shutil.make_archive(base_name=output, format='zip',root_dir=output)
         shutil.rmtree(output)
     if(toolname=='seurat'):
+        assert (filename.lower().endswith(('.h5ad'))), "For Seurat only .loom file is supported."
         print('reading in loom file ...')
         adata = ad.read_loom(filename)
         scvr_prep.output_seurat_cells(adata,ann_list,genes=gene_list,reportdir=output)
@@ -92,6 +94,7 @@ def main():
             raise ImportError(
                 'Please install STREAM >=0.4.2: `conda install -c bioconda stream`.'
             )
+        assert (filename.lower().endswith(('.h5ad'))), "For STREAM only .pkl file is supported."
         print('reading in pkl file ...')
         adata = st.read(filename,file_format='pkl',workdir='./')
         st.save_vr_report(adata,genes=gene_list,file_name=output)
