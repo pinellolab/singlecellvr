@@ -184,15 +184,25 @@ document.getElementById("pauseGlobalRotation").addEventListener("click", () => {
   }
 });
 
+// <-------------------------Abstract-------------------------------->
+
 const viewGene = async (geneFileName, colorField) => {
   const gene = await report.file(geneFileName + ".json").async("string");
   const cellsByGene = JSON.parse(gene);
-  const cellsContainer = document.getElementById("cells");
   cellsByGene.forEach((cell) => {
     const cellElement = document.getElementById(cell.cell_id);
     cellElement.setAttribute("color", cell[colorField]);
   });
 }
+
+const renderAnnotation = (annotation, cellColors) => {
+  Object.entries(cellColors[annotation]).forEach(([id, cell]) => {
+    const cellElement = document.getElementById(id);
+    cellElement.setAttribute("color", cell.cluster_color);
+  });
+}
+
+// <-------------------------------------------------------------------->
 
 const scaleLines = (f) => {
   const line_els = Array.from(document.getElementById("thicklines").children);
@@ -382,7 +392,6 @@ const initializeAnnotationMenu = (annotations, clusterColors) => {
     el.setAttribute("height", ".5");
     el.setAttribute("value", annotation);
     el.setAttribute("font-color", "white");
-    // el.setAttribute("background-color", "white");
     el.setAttribute("margin", "0 0 0.05 0");
     el.addEventListener('click', () => {
       const value = el.getAttribute("value");
@@ -396,6 +405,7 @@ const initializeAnnotationMenu = (annotations, clusterColors) => {
 const changeAnnotation = (annotation, clusterColors) => {
   clearLegend();
   renderLegend(annotation, clusterColors);
+  renderAnnotation(annotation, clusterColors);
 }
 
 const renderPaga = (edges, nodes, scatter, metadata) => {
