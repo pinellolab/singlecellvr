@@ -48,23 +48,15 @@
         </a-entity>
 
         <a-gui-flex-container
-          flex-direction="column" justify-content="center" align-items="normal" component-padding="0.1" opacity="0.7" width="3.7" height="5"
+          flex-direction="column" justify-content="flexStart" align-items="center" component-padding="0.1" opacity="0.7" width="3.7" height="5"
           position="10 0 0" rotation="0 0 0" billboard id="menu">
           <a-gui-button
             id="pauseGlobalRotation"
             width="2.7" height="0.75"
             value="Toggle Rotation"
             font-family="Arial"
-            margin="0 0 0.05 0">
+            margin="-0.2 0 0.5 0">
           </a-gui-button>
-          <a-gui-toggle
-            id="moveToggle"
-            width="2.7" height="0.75"
-            value="Follow Curves"
-            font-family="Arial"
-            margin="0 0 0.05 0"
-          >
-          </a-gui-toggle>
           <a-gui-input id="test_input"
                width="2.7" height="0.7"
                text="value: Search:; width: 6; color: black; align: center;"
@@ -89,6 +81,20 @@
             text="value: ; width: 6; color: black; align: center;"
           >
           </a-gui-input>
+        </a-gui-flex-container>
+
+        <a-gui-flex-container
+          flex-direction="column" justify-content="flexStart" align-items="center" component-padding="0.1" opacity="0.7" width="3.7" height="5"
+          position="10 0 4" rotation="0 0 0" billboard id="annotation_menu">
+          <a-gui-label 
+            width="2.7" height="0.75"
+            value="Annotations"
+            font-family="Times New Roman"
+            background-color="#22252a"
+            font-color="#d3d3d4"
+            margin="-0.2 0 0.5 0"
+          >
+          </a-gui-label>
         </a-gui-flex-container>
 
         <a-gui-flex-container
