@@ -1,28 +1,13 @@
-/* eslint-disable no-unused-vars */
-/*global Fuse, THREE, AFRAME, JSZip*/
-
+// -------------------- Globals and Constants -------------
+/*global Fuse, THREE, AFRAME, JSZip, Utils*/
 let report = {};
-let freeMove = true;
-let positionIndex = 0;
-let currentBranch = null;
-let cameraTrajectory = null;
-const branchClasses = [];
-const cellColors = {};
+let geneList = [];
+let currentSearch = '';
+const resultElements = ["result1", "result2", "result3"];
 
-const unzip = async (uuid) => {
-  const zipper = new JSZip();
-  const response = await fetch('/download/' + uuid + '.zip');
-  const blob = await response.blob();
-  const result = await zipper.loadAsync(blob)
-  return result;
-}
+// --------------------------------------------------------
 
-const mobilecheck = () => {
-  var check = false;
-  // eslint-disable-next-line no-useless-escape
-  (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) check = true;})(navigator.userAgent||navigator.vendor||window.opera);
-  return check;
-};
+// --------------------- HUD ------------------------------
 
 const visibleHeightAtZDepth = ( depth ) => {
   const camera = AFRAME.scenes[0].camera;
@@ -51,6 +36,8 @@ const setHudPosition = ( fovWidth, fovHeight, depth) => {
 
 setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
 
+// -----------------------------------------------------------
+
 const summonMenu = () => {
   const camera = document.getElementById("curve-camera");
   const start = new THREE.Vector3();
@@ -63,15 +50,13 @@ const summonMenu = () => {
   menu.position.set(newPos.x, newPos.y, newPos.z);
 }
 
-const initializeGui = () => {
+// Menu elements won't show up without this.
+const initializeMenu = () => {
   document.getElementById("test_input").setAttribute('value', "");
   document.getElementById("result1").setAttribute('value', "");
   document.getElementById("result2").setAttribute('value', "");
   document.getElementById("result3").setAttribute('value', "");
 }
-initializeGui();
-
-let geneList = [];
 
 const movement = (num) => {
   let direction = new THREE.Vector3();
@@ -86,103 +71,6 @@ const movement = (num) => {
   const mapPlayer = document.getElementById('mapPlayer').object3D;
   mapPlayer.position.set((pos.x + direction.x)  * .01, (pos.y + direction.y) * .01, (pos.z + direction.z) * .01);
 }
-
-let currentSearch = '';
-document.body.addEventListener('keydown', (e) => {
-  var options = {
-    shouldSort: true,
-    threshold: 0.6,
-    location: 0,
-    distance: 100,
-    maxPatternLength: 32,
-    minMatchCharLength: 1,
-    keys: [
-      "gene",
-    ]
-  };
-  const resultsEntity = document.getElementById("test_input");
-  let result1 = '';
-  let result2 = '';
-  let result3 = '';
-  if (e.code === 'Space') {
-    summonMenu();
-    currentSearch = '';
-  } else if (e.key === "Shift") {
-    if (mobilecheck()) {
-      const hud = document.getElementById("hud").object3D;
-      if (!hud.visible) {
-        hud.position.set(0, 0, -.5);
-        hud.visible = true;
-      }
-      document.getElementById("cursor").object3D.visible = false;
-    }
-  } else if (e.keyCode === 38) {
-    if (freeMove) {
-      movement(.05);
-    } else {
-      moveCamera(e);
-    }
-  } else if (e.keyCode === 40) {
-    if (freeMove) {
-      movement(-.05);
-    } else {
-      moveCamera(e);
-    }
-  } else if (e.code === 'Enter') {
-    currentSearch = '';
-    viewGene('metadata', 'label_color');
-  } else if (e.key.length === 1) {
-    currentSearch = currentSearch + e.key;
-    let fuse = new Fuse(geneList, options);
-    let result = fuse.search(currentSearch);
-    result1 = result.length > 0 ? result[0].gene : "";
-    result2 = result.length > 1 ? result[1].gene : "";
-    result3 = result.length > 2 ? result[2].gene : "";
-
-  }
-  resultsEntity.setAttribute('text', 'value', "Search: " + currentSearch);
-  document.getElementById("result1").setAttribute('text', 'value', result1);
-  document.getElementById("result2").setAttribute('text', 'value', result2);
-  document.getElementById("result3").setAttribute('text', 'value', result3);
-});
-
-document.body.addEventListener('keyup', (e) => {
-  if (e.key === "Shift") {
-    if (mobilecheck()) {
-      const hud = document.getElementById("hud").object3D;
-      if (hud.visible) {
-        hud.visible = false;
-      }
-      document.getElementById("cursor").object3D.visible = true;
-    }
-  }
-});
-
-const resultElements = ["result1", "result2", "result3"];
-resultElements.forEach((element) => {
-  const result = document.getElementById(element);
-  result.addEventListener("click", () => {
-    viewGene('gene_' + result.getAttribute('text').value, 'color');
-  });
-});
-
-setInterval(() => {
-    const drawContainer = document.getElementById("drawContainer");
-    const drawContainerRotation = drawContainer.object3D.rotation;
-    const hudMapContainer = document.getElementById("hudMapContainer");
-    hudMapContainer.object3D.rotation.set(drawContainerRotation._x, drawContainerRotation._y, drawContainerRotation._z);
-}, 50);
-
-document.getElementById("pauseGlobalRotation").addEventListener("click", () => {
-  const drawContainer = document.getElementById("drawContainer");
-  const isRotating = drawContainer.isPlaying;
-  if (isRotating) {
-    drawContainer.pause();
-    drawContainer.setAttribute("rotation", "0 0 0");
-  } else {
-    drawContainer.play();
-  }
-});
 
 // <-------------------------Abstract-------------------------------->
 
@@ -203,108 +91,6 @@ const renderAnnotation = (annotation, cellColors) => {
 }
 
 // <-------------------------------------------------------------------->
-
-const scaleLines = (f) => {
-  const line_els = Array.from(document.getElementById("thicklines").children);
-  line_els.forEach(line_el => {
-    let oldWidth = line_el.getAttribute("meshline").lineWidth;
-    line_el.setAttribute("meshline", "lineWidth", f(oldWidth,2));
-  })
-}
-
-const multiply = (a, b) => a * b;
-
-const divide = (a,b) => a / b;
-
-document.querySelector('a-scene').addEventListener('enter-vr', () => {
-  const hud = document.getElementById("hud");
-  hud.setAttribute('material', 'color', 'white');
-  const labels = document.getElementById("curve-labels").childNodes;
-  labels.forEach((label) => {
-    label.setAttribute("text", "color", "white");
-  })
-  setHudPosition(visibleWidthAtZDepth(-1) - .5, visibleHeightAtZDepth(-1), -1);
-  if (mobilecheck()) {
-    document.getElementById('hud').object3D.visible = false;
-    scaleLines(divide);
-  }
-  const legend = document.getElementById('legend');
-  if (legend !== null) {
-    document.getElementById('legend').setAttribute('panel-color', 'black');
-  }
-});
-
-
-document.querySelector('a-scene').addEventListener('exit-vr', () => {
-  const hud = document.getElementById("hud");
-  hud.setAttribute('material', 'color', 'gray');
-  const labels = document.getElementById("curve-labels").childNodes;
-  labels.forEach((label) => {
-    label.setAttribute("text", "color", "black");
-  })
-  setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
-  const legend = document.getElementById('legend');
-  if (legend !== null) {
-    document.getElementById('legend').setAttribute('panel-color', 'white');
-  }
-  if (mobilecheck()) {
-    scaleLines(multiply);
-  }
-});
-
-const getZMax = (curves) => {
-    let maxZ = Number.NEGATIVE_INFINITY;
-    curves.forEach((curve) => {
-      curve.xyz.forEach((coord) => {
-        if (typeof coord.z !== 'undefined' && Math.abs(coord.z) > maxZ) {
-            maxZ = Math.abs(coord.z);
-        }
-      });
-    });
-    return maxZ * 100;
-}
-
-const getMedian = (values) => {
-    const sorted = [...values].sort();
-    return sorted[Math.floor(sorted.length/2)];
-}
-
-const getCameraTrajectory = (branches) => {
-  currentBranch = branches[0].branch_id;
-  const branchPositions = {};
-  branches.forEach((branch) => {
-    const positions = [];
-    branch.xyz.forEach((coord, _) => {
-        const position = `${coord.x} ${coord.y} ${coord.z}`;
-        positions.push(position);
-    });
-    branchPositions[branch.branch_id] = positions;
-    branchClasses.push('.' + branch.branch_id);
-  });
-  return branchPositions;
-};
-
-const groupBy = (list, keyGetter) => {
-    const map = new Map();
-    list.forEach((item) => {
-        const key = keyGetter(item);
-        const collection = map.get(key);
-        if (!collection) {
-            map.set(key, [item]);
-        } else {
-            collection.push(item);
-        }
-    });
-    return map;
-}
-
-const getFileText = (name) => {
-  return fetch(name + '.json')
-    .then(response => response.text())
-    .then(text => {
-        return JSON.parse(text);
-    });
-}
 
 const createCellMetadataObject = (metadata) => {
   // Constant values denoting key does not represent an annotation.
@@ -335,18 +121,30 @@ const createCellMetadataObject = (metadata) => {
   return [annotations, annotationObjects];
 }
 
+// ---------------------------------- Paga --------------------------------
+
+const scalePagaLines = (f) => {
+  const line_els = Array.from(document.getElementById("thicklines").children);
+  line_els.forEach(line_el => {
+    const oldWidth = line_el.getAttribute("meshline").lineWidth;
+    line_el.setAttribute("meshline", "lineWidth", f(oldWidth,2));
+  })
+}
+
 const renderPagaCells = (cells, cellMetadata) => {
   const cellEntities = Array.from(cells.map((cell) => {
     const x = cell.x * .1;
     const y = cell.y * .1;
     const z = cell.z * .1;
+
+    // Colors cells based on the first annotation in the cell metadata object
     const color = cellMetadata[Object.keys(cellMetadata)[0]][cell.cell_id].cluster_color;
     return `<a-sphere id="${cell.cell_id}" position="${x} ${y} ${z}" radius=".004" color="${color}"></a-sphere>`
   }));
   document.getElementById('pagacells').innerHTML = cellEntities.join(" ");
 }
 
-const setInitialCameraPositionPaga = (nodes) => {
+const setInitialCameraAndGroundPositionPaga = (nodes) => {
   const yValues = Array.from(Object.values(nodes).map(node => node.xyz.y * .04));
   const xValues = Array.from(Object.values(nodes).map(node => node.xyz.x * .04));
   const xMax = Math.max(...xValues);
@@ -357,9 +155,10 @@ const setInitialCameraPositionPaga = (nodes) => {
   const xMidpoint = (xMax + xMin) / 2;
   const yMidpoint = (yMax + yMin) / 2;
 
+  // Make sure the ground is below the cells
   document.getElementsByClassName('environmentGround')[0].object3D.position.set(0, Math.min(yMin, -12), 0);
-  const camera_el = document.getElementById("rig");
-  camera_el.object3D.position.set(xMidpoint, yMidpoint, xRange + 1);
+
+  document.getElementById("rig").object3D.position.set(xMidpoint, yMidpoint, xRange + 1);
 }
 
 const renderLegend = (annotation, clusterColors) => {
@@ -379,11 +178,6 @@ const renderLegend = (annotation, clusterColors) => {
   });
 }
 
-const clearLegend = () => {
-  const legend = document.getElementById('legend');
-  legend.innerHTML = "";
-}
-
 const initializeAnnotationMenu = (annotations, clusterColors) => {
   const annotation_menu = document.getElementById('annotation_menu');
   annotations.forEach((annotation) => {
@@ -395,7 +189,6 @@ const initializeAnnotationMenu = (annotations, clusterColors) => {
     el.setAttribute("margin", "0 0 0.05 0");
     el.addEventListener('click', () => {
       const value = el.getAttribute("value");
-      console.log(value);
       changeAnnotation(value, clusterColors);
     });
     annotation_menu.appendChild(el);
@@ -403,13 +196,13 @@ const initializeAnnotationMenu = (annotations, clusterColors) => {
 }
 
 const changeAnnotation = (annotation, clusterColors) => {
-  clearLegend();
+  Utils.removeElementChildren(document.getElementById('legend'));
   renderLegend(annotation, clusterColors);
   renderAnnotation(annotation, clusterColors);
 }
 
 const renderPaga = (edges, nodes, scatter, metadata) => {
-  setInitialCameraPositionPaga(nodes);
+  setInitialCameraAndGroundPositionPaga(nodes);
   const branches = [];
   const edgeWeights = {};
   edges.forEach((edge, _) => {
@@ -431,27 +224,27 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
     let y = cell_point.xyz.y * .1;
     let z = cell_point.xyz.z * .1;
     const stream_cell = `<a-sphere text="value: ${cell_point.node_name}; width: 1.5; color: black; align: center; side: double; zOffset: .02" id="${cell_point.node_name}" position="${x} ${y} ${z}" radius=".015" billboard></a-sphere>`;
-    cellEntities.push(stream_cell);
     nodePositions[cell_point.node_name.replace(/\D/g,'')] = {"x": x, "y": y, "z": z};
+    cellEntities.push(Utils.htmlToElement(stream_cell));
   });
-  cell_el.innerHTML = cellEntities.join(" ");
+  cell_el.append(...cellEntities);
   const thickLines = [];
+  const thickLinesMap = [];
   branch_els.forEach((branch) => {
-    const curveref = branch.split(" ");
-    // TODO: Bad, evil, fix!
-    const curveid = curveref[1].split("=")[1];
-    const [startNode, endNode] = strip(curveid).split("_");
-    const thickLine = `<a-entity meshline="lineWidth: ${edgeWeights[strip(curveid)] * 10}; path: ${nodePositions[startNode].x} ${nodePositions[startNode].y} ${nodePositions[startNode].z}, ${nodePositions[endNode].x} ${nodePositions[endNode].y} ${nodePositions[endNode].z}; color: black"></a-entity>`
-    thickLines.push(thickLine);
+    const curveid = branch.getAttribute("id"); 
+    const [startNode, endNode] = Utils.strip(curveid).split("_");
+    const thickLine = `<a-entity meshline="lineWidth: ${edgeWeights[Utils.strip(curveid)] * 10}; path: ${nodePositions[startNode].x} ${nodePositions[startNode].y} ${nodePositions[startNode].z}, ${nodePositions[endNode].x} ${nodePositions[endNode].y} ${nodePositions[endNode].z}; color: black"></a-entity>`
+    thickLines.push(Utils.htmlToElement(thickLine));
+    thickLinesMap.push(Utils.htmlToElement(thickLine));
   });
-  document.getElementById("thicklines").innerHTML = thickLines.join(" ");
-  document.getElementById("thicklinesMap").innerHTML = thickLines.join(" ");
+  document.getElementById("thicklines").append(...thickLines);
+  document.getElementById("thicklinesMap").append(...thickLinesMap);
   renderPagaCells(scatter, clusterColors);
 }
 
-const strip = (str) => {
-    return str.replace(/^\"+|\"+$/g, '');
-}
+// -------------------------------------------------------------------
+
+// ---------------------- STREAM -------------------------------------
 
 const createBranchPoints = (curve) => {
   const curvePoints = [];
@@ -470,7 +263,7 @@ const createBranchPoints = (curve) => {
   curveLabels.appendChild(labelEntity);
   curve.xyz.forEach((coord, _) => {
       const curvePoint = `<a-curve-point position="${coord.x * 100} ${coord.y * 100} ${coord.z * 100}"></a-curve-point>`;
-      curvePoints.push(curvePoint);
+      curvePoints.push(Utils.htmlToElement(curvePoint));
   });
   return curvePoints;
 }
@@ -498,22 +291,22 @@ const createCurveEnities = (branches) => {
   const branch_draw_els = [];
   branches.forEach((branch, _) => {
       const branch_el = `<a-curve id="${branch}" ></a-curve>`;
-      branch_els.push(branch_el);
+      branch_els.push(Utils.htmlToElement(branch_el));
       const branch_draw_el = `<a-draw-curve cursor-listener curveref="#${branch}" material="shader: line; color: black;" geometry="primitive: " ></a-draw-curve>`;
-      branch_draw_els.push(branch_draw_el);
+      branch_draw_els.push(Utils.htmlToElement(branch_draw_el));
   });
   return [branch_els, branch_draw_els];
 }
 
 const setDrawContainerContent = (branch_els, branch_draw_els) => {
   const branch_container_el = document.getElementById("curve-container");
-  branch_container_el.innerHTML = branch_els.join(" ");
+  branch_container_el.append(...branch_els);
   const map_branch_container = document.getElementById("curve-map");
-  map_branch_container.innerHTML = branch_els.join(" ");
+  map_branch_container.append(...branch_els);
   const branch_draw_container = document.getElementById("curve-draw");
-  branch_draw_container.innerHTML = branch_draw_els.join(" ");
+  branch_draw_container.append(...branch_draw_els);
   const map_draw_container = document.getElementById("draw-map");
-  map_draw_container.innerHTML = branch_draw_els.join(" ");
+  map_draw_container.append(...branch_draw_els);
 }
 
 const renderStream = async (curves, cells, metadata) => {
@@ -536,7 +329,7 @@ const renderStream = async (curves, cells, metadata) => {
   curves.forEach((curve) => {
     const points = createBranchPoints(curve);
     const branch_el = document.getElementById(curve.branch_id);
-    branch_el.innerHTML = points.join(" ")
+    branch_el.append(...points);
   })
 
   metadata.forEach((cell) => {
@@ -551,44 +344,33 @@ const renderStreamCells = async (cells) => {
   const cellEntities = [];
   cells.forEach((cell_point, _) => {
     const stream_cell = `<a-sphere id="${cell_point.cell_id}" position="${cell_point.x * 100} ${cell_point.y * 100} ${cell_point.z * 100}" color="${cellColors[cell_point.cell_id]}" radius=".05" shadow></a-sphere>`;
-    cellEntities.push(stream_cell);
+    cellEntities.push(Utils.htmlToElement(stream_cell));
   });
-  cell_el.innerHTML = cellEntities.join(" ");
+  cell_el.append(...cellEntities);
 }
 
-let clickCount = 1;
+// -------------------------------------------------------------------
 
-const move = (position) => {
-    const camera_el = document.getElementById("rig");
-    let positionSplit = position.split(" ");
-    const scaled = positionSplit.map((coord) => {
-        return coord * 100;
+// -------------------------- Camera ---------------------------------
+
+const getZMax = (curves) => {
+  let maxZ = Number.NEGATIVE_INFINITY;
+  curves.forEach((curve) => {
+    curve.xyz.forEach((coord) => {
+      if (typeof coord.z !== 'undefined' && Math.abs(coord.z) > maxZ) {
+          maxZ = Math.abs(coord.z);
+      }
     });
-    camera_el.object3D.position.set(...scaled);
+  });
+  return maxZ * 100;
 }
 
-
-const moveCamera = (e) => {
-  if (e.keyCode === 38) {
-    if (positionIndex !== cameraTrajectory[currentBranch].length) {
-      move(cameraTrajectory[currentBranch][positionIndex]);
-      positionIndex += 1;
-    }
-  } else if (e.keyCode === 40) {
-    if (positionIndex >= 0) {
-      positionIndex = Math.max(positionIndex-1, 0);
-      move(cameraTrajectory[currentBranch][positionIndex])
-    }
-  }
+const getMedian = (values) => {
+  const sorted = [...values].sort();
+  return sorted[Math.floor(sorted.length/2)];
 }
 
-// TODO: Quick and dirty. strips everything besides gui-interactable. Fix Later
-const makeIntersectable = (objects) => {
-  const cursor = document.getElementById("cursor");
-  const currentIntersectable = cursor.getAttribute('raycaster');
-  cursor.setAttribute('raycaster', 'objects', '[gui-interactable], ' + objects.join(", "));
-  console.log(cursor.getAttribute('raycaster').objects);
-}
+// -------------------------------------------------------------------
 
 const getGeneList = (report) => {
   const allFileNames = Object.keys(report.files);
@@ -603,7 +385,7 @@ const getGeneList = (report) => {
 }
 
 const initialize = async (uuid) => {
-  const result = await unzip(uuid);
+  const result = await Utils.unzip(uuid);
   report = result;
   if (Object.keys(result.files).includes("paga_nodes.json")) {
     const edges = await result.file("paga_edges.json").async("string");
@@ -615,15 +397,122 @@ const initialize = async (uuid) => {
     const streamFile = await result.file("stream.json").async("string");
     const scatterFile = await result.file("scatter.json").async("string");
     const metadataFile = await result.file("metadata.json").async("string");
-    cameraTrajectory = getCameraTrajectory(JSON.parse(streamFile));
-    makeIntersectable(branchClasses);
     document.getElementById('legend').remove();
     renderStream(JSON.parse(streamFile), JSON.parse(scatterFile), JSON.parse(metadataFile));
   }
   geneList = getGeneList(result);
+  initializeMenu();
 }
 
 window.onload = () => {
   const uuid = window.location.href.split("/").slice(-1)[0];
   initialize(uuid);
 }
+
+// --------------------- Listeners ----------------------------
+document.body.addEventListener('keydown', (e) => {
+  var options = {
+    shouldSort: true,
+    threshold: 0.6,
+    location: 0,
+    distance: 100,
+    maxPatternLength: 32,
+    minMatchCharLength: 1,
+    keys: [
+      "gene",
+    ]
+  };
+  const resultsEntity = document.getElementById("test_input");
+  let result1 = '';
+  let result2 = '';
+  let result3 = '';
+  if (e.code === 'Space') {
+    summonMenu();
+    currentSearch = '';
+  } else if (e.key === "Shift") {
+    if (Utils.mobilecheck()) {
+      const hud = document.getElementById("hud").object3D;
+      if (!hud.visible) {
+        hud.position.set(0, 0, -.5);
+        hud.visible = true;
+      }
+      document.getElementById("cursor").object3D.visible = false;
+    }
+  } else if (e.keyCode === 38) {
+      movement(.05);
+  } else if (e.keyCode === 40) {
+      movement(-.05);
+  } else if (e.code === 'Enter') {
+    currentSearch = '';
+    viewGene('metadata', 'label_color');
+  } else if (e.key.length === 1) {
+    currentSearch = currentSearch + e.key;
+    let fuse = new Fuse(geneList, options);
+    let result = fuse.search(currentSearch);
+    result1 = result.length > 0 ? result[0].gene : "";
+    result2 = result.length > 1 ? result[1].gene : "";
+    result3 = result.length > 2 ? result[2].gene : "";
+
+  }
+  resultsEntity.setAttribute('text', 'value', "Search: " + currentSearch);
+  document.getElementById("result1").setAttribute('text', 'value', result1);
+  document.getElementById("result2").setAttribute('text', 'value', result2);
+  document.getElementById("result3").setAttribute('text', 'value', result3);
+});
+
+document.querySelector('a-scene').addEventListener('enter-vr', () => {
+  setHudPosition(visibleWidthAtZDepth(-1) - .5, visibleHeightAtZDepth(-1), -1);
+  if (Utils.mobilecheck()) {
+    document.getElementById('hud').object3D.visible = false;
+    scalePagaLines(Utils.divide);
+  }
+});
+
+document.querySelector('a-scene').addEventListener('exit-vr', () => {
+  setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
+  if (Utils.mobilecheck()) {
+    scalePagaLines(Utils.multiply);
+  }
+});
+
+document.body.addEventListener('keyup', (e) => {
+  if (e.key === "Shift") {
+    if (Utils.mobilecheck()) {
+      const hud = document.getElementById("hud").object3D;
+      if (hud.visible) {
+        hud.visible = false;
+      }
+      document.getElementById("cursor").object3D.visible = true;
+    }
+  }
+});
+
+resultElements.forEach((element) => {
+  const result = document.getElementById(element);
+  result.addEventListener("click", () => {
+    viewGene('gene_' + result.getAttribute('text').value, 'color');
+  });
+});
+
+setInterval(() => {
+  const drawContainer = document.getElementById("drawContainer");
+  const drawContainerRotation = drawContainer.object3D.rotation;
+  const hudMapContainer = document.getElementById("hudMapContainer");
+  hudMapContainer.object3D.rotation.set(drawContainerRotation._x, drawContainerRotation._y, drawContainerRotation._z);
+}, 50);
+
+document.getElementById("pauseGlobalRotation").addEventListener("click", () => {
+  const drawContainer = document.getElementById("drawContainer");
+  const isRotating = drawContainer.isPlaying;
+  if (isRotating) {
+    drawContainer.pause();
+    drawContainer.setAttribute("rotation", "0 0 0");
+  } else {
+    drawContainer.play();
+  }
+});
+
+// ---------------------------------------------------------------------
+
+
+
