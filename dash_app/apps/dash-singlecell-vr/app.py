@@ -144,9 +144,8 @@ app.layout = dbc.Container(
                                     children=[
                                         html.P("How to prepare for your submission:",id="heatmap-title2"),
                                         dcc.Markdown('''
-                                            * [Generate STREAM trajectories](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/examples/stream_nestorowa16/reformat_stream_nestorowa16.ipynb?flush_cache=true)
-                                            * [Generate PAGA graph](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/examples/paga3d_paul15/reformat_paga3d_paul15.ipynb?flush_cache=true)
-                                        ''')
+                                            check out our package [scvr_prep](https://pypi.org/project/scvr-prep/)
+                                            ''')
                                 ]),
                                 html.Div(id="qr-output"),
                                 # Evil hack
