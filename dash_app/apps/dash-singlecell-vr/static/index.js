@@ -9,10 +9,6 @@ let cameraTrajectory = null;
 const branchClasses = [];
 const cellColors = {};
 
-document.getElementById("moveToggle").addEventListener("click", () => {
-  freeMove = !freeMove;
-});
-
 const unzip = async (uuid) => {
   const zipper = new JSZip();
   const response = await fetch('/download/' + uuid + '.zip');
@@ -301,11 +297,32 @@ const getFileText = (name) => {
 }
 
 const createCellMetadataObject = (metadata) => {
-  const cellObjects = {};
-  metadata.forEach((cell) => {
-    cellObjects[cell.cell_id] = {"label": cell.label, "label_color": cell.label_color, "cluster_color": cell.cluster_color}
+  // Constant values denoting key does not represent an annotation.
+  const ignore_keys = ["cell_id", "color"]
+
+  // Infer available annotations from first cell object
+  exampleCell = metadata[0];
+  const annotations = [];
+  Object.keys(exampleCell).forEach((key) => {
+    let ignore = false;
+    ignore_keys.forEach((ignore_key) => {
+      if (key.includes(ignore_key)) {
+        ignore = true;
+      }
+    });
+    if (!ignore) {
+      annotations.push(key);
+    }
   });
-  return cellObjects;
+
+  const annotationObjects = {};
+  annotations.forEach((annotation) => {
+    annotationObjects[annotation] = {};
+    metadata.forEach((cell) => {
+      annotationObjects[annotation][cell.cell_id] = {"label": cell[annotation], "label_color": null, "cluster_color": cell[`${annotation}_color`]};
+    });
+  });
+  return [annotations, annotationObjects];
 }
 
 const renderPagaCells = (cells, cellMetadata) => {
@@ -313,7 +330,7 @@ const renderPagaCells = (cells, cellMetadata) => {
     const x = cell.x * .1;
     const y = cell.y * .1;
     const z = cell.z * .1;
-    const color = cellMetadata[cell.cell_id].label_color;
+    const color = cellMetadata[Object.keys(cellMetadata)[0]][cell.cell_id].cluster_color;
     return `<a-sphere id="${cell.cell_id}" position="${x} ${y} ${z}" radius=".004" color="${color}"></a-sphere>`
   }));
   document.getElementById('pagacells').innerHTML = cellEntities.join(" ");
@@ -335,10 +352,10 @@ const setInitialCameraPositionPaga = (nodes) => {
   camera_el.object3D.position.set(xMidpoint, yMidpoint, xRange + 1);
 }
 
-const renderLegend = (metadata) => {
+const renderLegend = (annotation, clusterColors) => {
   const legendColors = {};
-  metadata.forEach((metadatum) => {
-    legendColors[metadatum.label] = metadatum.label_color;
+  Object.values(clusterColors[annotation]).forEach((metadatum) => {
+    legendColors[metadatum.label] = metadatum.cluster_color;
   });
   const legend = document.getElementById('legend');
   Object.keys(legendColors).forEach((key) => {
@@ -352,9 +369,37 @@ const renderLegend = (metadata) => {
   });
 }
 
+const clearLegend = () => {
+  const legend = document.getElementById('legend');
+  legend.innerHTML = "";
+}
+
+const initializeAnnotationMenu = (annotations, clusterColors) => {
+  const annotation_menu = document.getElementById('annotation_menu');
+  annotations.forEach((annotation) => {
+    const el = document.createElement("a-gui-button");
+    el.setAttribute("width", "2.5");
+    el.setAttribute("height", ".5");
+    el.setAttribute("value", annotation);
+    el.setAttribute("font-color", "white");
+    // el.setAttribute("background-color", "white");
+    el.setAttribute("margin", "0 0 0.05 0");
+    el.addEventListener('click', () => {
+      const value = el.getAttribute("value");
+      console.log(value);
+      changeAnnotation(value, clusterColors);
+    });
+    annotation_menu.appendChild(el);
+  });
+}
+
+const changeAnnotation = (annotation, clusterColors) => {
+  clearLegend();
+  renderLegend(annotation, clusterColors);
+}
+
 const renderPaga = (edges, nodes, scatter, metadata) => {
   setInitialCameraPositionPaga(nodes);
-  renderLegend(metadata);
   const branches = [];
   const edgeWeights = {};
   edges.forEach((edge, _) => {
@@ -365,7 +410,9 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
     edgeWeights[edgeId] = edge.weight;
   });
   const [branch_els, branch_draw_els] = createCurveEnities(branches);
-  const clusterColors = createCellMetadataObject(metadata);
+  const [annotations, clusterColors] = createCellMetadataObject(metadata);
+  renderLegend(annotations[0], clusterColors);
+  initializeAnnotationMenu(annotations, clusterColors);
   const cell_el = document.getElementById("cells");
   const cellEntities = [];
   const nodePositions = {};
@@ -553,7 +600,6 @@ const initialize = async (uuid) => {
     const nodes = await result.file("paga_nodes.json").async("string");
     const scatter = await result.file("scatter.json").async("string");
     const metadata = await result.file("metadata.json").async("string");
-    document.getElementById("moveToggle").remove();
     renderPaga(JSON.parse(edges), JSON.parse(nodes), JSON.parse(scatter), JSON.parse(metadata));
   } else {
     const streamFile = await result.file("stream.json").async("string");
@@ -562,7 +608,6 @@ const initialize = async (uuid) => {
     cameraTrajectory = getCameraTrajectory(JSON.parse(streamFile));
     makeIntersectable(branchClasses);
     document.getElementById('legend').remove();
-    document.getElementById("moveToggle").remove();
     renderStream(JSON.parse(streamFile), JSON.parse(scatterFile), JSON.parse(metadataFile));
   }
   geneList = getGeneList(result);
