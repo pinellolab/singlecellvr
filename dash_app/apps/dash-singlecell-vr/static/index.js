@@ -495,7 +495,6 @@ document.body.addEventListener('keydown', (e) => {
       movement(-.05);
   } else if (e.code === 'Enter') {
     currentSearch = '';
-    viewGene('metadata', 'label_color');
   } else if (e.key.length === 1) {
     currentSearch = currentSearch + e.key;
     let fuse = new Fuse(geneList, options);
