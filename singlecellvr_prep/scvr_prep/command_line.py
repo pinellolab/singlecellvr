@@ -25,7 +25,7 @@ def main():
     parser.add_argument("-f", "--filename", dest="filename",default = None,required=True,
                         help="Analysis result file name", metavar="FILE")
     parser.add_argument("-t", "--toolname",dest="toolname", default=None,required=True,
-                        type = str.lower,choices=['paga','seurat','stream'],
+                        type = str.lower,choices=['scanpy','paga','seurat','stream'],
                         help="Tool used to generate the analysis result.")
     parser.add_argument("-a","--annotations",dest="annotations", default=None,
                         help="Annotation file name. It contains the cell annotation(s) used to color cells")
@@ -41,19 +41,18 @@ def main():
     output = args.output #work directory
     annotations = args.annotations
 
-    if(toolname in ['paga','seurat']):
-        if(annotations is None):
-            raise Exception("Annotation file must be specified when %s is chosen." % (toolname))
-        try:
-            ann_list = pd.read_csv(annotations,sep='\t',header=None,index_col=None).iloc[:,0].tolist()
-        except FileNotFoundError as fnf_error:
-            print(fnf_error)
-            raise
-        except:
-            print('Failed to load in annotation file.')
-            raise
-        else:
-            ann_list = list(set(ann_list))
+    if(annotations is None):
+        raise Exception("Annotation file must be specified when %s is chosen." % (toolname))
+    try:
+        ann_list = pd.read_csv(annotations,sep='\t',header=None,index_col=None).iloc[:,0].tolist()
+    except FileNotFoundError as fnf_error:
+        print(fnf_error)
+        raise
+    except:
+        print('Failed to load in annotation file.')
+        raise
+    else:
+        ann_list = list(set(ann_list))
 
     if(genes is not None):
         try:
@@ -69,20 +68,26 @@ def main():
     else:
         gene_list = None
 
-    if(toolname=='paga'):
-        assert (filename.lower().endswith(('.h5ad'))), "For PAGA only .h5ad file is supported."
-        print('reading in h5ad file ...')
-        adata = ad.read_h5ad(filename)
-        adata.uns['paga']['pos'] = scvr_prep.get_paga3d_pos(adata)
-        scvr_prep.output_paga_graph(adata,reportdir=output)
-        scvr_prep.output_paga_cells(adata,ann_list,genes=gene_list,reportdir=output)
-        shutil.make_archive(base_name=output, format='zip',root_dir=output)
-        shutil.rmtree(output)
-    if(toolname=='seurat'):
-        assert (filename.lower().endswith(('.h5ad'))), "For Seurat only .loom file is supported."
-        print('reading in loom file ...')
-        adata = ad.read_loom(filename)
-        scvr_prep.output_seurat_cells(adata,ann_list,genes=gene_list,reportdir=output)
+    print("Converting '%s' analysis result ..." % toolname)
+    
+    if(toolname in ['scanpy','paga','seurat']):   
+        if(toolname=='scanpy'):
+            assert (filename.lower().endswith(('.h5ad'))), "For Scanpy only .h5ad file is supported."
+            print('reading in h5ad file ...')
+            adata = ad.read_h5ad(filename)
+            scvr_prep.output_scanpy_cells(adata,ann_list,genes=gene_list,reportdir=output)       
+        if(toolname=='paga'):
+            assert (filename.lower().endswith(('.h5ad'))), "For PAGA only .h5ad file is supported."
+            print('reading in h5ad file ...')
+            adata = ad.read_h5ad(filename)
+            adata.uns['paga']['pos'] = scvr_prep.get_paga3d_pos(adata)
+            scvr_prep.output_paga_graph(adata,reportdir=output)
+            scvr_prep.output_paga_cells(adata,ann_list,genes=gene_list,reportdir=output)
+        if(toolname=='seurat'):
+            assert (filename.lower().endswith(('.h5ad'))), "For Seurat only .loom file is supported."
+            print('reading in loom file ...')
+            adata = ad.read_loom(filename)
+            scvr_prep.output_seurat_cells(adata,ann_list,genes=gene_list,reportdir=output)
         shutil.make_archive(base_name=output, format='zip',root_dir=output)
         shutil.rmtree(output)
     if(toolname=='stream'):
