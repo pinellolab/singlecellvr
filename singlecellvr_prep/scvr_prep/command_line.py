@@ -44,18 +44,16 @@ def main():
     if(toolname in ['paga','seurat']):
         if(annotations is None):
             raise Exception("Annotation file must be specified when %s is chosen." % (toolname))
-
-        if(annotations is not None):
-            try:
-                ann_list = pd.read_csv(annotations,sep='\t',header=None,index_col=None).iloc[:,0].tolist()
-            except FileNotFoundError as fnf_error:
-                print(fnf_error)
-                raise
-            except:
-                print('Failed to load in annotation file.')
-                raise
-            else:
-                ann_list = list(set(ann_list))
+        try:
+            ann_list = pd.read_csv(annotations,sep='\t',header=None,index_col=None).iloc[:,0].tolist()
+        except FileNotFoundError as fnf_error:
+            print(fnf_error)
+            raise
+        except:
+            print('Failed to load in annotation file.')
+            raise
+        else:
+            ann_list = list(set(ann_list))
 
     if(genes is not None):
         try:
