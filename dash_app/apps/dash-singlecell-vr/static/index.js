@@ -38,16 +38,16 @@ setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
 
 // -----------------------------------------------------------
 
-const summonMenu = () => {
+const summonMenus = () => {
   const camera = document.getElementById("curve-camera");
   const start = new THREE.Vector3();
   camera.object3D.getWorldPosition(start);
-  const direction = new THREE.Vector3(0, 0, -1);
+  const direction = new THREE.Vector3(0, 0, -2);
   direction.applyQuaternion(camera.object3D.quaternion);
   const newPos = new THREE.Vector3();
   newPos.addVectors( start, direction.multiplyScalar( 5 ) );
-  const menu = document.getElementById("menu").object3D;
-  menu.position.set(newPos.x, newPos.y, newPos.z);
+  const menus = document.getElementById("menuContainer").object3D;
+  menus.position.set(newPos.x, newPos.y, newPos.z);
 }
 
 // Menu elements won't show up without this.
@@ -78,17 +78,17 @@ const viewGene = async (geneFileName, colorField) => {
   const gene = await report.file(geneFileName + ".json").async("string");
   const cellsByGene = JSON.parse(gene);
   cellsByGene.forEach((cell) => {
-    const cellElement = document.getElementById(cell.cell_id);
-    cellElement.setAttribute("color", cell[colorField]);
+    paintElement(cell.cell_id, cell[colorField]);
   });
 }
 
 const renderAnnotation = (annotation, cellColors) => {
   Object.entries(cellColors[annotation]).forEach(([id, cell]) => {
-    const cellElement = document.getElementById(id);
-    cellElement.setAttribute("color", cell.cluster_color);
+    paintElement(id, cell.cluster_color);
   });
 }
+
+const paintElement = (id, color) => document.getElementById(id).setAttribute("color", color);
 
 // <-------------------------------------------------------------------->
 
@@ -139,9 +139,10 @@ const renderPagaCells = (cells, cellMetadata) => {
 
     // Colors cells based on the first annotation in the cell metadata object
     const color = cellMetadata[Object.keys(cellMetadata)[0]][cell.cell_id].cluster_color;
-    return `<a-sphere id="${cell.cell_id}" position="${x} ${y} ${z}" radius=".004" color="${color}"></a-sphere>`
+    const html_str = `<a-sphere id="${cell.cell_id}" position="${x} ${y} ${z}" radius=".004" color="${color}"></a-sphere>`;
+    return Utils.htmlToElement(html_str);
   }));
-  document.getElementById('pagacells').innerHTML = cellEntities.join(" ");
+  document.getElementById('pagacells').append(...cellEntities);
 }
 
 const setInitialCameraAndGroundPositionPaga = (nodes) => {
@@ -243,6 +244,50 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
 }
 
 // -------------------------------------------------------------------
+
+// ---------------------- Seurat -------------------------------------
+
+const setInitialCameraAndGroundPositionSeurat = (scatter) => {
+  const yValues = Array.from(Object.values(scatter).map(cell => cell.y * .5));
+  const xValues = Array.from(Object.values(scatter).map(cell => cell.x * .5));
+  const xMax = Math.max(...xValues);
+  const xMin = Math.min(...xValues);
+  const xRange = xMax - xMin;
+  const yMax = Math.max(...yValues);
+  const yMin = Math.min(...yValues);
+  const xMidpoint = (xMax + xMin) / 2;
+  const yMidpoint = (yMax + yMin) / 2;
+
+  // Make sure the ground is below the cells
+  document.getElementsByClassName('environmentGround')[0].object3D.position.set(0, Math.min(yMin, -12), 0);
+
+  document.getElementById("rig").object3D.position.set(xMidpoint, yMidpoint, xRange + 1);
+}
+
+const renderSeuratCells = (cells, cellMetadata) => {
+  const cellEntities = Array.from(cells.map((cell) => {
+    const x = cell.x * .5;
+    const y = cell.y * .5;
+    const z = cell.z * .5;
+
+    // Colors cells based on the first annotation in the cell metadata object
+    const color = cellMetadata[Object.keys(cellMetadata)[0]][cell.cell_id].cluster_color;
+   
+    const html_str = `<a-sphere id="${cell.cell_id}" position="${x} ${y} ${z}" color="${color}" radius=".05" shadow></a-sphere>`;;
+    return Utils.htmlToElement(html_str);
+  }));
+  document.getElementById('pagacells').append(...cellEntities);
+}
+
+const renderSeurat = (scatter, metadata) => {
+  setInitialCameraAndGroundPositionSeurat(scatter);
+  const [annotations, clusterColors] = createCellMetadataObject(metadata);
+  renderLegend(annotations[0], clusterColors);
+  initializeAnnotationMenu(annotations, clusterColors);
+  renderSeuratCells(scatter, clusterColors);
+}
+
+//--------------------------------------------------------------------
 
 // ---------------------- STREAM -------------------------------------
 
@@ -387,12 +432,18 @@ const getGeneList = (report) => {
 const initialize = async (uuid) => {
   const result = await Utils.unzip(uuid);
   report = result;
+  const index = await result.file("index.json").async("string");
+  const vis_type = JSON.parse(index).type; 
   if (Object.keys(result.files).includes("paga_nodes.json")) {
     const edges = await result.file("paga_edges.json").async("string");
     const nodes = await result.file("paga_nodes.json").async("string");
     const scatter = await result.file("scatter.json").async("string");
     const metadata = await result.file("metadata.json").async("string");
     renderPaga(JSON.parse(edges), JSON.parse(nodes), JSON.parse(scatter), JSON.parse(metadata));
+  } else if (vis_type == 'seurat') {
+    const scatter = await result.file("scatter.json").async("string");
+    const metadata = await result.file("metadata.json").async("string");
+    renderSeurat(JSON.parse(scatter), JSON.parse(metadata));
   } else {
     const streamFile = await result.file("stream.json").async("string");
     const scatterFile = await result.file("scatter.json").async("string");
@@ -427,7 +478,7 @@ document.body.addEventListener('keydown', (e) => {
   let result2 = '';
   let result3 = '';
   if (e.code === 'Space') {
-    summonMenu();
+    summonMenus();
     currentSearch = '';
   } else if (e.key === "Shift") {
     if (Utils.mobilecheck()) {
