@@ -73,7 +73,7 @@ def output_paga_graph(adata,node_name = None,reportdir='./paga_report'):
             dict_coord_lines['branch_id'] = [[str(edge_i[0]),str(edge_i[1])]]
             dict_coord_lines['xyz'] = [{'x':pos[0],'y':pos[1],'z':pos[2]} for pos in adata.uns['paga']['pos'][[edge_i[0],edge_i[1]],:]]
             list_lines.append(dict_coord_lines)
-        with open(os.path.join(reportdir,'paga.json'), 'w') as f:
+        with open(os.path.join(reportdir,'graph_paths.json'), 'w') as f:
             json.dump(list_lines, f)
 
         ## output topology of paga graph
@@ -98,9 +98,9 @@ def output_paga_graph(adata,node_name = None,reportdir='./paga_report'):
             dict_edges['nodes'] = [str(edge_i[0]),str(edge_i[1])]
             dict_edges['weight'] = adata.uns['paga']['connectivities'][edge_i[0],edge_i[1]]
             list_edges.append(dict_edges)
-        with open(os.path.join(reportdir,'paga_nodes.json'), 'w') as f:
+        with open(os.path.join(reportdir,'graph_nodes.json'), 'w') as f:
             json.dump(dict_nodes, f)
-        with open(os.path.join(reportdir,'paga_edges.json'), 'w') as f:
+        with open(os.path.join(reportdir,'graph_edges.json'), 'w') as f:
             json.dump(list_edges, f)
     except:
         print("PAGA: graph failed!")
