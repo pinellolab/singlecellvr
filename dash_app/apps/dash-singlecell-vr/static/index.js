@@ -121,6 +121,24 @@ const createCellMetadataObject = (metadata) => {
   return [annotations, annotationObjects];
 }
 
+// ---------------------------------- Cells -------------------------------
+
+const renderCells = (cells, cellMetadata, scale, radius) => {
+  const cellEntities = Array.from(cells.map((cell) => {
+    const x = cell.x * scale;
+    const y = cell.y * scale;
+    const z = cell.z * scale;
+
+    // Colors cells based on the first annotation in the cell metadata object
+    const color = cellMetadata[Object.keys(cellMetadata)[0]][cell.cell_id].cluster_color;
+    const html_str = `<a-sphere id="${cell.cell_id}" position="${x} ${y} ${z}" radius="${radius}" color="${color}"></a-sphere>`;
+    return Utils.htmlToElement(html_str);
+  }));
+  document.getElementById('pagacells').append(...cellEntities);
+}
+
+// ------------------------------------------------------------------------
+
 // ---------------------------------- Paga --------------------------------
 
 const scalePagaLines = (f) => {
@@ -131,36 +149,7 @@ const scalePagaLines = (f) => {
   })
 }
 
-const renderPagaCells = (cells, cellMetadata) => {
-  const cellEntities = Array.from(cells.map((cell) => {
-    const x = cell.x * .1;
-    const y = cell.y * .1;
-    const z = cell.z * .1;
 
-    // Colors cells based on the first annotation in the cell metadata object
-    const color = cellMetadata[Object.keys(cellMetadata)[0]][cell.cell_id].cluster_color;
-    const html_str = `<a-sphere id="${cell.cell_id}" position="${x} ${y} ${z}" radius=".004" color="${color}"></a-sphere>`;
-    return Utils.htmlToElement(html_str);
-  }));
-  document.getElementById('pagacells').append(...cellEntities);
-}
-
-const setInitialCameraAndGroundPositionPaga = (nodes) => {
-  const yValues = Array.from(Object.values(nodes).map(node => node.xyz.y * .04));
-  const xValues = Array.from(Object.values(nodes).map(node => node.xyz.x * .04));
-  const xMax = Math.max(...xValues);
-  const xMin = Math.min(...xValues);
-  const xRange = xMax - xMin;
-  const yMax = Math.max(...yValues);
-  const yMin = Math.min(...yValues);
-  const xMidpoint = (xMax + xMin) / 2;
-  const yMidpoint = (yMax + yMin) / 2;
-
-  // Make sure the ground is below the cells
-  document.getElementsByClassName('environmentGround')[0].object3D.position.set(0, Math.min(yMin, -12), 0);
-
-  document.getElementById("rig").object3D.position.set(xMidpoint, yMidpoint, xRange + 1);
-}
 
 const renderLegend = (annotation, clusterColors) => {
   const legendColors = {};
@@ -206,7 +195,14 @@ const changeAnnotation = (annotation, clusterColors) => {
 }
 
 const renderPaga = (edges, nodes, scatter, metadata) => {
-  setInitialCameraAndGroundPositionPaga(nodes);
+  const xValues = []; 
+  const yValues = [];
+  Object.values(nodes).forEach(obj => { 
+    xValues.push(obj.xyz.x * .04);
+    yValues.push(obj.xyz.y * .04);
+  });
+  setInitialCameraAndGroundPosition(xValues, yValues);
+  delete xValues, yValues;
   const branches = [];
   const edgeWeights = {};
   edges.forEach((edge, _) => {
@@ -241,51 +237,26 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
   });
   document.getElementById("thicklines").append(...thickLines);
   document.getElementById("thicklinesMap").append(...thickLines.map(el => el.cloneNode()));
-  renderPagaCells(scatter, clusterColors);
+  renderCells(scatter, clusterColors, .1, .004);
 }
 
 // -------------------------------------------------------------------
 
 // ---------------------- Seurat -------------------------------------
 
-const setInitialCameraAndGroundPositionSeurat = (scatter) => {
-  const yValues = Array.from(Object.values(scatter).map(cell => cell.y * .5));
-  const xValues = Array.from(Object.values(scatter).map(cell => cell.x * .5));
-  const xMax = Math.max(...xValues);
-  const xMin = Math.min(...xValues);
-  const xRange = xMax - xMin;
-  const yMax = Math.max(...yValues);
-  const yMin = Math.min(...yValues);
-  const xMidpoint = (xMax + xMin) / 2;
-  const yMidpoint = (yMax + yMin) / 2;
-
-  // Make sure the ground is below the cells
-  document.getElementsByClassName('environmentGround')[0].object3D.position.set(0, Math.min(yMin, -12), 0);
-
-  document.getElementById("rig").object3D.position.set(xMidpoint, yMidpoint, xRange + 1);
-}
-
-const renderSeuratCells = (cells, cellMetadata) => {
-  const cellEntities = Array.from(cells.map((cell) => {
-    const x = cell.x * .5;
-    const y = cell.y * .5;
-    const z = cell.z * .5;
-
-    // Colors cells based on the first annotation in the cell metadata object
-    const color = cellMetadata[Object.keys(cellMetadata)[0]][cell.cell_id].cluster_color;
-   
-    const html_str = `<a-sphere id="${cell.cell_id}" position="${x} ${y} ${z}" color="${color}" radius=".05" shadow></a-sphere>`;;
-    return Utils.htmlToElement(html_str);
-  }));
-  document.getElementById('pagacells').append(...cellEntities);
-}
-
 const renderSeurat = (scatter, metadata) => {
-  setInitialCameraAndGroundPositionSeurat(scatter);
+  const xValues = []; 
+  const yValues = [];
+  Object.values(scatter).forEach(obj => { 
+    xValues.push(obj.x * .5);
+    yValues.push(obj.y * .5);
+  });
+  setInitialCameraAndGroundPosition(xValues, yValues);
+  delete xValues, yValues;
   const [annotations, clusterColors] = createCellMetadataObject(metadata);
   renderLegend(annotations[0], clusterColors);
   initializeAnnotationMenu(annotations, clusterColors);
-  renderSeuratCells(scatter, clusterColors);
+  renderCells(scatter, clusterColors, .5, .05);
 }
 
 //--------------------------------------------------------------------
@@ -314,24 +285,6 @@ const createBranchPoints = (curve) => {
   return curvePoints;
 }
 
-const setInitialCameraPosition = (curves) => {
-  const zMax = getZMax(curves);
-  const yValues = Array.from(curves.flatMap((curve) => {
-    return Array.from(curve.xyz.map(coord => coord.y));
-  }));
-  const xValues = Array.from(curves.flatMap((curve) => {
-    return Array.from(curve.xyz.map(coord => coord.x))
-  }));
-  const yMedian = getMedian(yValues) * 100;
-  const xMedian = getMedian(xValues) * 100;
-
-  document.getElementsByClassName('environmentGround')[0].object3D.position.set(0, Math.min(...yValues, -12), 0);
-  const camera_el = document.getElementById("rig");
-  camera_el.object3D.position.set(xMedian, yMedian, zMax + 1.2);
-  const mapPlayer = document.getElementById("mapPlayer");
-  mapPlayer.object3D.position.set(xMedian * .01, yMedian * .01, (zMax + 1.2) * .01)
-}
-
 const createCurveEnities = (branches) => {
   const branch_els = [];
   const branch_draw_els = [];
@@ -356,7 +309,15 @@ const setDrawContainerContent = (branch_els, branch_draw_els) => {
 }
 
 const renderStream = async (curves, cells, metadata) => {
-  setInitialCameraPosition(curves);
+  const xValues = []; 
+  const yValues = [];
+  Object.values(cells).forEach(obj => { 
+    xValues.push(obj.x * 100);
+    yValues.push(obj.y * 100);
+  });
+  setInitialCameraAndGroundPosition(xValues, yValues);
+  delete xValues, yValues;
+
   const camvec = new THREE.Vector3();
   const camera = AFRAME.scenes[0].camera;
   camera.getWorldPosition(camvec);
@@ -381,22 +342,27 @@ const renderStream = async (curves, cells, metadata) => {
   const [annotations, clusterColors] = createCellMetadataObject(metadata);
   initializeAnnotationMenu(annotations, clusterColors);
 
-  renderStreamCells(cells, clusterColors);
-}
-
-const renderStreamCells = async (cells, clusterColors) => {
-  const cellEntities = Array.from(cells.map((cell) => {
-    // Colors cells based on the first annotation in the cell metadata object
-    const color = clusterColors[Object.keys(clusterColors)[0]][cell.cell_id].cluster_color;
-    const html_str = `<a-sphere id="${cell.cell_id}" position="${cell.x * 100} ${cell.y * 100} ${cell.z * 100}" color="${color}" radius=".05" shadow></a-sphere>`;
-    return Utils.htmlToElement(html_str);
-  }));
-  document.getElementById("cells").append(...cellEntities);
+  renderCells(cells, clusterColors, 100, .05);
 }
 
 // -------------------------------------------------------------------
 
 // -------------------------- Camera ---------------------------------
+
+const setInitialCameraAndGroundPosition = (xValues, yValues) => {
+  const xMax = Math.max(...xValues);
+  const xMin = Math.min(...xValues);
+  const xRange = xMax - xMin;
+  const yMax = Math.max(...yValues);
+  const yMin = Math.min(...yValues);
+  const xMidpoint = (xMax + xMin) / 2;
+  const yMidpoint = (yMax + yMin) / 2;
+
+  // Make sure the ground is below the cells
+  document.getElementsByClassName('environmentGround')[0].object3D.position.set(0, Math.min(yMin, -12), 0);
+
+  document.getElementById("rig").object3D.position.set(xMidpoint, yMidpoint, xRange + 1);
+}
 
 const getZMax = (curves) => {
   let maxZ = Number.NEGATIVE_INFINITY;
