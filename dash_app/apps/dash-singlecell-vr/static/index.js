@@ -197,8 +197,11 @@ const initializeAnnotationMenu = (annotations, clusterColors) => {
 }
 
 const changeAnnotation = (annotation, clusterColors) => {
-  Utils.removeElementChildren(document.getElementById('legend'));
-  renderLegend(annotation, clusterColors);
+  const legend = document.getElementById('legend');
+  if (legend) {
+    Utils.removeElementChildren(document.getElementById('legend'));
+    renderLegend(annotation, clusterColors);
+  }
   renderAnnotation(annotation, clusterColors);
 }
 
@@ -230,16 +233,14 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
   });
   cell_el.append(...cellEntities);
   const thickLines = [];
-  const thickLinesMap = [];
   branch_els.forEach((branch) => {
     const curveid = branch.getAttribute("id"); 
     const [startNode, endNode] = Utils.strip(curveid).split("_");
     const thickLine = `<a-entity meshline="lineWidth: ${edgeWeights[Utils.strip(curveid)] * 10}; path: ${nodePositions[startNode].x} ${nodePositions[startNode].y} ${nodePositions[startNode].z}, ${nodePositions[endNode].x} ${nodePositions[endNode].y} ${nodePositions[endNode].z}; color: black"></a-entity>`
     thickLines.push(Utils.htmlToElement(thickLine));
-    thickLinesMap.push(Utils.htmlToElement(thickLine));
   });
   document.getElementById("thicklines").append(...thickLines);
-  document.getElementById("thicklinesMap").append(...thickLinesMap);
+  document.getElementById("thicklinesMap").append(...thickLines.map(el => el.cloneNode()));
   renderPagaCells(scatter, clusterColors);
 }
 
@@ -347,11 +348,11 @@ const setDrawContainerContent = (branch_els, branch_draw_els) => {
   const branch_container_el = document.getElementById("curve-container");
   branch_container_el.append(...branch_els);
   const map_branch_container = document.getElementById("curve-map");
-  map_branch_container.append(...branch_els);
+  map_branch_container.append(...branch_els.map(el => el.cloneNode()));
   const branch_draw_container = document.getElementById("curve-draw");
   branch_draw_container.append(...branch_draw_els);
   const map_draw_container = document.getElementById("draw-map");
-  map_draw_container.append(...branch_draw_els);
+  map_draw_container.append(...branch_draw_els.map(el => el.cloneNode()));
 }
 
 const renderStream = async (curves, cells, metadata) => {
@@ -377,21 +378,20 @@ const renderStream = async (curves, cells, metadata) => {
     branch_el.append(...points);
   })
 
-  metadata.forEach((cell) => {
-    cellColors[cell.cell_id] = cell.label_color;
-  });
+  const [annotations, clusterColors] = createCellMetadataObject(metadata);
+  initializeAnnotationMenu(annotations, clusterColors);
 
-  renderStreamCells(cells);
+  renderStreamCells(cells, clusterColors);
 }
 
-const renderStreamCells = async (cells) => {
-  const cell_el = document.getElementById("cells");
-  const cellEntities = [];
-  cells.forEach((cell_point, _) => {
-    const stream_cell = `<a-sphere id="${cell_point.cell_id}" position="${cell_point.x * 100} ${cell_point.y * 100} ${cell_point.z * 100}" color="${cellColors[cell_point.cell_id]}" radius=".05" shadow></a-sphere>`;
-    cellEntities.push(Utils.htmlToElement(stream_cell));
-  });
-  cell_el.append(...cellEntities);
+const renderStreamCells = async (cells, clusterColors) => {
+  const cellEntities = Array.from(cells.map((cell) => {
+    // Colors cells based on the first annotation in the cell metadata object
+    const color = clusterColors[Object.keys(clusterColors)[0]][cell.cell_id].cluster_color;
+    const html_str = `<a-sphere id="${cell.cell_id}" position="${cell.x * 100} ${cell.y * 100} ${cell.z * 100}" color="${color}" radius=".05" shadow></a-sphere>`;
+    return Utils.htmlToElement(html_str);
+  }));
+  document.getElementById("cells").append(...cellEntities);
 }
 
 // -------------------------------------------------------------------
@@ -432,24 +432,22 @@ const getGeneList = (report) => {
 const initialize = async (uuid) => {
   const result = await Utils.unzip(uuid);
   report = result;
-  const index = await result.file("index.json").async("string");
-  const vis_type = JSON.parse(index).type; 
   if (Object.keys(result.files).includes("paga_nodes.json")) {
     const edges = await result.file("paga_edges.json").async("string");
     const nodes = await result.file("paga_nodes.json").async("string");
     const scatter = await result.file("scatter.json").async("string");
     const metadata = await result.file("metadata.json").async("string");
     renderPaga(JSON.parse(edges), JSON.parse(nodes), JSON.parse(scatter), JSON.parse(metadata));
-  } else if (vis_type == 'seurat') {
-    const scatter = await result.file("scatter.json").async("string");
-    const metadata = await result.file("metadata.json").async("string");
-    renderSeurat(JSON.parse(scatter), JSON.parse(metadata));
-  } else {
+  } else if (Object.keys(result.files).includes("stream.json")) {
     const streamFile = await result.file("stream.json").async("string");
     const scatterFile = await result.file("scatter.json").async("string");
     const metadataFile = await result.file("metadata.json").async("string");
     document.getElementById('legend').remove();
     renderStream(JSON.parse(streamFile), JSON.parse(scatterFile), JSON.parse(metadataFile));
+  } else {
+    const scatter = await result.file("scatter.json").async("string");
+    const metadata = await result.file("metadata.json").async("string");
+    renderSeurat(JSON.parse(scatter), JSON.parse(metadata));
   }
   geneList = getGeneList(result);
   initializeMenu();
