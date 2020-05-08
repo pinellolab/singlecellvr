@@ -11,6 +11,7 @@ __tool_name__='scvr_prep'
 
 import pandas as pd
 import anndata as ad
+import json
 import argparse
 import os
 import shutil
@@ -69,7 +70,7 @@ def main():
         gene_list = None
 
     print("Converting '%s' analysis result ..." % toolname)
-    
+
     if(toolname in ['scanpy','paga','seurat']):   
         if(toolname=='scanpy'):
             assert (filename.lower().endswith(('.h5ad'))), "For Scanpy only .h5ad file is supported."
@@ -88,6 +89,9 @@ def main():
             print('reading in loom file ...')
             adata = ad.read_loom(filename)
             scvr_prep.output_seurat_cells(adata,ann_list,genes=gene_list,reportdir=output)
+            
+        with open(os.path.join(output,'index.json'), 'w') as f:
+                json.dump({ "type": toolname }, f)
         shutil.make_archive(base_name=output, format='zip',root_dir=output)
         shutil.rmtree(output)
     if(toolname=='stream'):
