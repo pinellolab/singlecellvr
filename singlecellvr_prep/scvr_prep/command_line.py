@@ -79,7 +79,7 @@ def main():
         shutil.make_archive(base_name=output, format='zip',root_dir=output)
         shutil.rmtree(output)
     if(toolname=='seurat'):
-        assert (filename.lower().endswith(('.h5ad'))), "For Seurat only .loom file is supported."
+        assert (filename.lower().endswith(('.loom'))), "For Seurat only .loom file is supported."
         print('reading in loom file ...')
         adata = ad.read_loom(filename)
         scvr_prep.output_seurat_cells(adata,ann_list,genes=gene_list,reportdir=output)
