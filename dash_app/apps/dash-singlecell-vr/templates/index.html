@@ -12,30 +12,31 @@
   </head>
   <body>
     <a-scene id="test">
-        <!-- TODO: Change positioning such that hud and main content cannot overlap -->
-        <a-entity id="rig">
-            <a-entity camera look-controls id="curve-camera">
-                <a-entity id="hud" geometry="primitive: plane; width: .5; height: .5;" material="opacity: .3; color:gray; transparent: true;">
-                  <a-sphere id="mapPlayer" radius=".006" color="red"></a-sphere>
-                  <a-entity id="hudMapContainer" >
-                      <a-entity scale=".1 .1 .1" id="thicklinesMap"></a-entity>
 
-                      <a-entity scale=".01 .01 .01" id="curve-map">
+      <!-- TODO: Change positioning such that hud and main content cannot overlap -->
+      <a-entity id="rig">
+          <a-entity camera look-controls id="curve-camera">
+              <a-entity id="hud" geometry="primitive: plane; width: .5; height: .5;" material="opacity: .3; color:gray; transparent: true;">
+                <a-sphere id="mapPlayer" radius=".006" color="red"></a-sphere>
+                <a-entity id="hudMapContainer" >
+                    <a-entity scale=".1 .1 .1" id="thicklinesMap"></a-entity>
 
-                      </a-entity>
-                      <a-entity scale=".01 .01 .01" id="draw-map">
+                    <a-entity scale=".01 .01 .01" id="curve-map">
 
-                      </a-entity>
-                  </a-entity>
+                    </a-entity>
+                    <a-entity scale=".01 .01 .01" id="draw-map">
+
+                    </a-entity>
                 </a-entity>
-                <a-gui-cursor id="cursor"
-                      raycaster="objects: [gui-interactable]"
-                      fuse="true" fuse-timeout="2000"
-                      design="ring"
-                >
-                </a-gui-cursor>
-            </a-entity>
-        </a-entity>
+              </a-entity>
+              <a-gui-cursor id="cursor"
+                    raycaster="objects: [gui-interactable]"
+                    fuse="true" fuse-timeout="2000"
+                    design="ring"
+              >
+              </a-gui-cursor>
+          </a-entity>
+      </a-entity>
 
 
       <a-entity id="mainContainer">
@@ -49,9 +50,10 @@
         </a-entity>
 
         <a-entity id="menuContainer" position="10 0 0" billboard>
+          <a-image src="/assets/SCVR_logo.png" position="0 4 0" width="6" height="3"></a-image>
           <a-gui-flex-container
             flex-direction="column" justify-content="flexStart" align-items="center" component-padding="0.1" opacity="0.7" width="3.7" height="5"
-            position="-1.8 0 0" rotation="0 0 0" id="menu">
+            position="-1.85 0 0" rotation="0 0 0" id="menu">
             <a-gui-button
               id="pauseGlobalRotation"
               width="2.7" height="0.75"
@@ -87,7 +89,7 @@
 
           <a-gui-flex-container
             flex-direction="column" justify-content="flexStart" align-items="center" component-padding="0.1" opacity="0.7" width="3.7" height="5"
-            position="1.8 0 0" rotation="0 0 0" id="annotation_menu">
+            position="1.85 0 0" rotation="0 0 0" id="annotation_menu">
             <a-gui-label 
               width="2.7" height="0.75"
               value="Annotations"
