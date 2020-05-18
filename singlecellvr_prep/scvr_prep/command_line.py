@@ -69,6 +69,14 @@ def main():
     else:
         gene_list = None
 
+    if(toolname=='scanpy'):
+        assert (filename.lower().endswith(('.h5ad'))), "For PAGA only .h5ad file is supported."
+        print('reading in h5ad file ...')
+        adata = ad.read_h5ad(filename)
+        adata.uns['paga']['pos'] = scvr_prep.get_paga3d_pos(adata)
+        scvr_prep.output_scanpy_cells(adata,reportdir=output)
+        shutil.make_archive(base_name=output, format='zip',root_dir=output)
+        shutil.rmtree(output)
     if(toolname=='paga'):
         assert (filename.lower().endswith(('.h5ad'))), "For PAGA only .h5ad file is supported."
         print('reading in h5ad file ...')
@@ -90,9 +98,9 @@ def main():
             import stream as st
         except ImportError:
             raise ImportError(
-                'Please install STREAM >=0.4.2: `conda install -c bioconda stream`.'
+                'Please install STREAM >=0.5: `conda install -c bioconda stream`.'
             )
-        assert (filename.lower().endswith(('.h5ad'))), "For STREAM only .pkl file is supported."
+        assert (filename.lower().endswith(('.pkl'))), "For STREAM only .pkl file is supported."
         print('reading in pkl file ...')
         adata = st.read(filename,file_format='pkl',workdir='./')
         st.save_vr_report(adata,genes=gene_list,file_name=output)

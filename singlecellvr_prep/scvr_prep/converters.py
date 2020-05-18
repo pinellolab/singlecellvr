@@ -35,7 +35,7 @@ def get_colors(adata,ann):
         df_cell_colors.loc[df_cell_colors.index[id_cells],ann+'_color'] = palette[i]
     return(df_cell_colors[ann+'_color'].tolist())
 
-def output_scanpy_cells(adata,ann_list,reportdir='./scanpy_report',genes=None):
+def output_scanpy_cells(adata,ann_list,reportdir='./scanpy_report',gene_list=None):
     ### make sure all labels exist
     for ann in ann_list:
         if ann not in adata.obs.columns:
@@ -69,10 +69,10 @@ def output_scanpy_cells(adata,ann_list,reportdir='./scanpy_report',genes=None):
             json.dump(list_metadata, f)
 
         ## output gene expression of cells
-        if(genes is not None):
+        if(gene_list is not None):
             df_genes = pd.DataFrame(adata.raw.X,index=adata.raw.obs_names,columns=adata.raw.var_names)
             cm = mpl.cm.get_cmap('viridis',512)
-            for g in genes:
+            for g in gene_list:
                 list_genes = []
                 norm = mpl.colors.Normalize(vmin=0, vmax=max(df_genes[g]),clip=True)
                 for x in adata.obs_names:
@@ -161,11 +161,11 @@ def output_paga_graph(adata,node_name = None,reportdir='./paga_report'):
     else:
         print("Output graph: finished!")
 
-def output_paga_cells(adata,ann_list,reportdir='./paga_report',genes=None):
-    output_scanpy_cells(adata,ann_list,reportdir=reportdir,genes=genes)
+def output_paga_cells(adata,ann_list,reportdir='./paga_report',gene_list=None):
+    output_scanpy_cells(adata,ann_list,reportdir=reportdir,gene_list=gene_list)
 
 
-def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',genes=None):
+def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=None):
     ### make sure all labels exist
     for ann in ann_list:
         if ann not in adata.obs.columns:
@@ -201,10 +201,10 @@ def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',genes=None):
             json.dump(list_metadata, f)
 
         ## output gene expression of cells
-        if(genes is not None):
+        if(gene_list is not None):
             df_genes = pd.DataFrame(adata.layers['norm_data'].toarray(),index=adata.obs_names,columns=adata.var_names)
             cm = mpl.cm.get_cmap('viridis',512)
-            for g in genes:
+            for g in gene_list:
                 list_genes = []
                 norm = mpl.colors.Normalize(vmin=0, vmax=max(df_genes[g]),clip=True)
                 for x in adata.obs_names:
