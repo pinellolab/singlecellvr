@@ -28,10 +28,10 @@ def main():
     parser.add_argument("-t", "--toolname",dest="toolname", default=None,required=True,
                         type = str.lower,choices=['scanpy','paga','seurat','stream'],
                         help="Tool used to generate the analysis result.")
-    parser.add_argument("-a","--annotations",dest="annotations", default=None,
-                        help="Annotation file name. It contains the cell annotation(s) used to color cells")
+    parser.add_argument("-a","--annotations",dest="annotations", default=None,required=True,
+                        help="Annotation file name. It contains the cell annotation key(s) to visualize in one column.")
     parser.add_argument("-g","--genes",dest="genes", default=None,
-                        help="Gene list file name. It contains the genes to visualize in one column")
+                        help="Gene list file name. It contains the genes to visualize in one column.")
     parser.add_argument("-o","--output",dest="output", default='vr_report',
                         help="Output folder name")
 

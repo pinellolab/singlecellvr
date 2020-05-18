@@ -19,18 +19,19 @@ scvr_prep Parameters
 required arguments:
   -f FILE, --filename FILE
                         Analysis result file name (default: None)
-  -t {paga,seurat,stream}, --toolname {paga,seurat,stream}
+  -t {scanpy,paga,seurat,stream}, --toolname {scanpy,paga,seurat,stream}
                         Tool used to generate the analysis result (default: None)
+  -a ANNOTATIONS, --annotations ANNOTATIONS
+                        Annotation file name. It contains the cell annotation key(s) 
+                        to visualize in one column (default: None)
                         
 optional arguments:
-  -a ANNOTATIONS, --annotations ANNOTATIONS
-                        Annotation file name. It contains the cell
-                        annotation(s) used to color cells (default: None)
+
   -g GENES, --genes GENES
-                        Gene list file name. It contains the genes to
-                        visualize in one column (default: None)
+                        Gene list file name. It contains the genes 
+                        to visualize in one column (default: None)
   -o OUTPUT, --output OUTPUT
-                        Output folder name (default: vr_report)
+                        Output folder name (default: scvr_report)
   -h, --help            show this help message and exit
 ```
 
@@ -44,7 +45,7 @@ To get single cell VR report for Scanpy :
 scvr_prep -f ./scanpy_result/scanpy_10xpbmc.h5ad -t scanpy -a annotations.txt -g genes.txt -o scanpy_report
 ```
 
-* Input files can be found [here](https://www.dropbox.com/sh/03zpxs9zv7yusi1/AADKVSU8Il1JcjA7lfHjmRpSa?dl=0) 
+* Input files can be found [here](https://www.dropbox.com/sh/m6u9y38mi5qgf3o/AACe6cgiywaxM7ARtw54sg1Ha?dl=0) 
 * To generate the `scanpy_10xpbmc.h5ad`, check out [Scanpy analysis](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/examples/paga3d_paul15.ipynb?flush_cache=true). *(Make sure set `n_components=3` in `sc.tl.umap(adata,n_components=3)`)*
 
 
