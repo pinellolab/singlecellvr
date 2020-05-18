@@ -76,20 +76,18 @@ def main():
             assert (filename.lower().endswith(('.h5ad'))), "For PAGA only .h5ad file is supported."
             print('reading in h5ad file ...')
             adata = ad.read_h5ad(filename)
-            adata.uns['paga']['pos'] = scvr_prep.get_paga3d_pos(adata)
-            scvr_prep.output_scanpy_cells(adata,reportdir=output)
+            scvr_prep.output_scanpy_cells(adata,ann_list,gene_list=gene_list,reportdir=output)
         if(toolname=='paga'):
             assert (filename.lower().endswith(('.h5ad'))), "For PAGA only .h5ad file is supported."
             print('reading in h5ad file ...')
             adata = ad.read_h5ad(filename)
-            adata.uns['paga']['pos'] = scvr_prep.get_paga3d_pos(adata)
             scvr_prep.output_paga_graph(adata,reportdir=output)
-            scvr_prep.output_paga_cells(adata,ann_list,genes=gene_list,reportdir=output)
+            scvr_prep.output_paga_cells(adata,ann_list,gene_list=gene_list,reportdir=output)
         if(toolname=='seurat'):
             assert (filename.lower().endswith(('.loom'))), "For Seurat only .loom file is supported."
             print('reading in loom file ...')
             adata = ad.read_loom(filename)
-            scvr_prep.output_seurat_cells(adata,ann_list,genes=gene_list,reportdir=output)
+            scvr_prep.output_seurat_cells(adata,ann_list,gene_list=gene_list,reportdir=output)
         with open(os.path.join(output,'index.json'), 'w') as f:
                 json.dump({ "type": toolname }, f)
         shutil.make_archive(base_name=output, format='zip',root_dir=output)
@@ -104,7 +102,7 @@ def main():
         assert (filename.lower().endswith(('.pkl'))), "For STREAM only .pkl file is supported."
         print('reading in pkl file ...')
         adata = st.read(filename,file_format='pkl',workdir='./')
-        st.save_vr_report(adata,genes=gene_list,file_name=output)
+        st.save_vr_report(adata,ann_list=ann_list,gene_list=gene_list,file_name=output)
 
 if __name__ == "__main__":
     main()

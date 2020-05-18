@@ -39,10 +39,18 @@ def output_scanpy_cells(adata,ann_list,reportdir='./scanpy_report',gene_list=Non
     assert (adata.obsm['X_umap'].shape[1]>=3),\
     '''The embedding space should have at least three dimensions. 
     please set `n_component = 3` in `sc.tl.umap()`'''
+    ###remove duplicate keys
+    ann_list = list(dict.fromkeys(ann_list))
     ### make sure all labels exist
     for ann in ann_list:
         if ann not in adata.obs.columns:
             raise ValueError('could not find %s in %s'  % (ann,adata.obs.columns))
+    if(gene_list is not None):
+        ###remove duplicate keys
+        gene_list = list(dict.fromkeys(gene_list)) 
+        for gene in gene_list:
+            if(gene not in adata.var_names):
+                raise ValueError('could not find %s in `adata.var_names`'  % (gene))
     try:
         if(not os.path.exists(reportdir)):
                 os.makedirs(reportdir)    
@@ -172,10 +180,18 @@ def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=Non
     assert (adata.obsm['umap_cell_embeddings'].shape[1]>=3),\
     '''The embedding space should have at least three dimensions. 
     please set `n.component = 3` in `RunUMAP()`'''
+    ###remove duplicate keys
+    ann_list = list(dict.fromkeys(ann_list))
     ### make sure all labels exist
     for ann in ann_list:
         if ann not in adata.obs.columns:
             raise ValueError('could not find %s in %s'  % (ann,adata.obs.columns))
+    if(gene_list is not None):
+        ###remove duplicate keys
+        gene_list = list(dict.fromkeys(gene_list)) 
+        for gene in gene_list:
+            if(gene not in adata.var_names):
+                raise ValueError('could not find %s in `adata.var_names`'  % (gene))
     try:
         if(not os.path.exists(reportdir)):
                 os.makedirs(reportdir)    
