@@ -70,7 +70,7 @@ scvr_prep -f ./seurat_result/seurat3d_10xpbmc.loom -t seurat -a annotations.txt 
 ### STREAM:  
 To get single cell VR report for STREAM : 
 ```bash
-scvr_prep -f ./stream_result/stream_nestorowa16.pkl -t stream -g genes.txt -o stream_report
+scvr_prep -f ./stream_result/stream_nestorowa16.pkl -t stream -a annotations.txt -g genes.txt -o stream_report
 ```
 * Input files can be found [here](https://www.dropbox.com/sh/fg84hfdeihielun/AACRcmuAIg9RMU30ChgAZevza?dl=0) 
 * To generate the `stream_nestorowa16.pkl`, check out [STREAM analysis](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/examples/stream_nestorowa16.ipynb?flush_cache=true).
