@@ -25,7 +25,7 @@ def main():
     parser.add_argument("-f", "--filename", dest="filename",default = None,required=True,
                         help="Analysis result file name", metavar="FILE")
     parser.add_argument("-t", "--toolname",dest="toolname", default=None,required=True,
-                        type = str.lower,choices=['paga','seurat','stream'],
+                        type = str.lower,choices=['scanpy','paga','seurat','stream'],
                         help="Tool used to generate the analysis result.")
     parser.add_argument("-a","--annotations",dest="annotations", default=None,
                         help="Annotation file name. It contains the cell annotation(s) used to color cells")
@@ -41,19 +41,18 @@ def main():
     output = args.output #work directory
     annotations = args.annotations
 
-    if(toolname in ['paga','seurat']):
-        if(annotations is None):
-            raise Exception("Annotation file must be specified when %s is chosen." % (toolname))
-        try:
-            ann_list = pd.read_csv(annotations,sep='\t',header=None,index_col=None).iloc[:,0].tolist()
-        except FileNotFoundError as fnf_error:
-            print(fnf_error)
-            raise
-        except:
-            print('Failed to load in annotation file.')
-            raise
-        else:
-            ann_list = list(set(ann_list))
+    if(annotations is None):
+        raise Exception("Annotation file must be specified when %s is chosen." % (toolname))
+    try:
+        ann_list = pd.read_csv(annotations,sep='\t',header=None,index_col=None).iloc[:,0].tolist()
+    except FileNotFoundError as fnf_error:
+        print(fnf_error)
+        raise
+    except:
+        print('Failed to load in annotation file.')
+        raise
+    else:
+        ann_list = list(set(ann_list))
 
     if(genes is not None):
         try:

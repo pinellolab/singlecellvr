@@ -35,6 +35,59 @@ def get_colors(adata,ann):
         df_cell_colors.loc[df_cell_colors.index[id_cells],ann+'_color'] = palette[i]
     return(df_cell_colors[ann+'_color'].tolist())
 
+def output_scanpy_cells(adata,ann_list,reportdir='./scanpy_report',genes=None):
+    ### make sure all labels exist
+    for ann in ann_list:
+        if ann not in adata.obs.columns:
+            raise ValueError('could not find %s in %s'  % (ann,adata.obs.columns))
+    try:
+        if(not os.path.exists(reportdir)):
+                os.makedirs(reportdir)    
+        ## output coordinates of cells
+        list_cells = []
+        for i in range(adata.shape[0]):
+            dict_coord_cells = dict()
+            dict_coord_cells['cell_id'] = adata.obs_names[i]
+            dict_coord_cells['x'] = str(adata.obsm['X_umap'][i,0])
+            dict_coord_cells['y'] = str(adata.obsm['X_umap'][i,1])
+            dict_coord_cells['z'] = str(adata.obsm['X_umap'][i,2])
+            list_cells.append(dict_coord_cells)    
+        with open(os.path.join(reportdir,'scatter.json'), 'w') as f:
+            json.dump(list_cells, f)    
+
+        ## output metadata file of cells
+        list_metadata = []
+        dict_colors = get_paga_colors(adata,ann_list)
+        for i in range(adata.shape[0]):
+            dict_metadata = dict()
+            dict_metadata['cell_id'] = adata.obs_names[i]
+            for ann in ann_list:     
+                dict_metadata[ann] = adata.obs[ann].tolist()[i]
+                dict_metadata[ann+'_color'] = dict_colors[ann][i]
+            list_metadata.append(dict_metadata)
+        with open(os.path.join(reportdir,'metadata.json'), 'w') as f:
+            json.dump(list_metadata, f)
+
+        ## output gene expression of cells
+        if(genes is not None):
+            df_genes = pd.DataFrame(adata.raw.X,index=adata.raw.obs_names,columns=adata.raw.var_names)
+            cm = mpl.cm.get_cmap('viridis',512)
+            for g in genes:
+                list_genes = []
+                norm = mpl.colors.Normalize(vmin=0, vmax=max(df_genes[g]),clip=True)
+                for x in adata.obs_names:
+                    dict_genes = dict()
+                    dict_genes['cell_id'] = x
+                    dict_genes['color'] = mpl.colors.to_hex(cm(norm(df_genes.loc[x,g])))
+                    list_genes.append(dict_genes)
+                with open(os.path.join(reportdir,'gene_'+g+'.json'), 'w') as f:
+                    json.dump(list_genes, f)      
+    except:
+        print("Output cells: failed!")
+        raise
+    else:
+        print("Output cells: finished!")
+
 def get_paga_colors(adata,ann_list):
     dict_colors = dict()
     for ann in ann_list:
@@ -103,63 +156,14 @@ def output_paga_graph(adata,node_name = None,reportdir='./paga_report'):
         with open(os.path.join(reportdir,'graph_edges.json'), 'w') as f:
             json.dump(list_edges, f)
     except:
-        print("PAGA: graph failed!")
+        print("Output graph: failed!")
         raise
     else:
-        print("PAGA: graph finished!")
+        print("Output graph: finished!")
 
 def output_paga_cells(adata,ann_list,reportdir='./paga_report',genes=None):
-    ### make sure all labels exist
-    for ann in ann_list:
-        if ann not in adata.obs.columns:
-            raise ValueError('could not find %s in %s'  % (ann,adata.obs.columns))
-    try:
-        if(not os.path.exists(reportdir)):
-                os.makedirs(reportdir)    
-        ## output coordinates of cells
-        list_cells = []
-        for i in range(adata.shape[0]):
-            dict_coord_cells = dict()
-            dict_coord_cells['cell_id'] = adata.obs_names[i]
-            dict_coord_cells['x'] = str(adata.obsm['X_umap'][i,0])
-            dict_coord_cells['y'] = str(adata.obsm['X_umap'][i,1])
-            dict_coord_cells['z'] = str(adata.obsm['X_umap'][i,2])
-            list_cells.append(dict_coord_cells)    
-        with open(os.path.join(reportdir,'scatter.json'), 'w') as f:
-            json.dump(list_cells, f)    
+    output_scanpy_cells(adata,ann_list,reportdir=reportdir,genes=genes)
 
-        ## output metadata file of cells
-        list_metadata = []
-        dict_colors = get_paga_colors(adata,ann_list)
-        for i in range(adata.shape[0]):
-            dict_metadata = dict()
-            dict_metadata['cell_id'] = adata.obs_names[i]
-            for ann in ann_list:     
-                dict_metadata[ann] = adata.obs[ann].tolist()[i]
-                dict_metadata[ann+'_color'] = dict_colors[ann][i]
-            list_metadata.append(dict_metadata)
-        with open(os.path.join(reportdir,'metadata.json'), 'w') as f:
-            json.dump(list_metadata, f)
-
-        ## output gene expression of cells
-        if(genes is not None):
-            df_genes = pd.DataFrame(adata.raw.X,index=adata.raw.obs_names,columns=adata.raw.var_names)
-            cm = mpl.cm.get_cmap('viridis',512)
-            for g in genes:
-                list_genes = []
-                norm = mpl.colors.Normalize(vmin=0, vmax=max(df_genes[g]),clip=True)
-                for x in adata.obs_names:
-                    dict_genes = dict()
-                    dict_genes['cell_id'] = x
-                    dict_genes['color'] = mpl.colors.to_hex(cm(norm(df_genes.loc[x,g])))
-                    list_genes.append(dict_genes)
-                with open(os.path.join(reportdir,'gene_'+g+'.json'), 'w') as f:
-                    json.dump(list_genes, f)      
-    except:
-        print("PAGA: cells failed!")
-        raise
-    else:
-        print("PAGA: cells finished!")
 
 def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',genes=None):
     ### make sure all labels exist
@@ -211,7 +215,7 @@ def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',genes=None):
                 with open(os.path.join(reportdir,'gene_'+g+'.json'), 'w') as f:
                     json.dump(list_genes, f)      
     except:
-        print("Seurat: cells failed!")
+        print("Output cells: failed!")
         raise
     else:
-        print("Seurat: cells Finished!")
+        print("Output cells: finished!")
