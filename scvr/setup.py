@@ -1,12 +1,12 @@
 import setuptools
-import scvr_prep
+import scvr
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="scvr_prep", # Replace with your own username
-    version=scvr_prep.__version__,
+    name="scvr", # Replace with your own username
+    version=scvr.__version__,
     author="Huidong Chen",
     author_email="huidong.chen@mgh.harvard.edu",
     description="single cell VR preprocess",
@@ -29,5 +29,5 @@ setuptools.setup(
           'matplotlib>=3.0',
           'scipy>=1.3'
       ],
-    entry_points = {'console_scripts': ['scvr_prep=scvr_prep.command_line:main']}
+    entry_points = {'console_scripts': ['scvr=scvr.command_line:main']}
 )

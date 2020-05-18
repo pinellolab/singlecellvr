@@ -7,7 +7,7 @@
 import warnings
 warnings.filterwarnings('ignore')
 
-__tool_name__='scvr_prep'
+__tool_name__='scvr'
 
 import pandas as pd
 import anndata as ad
@@ -15,10 +15,10 @@ import json
 import argparse
 import os
 import shutil
-import scvr_prep
+import scvr
 
 print('- Single cell VR preprocessing -',flush=True)
-print('Version %s\n' % scvr_prep.__version__,flush=True)
+print('Version %s\n' % scvr.__version__,flush=True)
 
 
 def main():
@@ -76,18 +76,18 @@ def main():
             assert (filename.lower().endswith(('.h5ad'))), "For PAGA only .h5ad file is supported."
             print('reading in h5ad file ...')
             adata = ad.read_h5ad(filename)
-            scvr_prep.output_scanpy_cells(adata,ann_list,gene_list=gene_list,reportdir=output)
+            scvr.output_scanpy_cells(adata,ann_list,gene_list=gene_list,reportdir=output)
         if(toolname=='paga'):
             assert (filename.lower().endswith(('.h5ad'))), "For PAGA only .h5ad file is supported."
             print('reading in h5ad file ...')
             adata = ad.read_h5ad(filename)
-            scvr_prep.output_paga_graph(adata,reportdir=output)
-            scvr_prep.output_paga_cells(adata,ann_list,gene_list=gene_list,reportdir=output)
+            scvr.output_paga_graph(adata,reportdir=output)
+            scvr.output_paga_cells(adata,ann_list,gene_list=gene_list,reportdir=output)
         if(toolname=='seurat'):
             assert (filename.lower().endswith(('.loom'))), "For Seurat only .loom file is supported."
             print('reading in loom file ...')
             adata = ad.read_loom(filename)
-            scvr_prep.output_seurat_cells(adata,ann_list,gene_list=gene_list,reportdir=output)
+            scvr.output_seurat_cells(adata,ann_list,gene_list=gene_list,reportdir=output)
         with open(os.path.join(output,'index.json'), 'w') as f:
                 json.dump({ "tool": toolname }, f)
         shutil.make_archive(base_name=output, format='zip',root_dir=output)
