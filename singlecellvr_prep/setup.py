@@ -26,7 +26,8 @@ setuptools.setup(
           'networkx>=2.1',
           'anndata>=0.7',
           'loompy>=2.0',
-          'matplotlib>=3.0'
+          'matplotlib>=3.0',
+          'scipy>=1.3'
       ],
     entry_points = {'console_scripts': ['scvr_prep=scvr_prep.command_line:main']}
 )

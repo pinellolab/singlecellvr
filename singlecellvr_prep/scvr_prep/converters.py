@@ -5,6 +5,7 @@ import json
 import shutil
 import networkx as nx
 import matplotlib as mpl
+from scipy.sparse import isspmatrix
 
 from . import palettes
 
@@ -81,7 +82,9 @@ def output_scanpy_cells(adata,ann_list,reportdir='./scanpy_report',gene_list=Non
 
         ## output gene expression of cells
         if(gene_list is not None):
-            df_genes = pd.DataFrame(adata.raw.X,index=adata.raw.obs_names,columns=adata.raw.var_names)
+            df_genes = pd.DataFrame(adata.raw.X.toarray() if isspmatrix(adata.raw.X) else adata.raw.X,
+                                    index=adata.raw.obs_names,
+                                    columns=adata.raw.var_names)
             cm = mpl.cm.get_cmap('viridis',512)
             for g in gene_list:
                 list_genes = []
@@ -224,7 +227,9 @@ def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=Non
 
         ## output gene expression of cells
         if(gene_list is not None):
-            df_genes = pd.DataFrame(adata.layers['norm_data'].toarray(),index=adata.obs_names,columns=adata.var_names)
+            df_genes = pd.DataFrame(adata.layers['norm_data'].toarray() if isspmatrix(adata.layers['norm_data']) else adata.layers['norm_data'],
+                                    index=adata.obs_names,
+                                    columns=adata.var_names)
             cm = mpl.cm.get_cmap('viridis',512)
             for g in gene_list:
                 list_genes = []
