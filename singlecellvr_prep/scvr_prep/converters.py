@@ -36,6 +36,9 @@ def get_colors(adata,ann):
     return(df_cell_colors[ann+'_color'].tolist())
 
 def output_scanpy_cells(adata,ann_list,reportdir='./scanpy_report',gene_list=None):
+    assert (adata.obsm['X_umap'].shape[1]>=3),\
+    '''The embedding space should have at least three dimensions. 
+    please set `n_component = 3` in `sc.tl.umap()`'''
     ### make sure all labels exist
     for ann in ann_list:
         if ann not in adata.obs.columns:
@@ -166,6 +169,9 @@ def output_paga_cells(adata,ann_list,reportdir='./paga_report',gene_list=None):
 
 
 def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=None):
+    assert (adata.obsm['umap_cell_embeddings'].shape[1]>=3),\
+    '''The embedding space should have at least three dimensions. 
+    please set `n.component = 3` in `RunUMAP()`'''
     ### make sure all labels exist
     for ann in ann_list:
         if ann not in adata.obs.columns:

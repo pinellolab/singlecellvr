@@ -37,6 +37,17 @@ optional arguments:
 
 Examples:
 ---------
+### Scanpy:  
+
+To get single cell VR report for Scanpy :  
+```bash
+scvr_prep -f ./paga_result/paga3d_paul15.h5ad -t paga -a annotations.txt -g genes.txt -o paga_report
+```
+
+* Input files can be found [here](https://www.dropbox.com/sh/03zpxs9zv7yusi1/AADKVSU8Il1JcjA7lfHjmRpSa?dl=0) 
+* To generate the `paga3d_paul15.h5ad`, check out [PAGA analysis](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/examples/paga3d_paul15.ipynb?flush_cache=true). *(Make sure set `n_components=3` in `sc.tl.umap(adata,n_components=3)`)*
+
+
 ### PAGA:  
 
 To get single cell VR report for PAGA :  
