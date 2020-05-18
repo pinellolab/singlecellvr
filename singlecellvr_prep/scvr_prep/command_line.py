@@ -89,7 +89,7 @@ def main():
             adata = ad.read_loom(filename)
             scvr_prep.output_seurat_cells(adata,ann_list,gene_list=gene_list,reportdir=output)
         with open(os.path.join(output,'index.json'), 'w') as f:
-                json.dump({ "type": toolname }, f)
+                json.dump({ "tool": toolname }, f)
         shutil.make_archive(base_name=output, format='zip',root_dir=output)
         shutil.rmtree(output)
     if(toolname=='stream'):

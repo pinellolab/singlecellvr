@@ -6,34 +6,40 @@ import shutil
 import networkx as nx
 import matplotlib as mpl
 from scipy.sparse import isspmatrix
+from pandas.api.types import is_string_dtype,is_numeric_dtype
 
 from . import palettes
 
 def get_colors(adata,ann):
     df_cell_colors = pd.DataFrame(index=adata.obs.index)
-    df_cell_colors[ann+'_color'] = ''
-
-    adata.obs[ann] = adata.obs[ann].astype('category')
-    categories = adata.obs[ann].cat.categories
-    length = len(categories)
-    # check if default matplotlib palette has enough colors
-    # mpl.style.use('default')
-    if len(mpl.rcParams['axes.prop_cycle'].by_key()['color']) >= length:
-        cc = mpl.rcParams['axes.prop_cycle']()
-        palette = [next(cc)['color'] for _ in range(length)]
+    if(is_numeric_dtype(adata.obs[ann])):
+        cm = mpl.cm.get_cmap('viridis',512)
+        norm = mpl.colors.Normalize(vmin=0, vmax=max(adata.obs[ann]),clip=True)
+        df_cell_colors[ann+'_color'] = [mpl.colors.to_hex(cm(norm(x))) for x in adata.obs[ann]]
     else:
-        if length <= 20:
-            palette = palettes.default_20
-        elif length <= 28:
-            palette = palettes.default_28
-        elif length <= len(palettes.default_102):  # 103 colors
-            palette = palettes.default_102
+        df_cell_colors[ann+'_color'] = ''
+
+        adata.obs[ann] = adata.obs[ann].astype('category')
+        categories = adata.obs[ann].cat.categories
+        length = len(categories)
+        # check if default matplotlib palette has enough colors
+        # mpl.style.use('default')
+        if len(mpl.rcParams['axes.prop_cycle'].by_key()['color']) >= length:
+            cc = mpl.rcParams['axes.prop_cycle']()
+            palette = [next(cc)['color'] for _ in range(length)]
         else:
-            rgb_rainbow = cm.rainbow(np.linspace(0,1,length))
-            palette = [mpl.colors.rgb2hex(rgb_rainbow[i,:-1]) for i in range(length)]
-    for i,x in enumerate(categories):
-        id_cells = np.where(adata.obs[ann]==x)[0]
-        df_cell_colors.loc[df_cell_colors.index[id_cells],ann+'_color'] = palette[i]
+            if length <= 20:
+                palette = palettes.default_20
+            elif length <= 28:
+                palette = palettes.default_28
+            elif length <= len(palettes.default_102):  # 103 colors
+                palette = palettes.default_102
+            else:
+                rgb_rainbow = cm.rainbow(np.linspace(0,1,length))
+                palette = [mpl.colors.rgb2hex(rgb_rainbow[i,:-1]) for i in range(length)]
+        for i,x in enumerate(categories):
+            id_cells = np.where(adata.obs[ann]==x)[0]
+            df_cell_colors.loc[df_cell_colors.index[id_cells],ann+'_color'] = palette[i]
     return(df_cell_colors[ann+'_color'].tolist())
 
 def output_scanpy_cells(adata,ann_list,reportdir='./scanpy_report',gene_list=None):
@@ -50,7 +56,7 @@ def output_scanpy_cells(adata,ann_list,reportdir='./scanpy_report',gene_list=Non
         ###remove duplicate keys
         gene_list = list(dict.fromkeys(gene_list)) 
         for gene in gene_list:
-            if(gene not in adata.var_names):
+            if(gene not in adata.raw.var_names):
                 raise ValueError('could not find %s in `adata.var_names`'  % (gene))
     try:
         if(not os.path.exists(reportdir)):
@@ -120,6 +126,9 @@ def get_paga_colors(adata,ann_list):
     return(dict_colors) 
 
 def get_paga3d_pos(adata):
+    assert (adata.obsm['X_umap'].shape[1]>=3),\
+    '''The embedding space should have at least three dimensions. 
+    please set `n_component = 3` in `sc.tl.umap()`'''
     groups = adata.obs[adata.uns['paga']['groups']]
     connectivities_coarse = adata.uns['paga']['connectivities']
     paga3d_pos = np.zeros((connectivities_coarse.shape[0], 3))
@@ -133,6 +142,7 @@ def output_paga_graph(adata,node_name = None,reportdir='./paga_report'):
         if(not os.path.exists(reportdir)):
                 os.makedirs(reportdir)
         G = nx.from_numpy_matrix(adata.uns['paga']['connectivities'].toarray())
+        adata.uns['paga']['pos'] = get_paga3d_pos(adata)
         ## output coordinates of paga graph
         list_lines = []
         for edge_i in G.edges():
