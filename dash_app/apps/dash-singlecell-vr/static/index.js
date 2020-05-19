@@ -346,7 +346,7 @@ const renderStream = async (curves, cells, metadata) => {
 
   const [annotations, clusterColors] = createCellMetadataObject(metadata);
   initializeAnnotationMenu(annotations, clusterColors);
-  renderLegend(annotations[0], clusterColors);
+  // renderLegend(annotations[0], clusterColors);
   renderCells(cells, clusterColors, 100, .05);
 }
 
