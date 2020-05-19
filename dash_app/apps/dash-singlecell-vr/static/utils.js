@@ -31,11 +31,12 @@ class Utils {
         return template.content.firstChild;
     }
 
-    static strip = (str) => {
-        return str.replace(/^\"+|\"+$/g, '');
-    }
+    static strip = (str) => str.replace(/^\"+|\"+$/g, '');
 
     static multiply = (a, b) => a * b;
 
     static divide = (a,b) => a / b;
+
+    static isDigits = (str) => RegExp(/^[0-9]*$/g).test(str);
+
 }

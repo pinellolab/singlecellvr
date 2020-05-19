@@ -149,23 +149,28 @@ const scalePagaLines = (f) => {
   })
 }
 
-
-
 const renderLegend = (annotation, clusterColors) => {
   const legendColors = {};
   Object.values(clusterColors[annotation]).forEach((metadatum) => {
     legendColors[metadatum.label] = metadatum.cluster_color;
   });
   const legend = document.getElementById('legend');
-  Object.keys(legendColors).forEach((key) => {
-    const el = document.createElement("a-gui-button");
-    el.setAttribute("width", "2.5");
-    el.setAttribute("height", ".25");
-    el.setAttribute("value", key);
-    el.setAttribute("font-color", "black");
-    el.setAttribute("background-color", legendColors[key]);
-    legend.appendChild(el);
-  });
+
+  if (Object.keys(legendColors).every(Utils.isDigits)) {
+    const height = 10;
+    const segmentHeight = 10 / Object.keys(legendColors).length;
+
+  } else {
+    Object.keys(legendColors).forEach((key) => {
+      const el = document.createElement("a-gui-button");
+      el.setAttribute("width", "2.5");
+      el.setAttribute("height", ".25");
+      el.setAttribute("value", key);
+      el.setAttribute("font-color", "black");
+      el.setAttribute("background-color", legendColors[key]);
+      legend.appendChild(el);
+    });
+  }
 }
 
 const initializeAnnotationMenu = (annotations, clusterColors) => {
@@ -341,7 +346,7 @@ const renderStream = async (curves, cells, metadata) => {
 
   const [annotations, clusterColors] = createCellMetadataObject(metadata);
   initializeAnnotationMenu(annotations, clusterColors);
-
+  renderLegend(annotations[0], clusterColors);
   renderCells(cells, clusterColors, 100, .05);
 }
 
@@ -398,8 +403,8 @@ const getGeneList = (report) => {
 const initialize = async (uuid) => {
   const result = await Utils.unzip(uuid);
   report = result;
-  const index = JSON.parse(await result.file("index.json").async("string"));
-  const tool = index.tool.toLowerCase();
+  const index = await result.file("index.json").async("string");
+  const tool = JSON.parse(index).tool.toLowerCase();
   if (tool === "paga") {
     const edges = await result.file("graph_edges.json").async("string");
     const nodes = await result.file("graph_nodes.json").async("string");
