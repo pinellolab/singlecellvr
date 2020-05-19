@@ -398,14 +398,16 @@ const getGeneList = (report) => {
 const initialize = async (uuid) => {
   const result = await Utils.unzip(uuid);
   report = result;
-  if (Object.keys(result.files).includes("paga_nodes.json")) {
-    const edges = await result.file("paga_edges.json").async("string");
-    const nodes = await result.file("paga_nodes.json").async("string");
+  const index = JSON.parse(await result.file("index.json").async("string"));
+  const tool = index.tool.toLowerCase();
+  if (tool === "paga") {
+    const edges = await result.file("graph_edges.json").async("string");
+    const nodes = await result.file("graph_nodes.json").async("string");
     const scatter = await result.file("scatter.json").async("string");
     const metadata = await result.file("metadata.json").async("string");
     renderPaga(JSON.parse(edges), JSON.parse(nodes), JSON.parse(scatter), JSON.parse(metadata));
-  } else if (Object.keys(result.files).includes("stream.json")) {
-    const streamFile = await result.file("stream.json").async("string");
+  } else if (tool === "stream") {
+    const streamFile = await result.file("graph_paths.json").async("string");
     const scatterFile = await result.file("scatter.json").async("string");
     const metadataFile = await result.file("metadata.json").async("string");
     document.getElementById('legend').remove();
