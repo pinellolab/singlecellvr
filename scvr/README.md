@@ -12,7 +12,7 @@ Usage
 `$ scvr --help`
 
 ```
-Usage: scvr [-h] -f FILE -t {paga,seurat,stream} [-a ANNOTATIONS] [-g GENES] [-o OUTPUT]
+usage: scvr [-h] -f FILE -t {scanpy,paga,seurat,stream} -a ANNOTATIONS [-g GENES] [-o OUTPUT]
 
 scvr Parameters
 
