@@ -157,9 +157,9 @@ const renderLegend = (annotation, clusterColors) => {
   const legend = document.getElementById('legend');
 
   if (Object.keys(legendColors).every(Utils.isDigits)) {
-    const height = 10;
-    const segmentHeight = 10 / Object.keys(legendColors).length;
-
+    const colorbar = Utils.htmlToElement(`<a-entity color-gradient="colors: ${Object.values(legendColors)}; height: 4; width: 1; verticalOffset: 1" position="0 -2.5 0"></a-entity>`);
+    legend.appendChild(colorbar);
+    legend.setAttribute('opacity', 0);
   } else {
     Object.keys(legendColors).forEach((key) => {
       const el = document.createElement("a-gui-button");
@@ -169,6 +169,7 @@ const renderLegend = (annotation, clusterColors) => {
       el.setAttribute("font-color", "black");
       el.setAttribute("background-color", legendColors[key]);
       legend.appendChild(el);
+      legend.setAttribute('opacity', 0.7);
     });
   }
 }
@@ -346,7 +347,7 @@ const renderStream = async (curves, cells, metadata) => {
 
   const [annotations, clusterColors] = createCellMetadataObject(metadata);
   initializeAnnotationMenu(annotations, clusterColors);
-  // renderLegend(annotations[0], clusterColors);
+  renderLegend(annotations[0], clusterColors);
   renderCells(cells, clusterColors, 100, .05);
 }
 
@@ -415,7 +416,6 @@ const initialize = async (uuid) => {
     const streamFile = await result.file("graph_paths.json").async("string");
     const scatterFile = await result.file("scatter.json").async("string");
     const metadataFile = await result.file("metadata.json").async("string");
-    document.getElementById('legend').remove();
     renderStream(JSON.parse(streamFile), JSON.parse(scatterFile), JSON.parse(metadataFile));
   } else {
     const scatter = await result.file("scatter.json").async("string");
