@@ -1,6 +1,6 @@
 <html>
   <head>
-    <script src="https://aframe.io/releases/1.0.1/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
     <script src="https://rawgit.com/protyze/aframe-curve-component/master/dist/aframe-curve-component.min.js"></script>
     <script src="https://rawgit.com/blairmacintyre/aframe-look-at-billboard-component/master/dist/aframe-look-at-billboard-component.min.js"></script>
     <script src="https://rawgit.com/rdub80/aframe-gui/master/dist/aframe-gui.min.js"></script>
@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
     <script src="/static/jszip.min.js"></script>
     <script src="/static/utils.js"></script>
+    <script src="/static/color-gradient-component.js"></script>
   </head>
   <body>
     <a-scene id="test">
@@ -100,12 +101,12 @@
             >
             </a-gui-label>
           </a-gui-flex-container>
-        </a-entity>
 
-        <a-gui-flex-container
-          flex-direction="column" justify-content="center" align-items="normal" component-padding="0.1" opacity="0.7" width="3.7" height="5"
-          position="10 -6 0" panel-color="white" rotation="0 0 0" billboard id="legend">
-        </a-gui-flex-container>
+          <a-gui-flex-container
+            flex-direction="column" justify-content="center" align-items="normal" component-padding="0.1" opacity="0.7" width="3.7" height="5"
+            position="0 -5 0" rotation="0 0 0" id="legend">
+          </a-gui-flex-container>
+        </a-entity>   
       </a-entity>
 
       <a-entity environment="skyType: atmosphere; ground: hills; groundTexture: checkerboard; groundColor: #c9c4c4; groundColor2: #c9c4c4; dressing: cylinder; dressingAmount: 10; dressingColor: #228B22; grid: none;"></a-entity>
