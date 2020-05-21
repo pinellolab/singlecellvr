@@ -58,6 +58,57 @@ const initializeMenu = () => {
   document.getElementById("result3").setAttribute('value', "");
 }
 
+const renderLegend = (annotation, clusterColors) => {
+  const legendColors = {};
+  Object.values(clusterColors[annotation]).forEach((metadatum) => {
+    legendColors[metadatum.label] = metadatum.cluster_color;
+  });
+  const legend = document.getElementById('legend');
+
+  if (Object.keys(legendColors).every(Utils.isDigits)) {
+    const colorbar = Utils.htmlToElement(`<a-entity color-gradient="colors: ${Object.values(legendColors)}; height: 4; width: 1; verticalOffset: 1" position="0 -2.5 0"></a-entity>`);
+    legend.appendChild(colorbar);
+    legend.setAttribute('opacity', 0);
+  } else {
+    Object.keys(legendColors).forEach((key) => {
+      const el = document.createElement("a-gui-button");
+      el.setAttribute("width", "2.5");
+      el.setAttribute("height", ".25");
+      el.setAttribute("value", key);
+      el.setAttribute("font-color", "black");
+      el.setAttribute("background-color", legendColors[key]);
+      legend.appendChild(el);
+      legend.setAttribute('opacity', 0.7);
+    });
+  }
+}
+
+const initializeAnnotationMenu = (annotations, clusterColors) => {
+  const annotation_menu = document.getElementById('annotation_menu');
+  annotations.forEach((annotation) => {
+    const el = document.createElement("a-gui-button");
+    el.setAttribute("width", "2.5");
+    el.setAttribute("height", ".5");
+    el.setAttribute("value", annotation);
+    el.setAttribute("font-color", "white");
+    el.setAttribute("margin", "0 0 0.05 0");
+    el.addEventListener('click', () => {
+      const value = el.getAttribute("value");
+      changeAnnotation(value, clusterColors);
+    });
+    annotation_menu.appendChild(el);
+  });
+}
+
+const changeAnnotation = (annotation, clusterColors) => {
+  const legend = document.getElementById('legend');
+  if (legend) {
+    Utils.removeElementChildren(document.getElementById('legend'));
+    renderLegend(annotation, clusterColors);
+  }
+  renderAnnotation(annotation, clusterColors);
+}
+
 const movement = (num) => {
   let direction = new THREE.Vector3();
   const camera = AFRAME.scenes[0].camera;
@@ -134,7 +185,7 @@ const renderCells = (cells, cellMetadata, scale, radius) => {
     const html_str = `<a-sphere id="${cell.cell_id}" position="${x} ${y} ${z}" radius="${radius}" color="${color}"></a-sphere>`;
     return Utils.htmlToElement(html_str);
   }));
-  document.getElementById('pagacells').append(...cellEntities);
+  document.getElementById('cells').append(...cellEntities);
 }
 
 // ------------------------------------------------------------------------
@@ -145,67 +196,16 @@ const scalePagaLines = (f) => {
   const line_els = Array.from(document.getElementById("thicklines").children);
   line_els.forEach(line_el => {
     const oldWidth = line_el.getAttribute("meshline").lineWidth;
-    line_el.setAttribute("meshline", "lineWidth", f(oldWidth,2));
+    line_el.setAttribute("meshline", "lineWidth", f(oldWidth, 2));
   })
-}
-
-const renderLegend = (annotation, clusterColors) => {
-  const legendColors = {};
-  Object.values(clusterColors[annotation]).forEach((metadatum) => {
-    legendColors[metadatum.label] = metadatum.cluster_color;
-  });
-  const legend = document.getElementById('legend');
-
-  if (Object.keys(legendColors).every(Utils.isDigits)) {
-    const colorbar = Utils.htmlToElement(`<a-entity color-gradient="colors: ${Object.values(legendColors)}; height: 4; width: 1; verticalOffset: 1" position="0 -2.5 0"></a-entity>`);
-    legend.appendChild(colorbar);
-    legend.setAttribute('opacity', 0);
-  } else {
-    Object.keys(legendColors).forEach((key) => {
-      const el = document.createElement("a-gui-button");
-      el.setAttribute("width", "2.5");
-      el.setAttribute("height", ".25");
-      el.setAttribute("value", key);
-      el.setAttribute("font-color", "black");
-      el.setAttribute("background-color", legendColors[key]);
-      legend.appendChild(el);
-      legend.setAttribute('opacity', 0.7);
-    });
-  }
-}
-
-const initializeAnnotationMenu = (annotations, clusterColors) => {
-  const annotation_menu = document.getElementById('annotation_menu');
-  annotations.forEach((annotation) => {
-    const el = document.createElement("a-gui-button");
-    el.setAttribute("width", "2.5");
-    el.setAttribute("height", ".5");
-    el.setAttribute("value", annotation);
-    el.setAttribute("font-color", "white");
-    el.setAttribute("margin", "0 0 0.05 0");
-    el.addEventListener('click', () => {
-      const value = el.getAttribute("value");
-      changeAnnotation(value, clusterColors);
-    });
-    annotation_menu.appendChild(el);
-  });
-}
-
-const changeAnnotation = (annotation, clusterColors) => {
-  const legend = document.getElementById('legend');
-  if (legend) {
-    Utils.removeElementChildren(document.getElementById('legend'));
-    renderLegend(annotation, clusterColors);
-  }
-  renderAnnotation(annotation, clusterColors);
 }
 
 const renderPaga = (edges, nodes, scatter, metadata) => {
   const xValues = []; 
   const yValues = [];
   Object.values(nodes).forEach(obj => { 
-    xValues.push(obj.xyz.x * .04);
-    yValues.push(obj.xyz.y * .04);
+    xValues.push(obj.xyz.x * 1); //.04
+    yValues.push(obj.xyz.y * 1);
   });
   setInitialCameraAndGroundPosition(xValues, yValues);
   delete xValues, yValues;
@@ -218,7 +218,7 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
       }
     edgeWeights[edgeId] = edge.weight;
   });
-  const [branch_els, branch_draw_els] = createCurveEnities(branches);
+  const [branch_els, _] = createCurveEnities(branches);
   const [annotations, clusterColors] = createCellMetadataObject(metadata);
   renderLegend(annotations[0], clusterColors);
   initializeAnnotationMenu(annotations, clusterColors);
@@ -226,12 +226,12 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
   const cellEntities = [];
   const nodePositions = {};
   Object.values(nodes).forEach((cell_point, _) => {
-    let x = cell_point.xyz.x * .1;
-    let y = cell_point.xyz.y * .1;
-    let z = cell_point.xyz.z * .1;
-    const stream_cell = `<a-sphere text="value: ${cell_point.node_name}; width: 1.5; color: black; align: center; side: double; zOffset: .02" id="${cell_point.node_name}" position="${x} ${y} ${z}" radius=".015" billboard></a-sphere>`;
+    let x = cell_point.xyz.x * 1; //.1
+    let y = cell_point.xyz.y * 1;
+    let z = cell_point.xyz.z * 1;
+    const cell = `<a-sphere text="value: ${cell_point.node_name}; width: 10; color: black; align: center; side: double; zOffset: .05" id="${cell_point.node_name}" position="${x} ${y} ${z}" radius=".07" billboard></a-sphere>`;
     nodePositions[cell_point.node_name.replace(/\D/g,'')] = {"x": x, "y": y, "z": z};
-    cellEntities.push(Utils.htmlToElement(stream_cell));
+    cellEntities.push(Utils.htmlToElement(cell));
   });
   cell_el.append(...cellEntities);
   const thickLines = [];
@@ -243,7 +243,7 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
   });
   document.getElementById("thicklines").append(...thickLines);
   document.getElementById("thicklinesMap").append(...thickLines.map(el => el.cloneNode()));
-  renderCells(scatter, clusterColors, .1, .004);
+  renderCells(scatter, clusterColors, 1, .04); // .1, .004
 }
 
 // -------------------------------------------------------------------
