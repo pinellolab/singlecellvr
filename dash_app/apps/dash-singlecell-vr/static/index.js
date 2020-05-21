@@ -424,6 +424,8 @@ const initialize = async (uuid) => {
   }
   geneList = getGeneList(result);
   initializeMenu();
+  // Updates the hud players position to the correct initial position.
+  movement(.05);
 }
 
 window.onload = () => {
