@@ -66,7 +66,11 @@ const renderLegend = (annotation, clusterColors) => {
   const legend = document.getElementById('legend');
 
   if (Object.keys(legendColors).every(Utils.isDigits)) {
-    const colorbar = Utils.htmlToElement(`<a-entity color-gradient="colors: ${Object.values(legendColors)}; height: 4; width: 1; verticalOffset: 1" position="0 -2.5 0"></a-entity>`);
+    const labels = Object.keys(legendColors);
+    const maxLabel = Math.max(...labels);
+    const minLabel = Math.min(...labels);
+    const medianLabel = labels.sort()[Math.floor(labels.length / 2)];
+    const colorbar = Utils.htmlToElement(`<a-entity color-gradient="colors: ${Object.values(legendColors)}; maxLabel: ${maxLabel}; minLabel: ${minLabel}; medianLabel: ${medianLabel}; height: 4; width: 1; verticalOffset: .5" position="0 -2.5 0"></a-entity>`);
     legend.appendChild(colorbar);
     legend.setAttribute('opacity', 0);
   } else {
