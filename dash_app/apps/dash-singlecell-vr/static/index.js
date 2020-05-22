@@ -94,13 +94,24 @@ const initializeAnnotationMenu = (annotations, clusterColors) => {
     el.setAttribute("width", "2.5");
     el.setAttribute("height", ".5");
     el.setAttribute("value", annotation);
-    el.setAttribute("font-color", "white");
+    el.setAttribute("id", `${annotation}-selector`);
     el.setAttribute("margin", "0 0 0.05 0");
+    el.setAttribute("toggle", true);
+    annotation_menu.appendChild(el);
+  });
+
+  // add click event after all buttons have been added in order toggle active button status
+  annotations.forEach((annotation) => {
+    const el = document.getElementById(`${annotation}-selector`);
     el.addEventListener('click', () => {
       const value = el.getAttribute("value");
       changeAnnotation(value, clusterColors);
+      annotations.forEach(an => {
+        if (an !== annotation) {
+          document.getElementById(`${an}-selector`).components['gui-button'].setActiveState(false);
+        }
+      })
     });
-    annotation_menu.appendChild(el);
   });
 }
 
