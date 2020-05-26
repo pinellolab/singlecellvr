@@ -532,17 +532,9 @@ resultElements.forEach((element) => {
   });
 });
 
-setInterval(() => {
-  const drawContainer = document.getElementById("drawContainer");
-  const drawContainerRotation = drawContainer.object3D.rotation;
-  const hudMapContainer = document.getElementById("hudMapContainer");
-  hudMapContainer.object3D.rotation.set(drawContainerRotation._x, drawContainerRotation._y, drawContainerRotation._z);
-}, 50);
-
 document.getElementById("pauseGlobalRotation").addEventListener("click", () => {
   const drawContainer = document.getElementById("drawContainer");
-  const isRotating = drawContainer.isPlaying;
-  if (isRotating) {
+  if (drawContainer.isPlaying) {
     drawContainer.pause();
     drawContainer.setAttribute("rotation", "0 0 0");
   } else {
