@@ -39,7 +39,7 @@ setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
 // -----------------------------------------------------------
 
 const summonMenus = () => {
-  const camera = document.getElementById("curve-camera");
+  const camera = document.getElementById("player-camera");
   const start = new THREE.Vector3();
   camera.object3D.getWorldPosition(start);
   const direction = new THREE.Vector3(0, 0, -2);
@@ -52,7 +52,7 @@ const summonMenus = () => {
 
 // Menu elements won't show up without this.
 const initializeMenu = () => {
-  document.getElementById("test_input").setAttribute('value', "");
+  document.getElementById("search_input").setAttribute('value', "");
   document.getElementById("result1").setAttribute('value', "");
   document.getElementById("result2").setAttribute('value', "");
   document.getElementById("result3").setAttribute('value', "");
@@ -200,7 +200,7 @@ const renderCells = (cells, cellMetadata, scale, radius) => {
     const html_str = `<a-sphere id="${cell.cell_id}" position="${x} ${y} ${z}" radius="${radius}" color="${color}"></a-sphere>`;
     return Utils.htmlToElement(html_str);
   }));
-  document.getElementById('cells').append(...cellEntities);
+  document.getElementById('cells-container').append(...cellEntities);
 }
 
 // ------------------------------------------------------------------------
@@ -237,7 +237,7 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
   const [annotations, clusterColors] = createCellMetadataObject(metadata);
   renderLegend(annotations[0], clusterColors);
   initializeAnnotationMenu(annotations, clusterColors);
-  const cell_el = document.getElementById("cells");
+  const cell_el = document.getElementById("cells-container");
   const cellEntities = [];
   const nodePositions = {};
   Object.values(nodes).forEach((cell_point, _) => {
@@ -256,8 +256,8 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
     const thickLine = `<a-entity meshline="lineWidth: ${edgeWeights[Utils.strip(curveid)] * 10}; path: ${nodePositions[startNode].x} ${nodePositions[startNode].y} ${nodePositions[startNode].z}, ${nodePositions[endNode].x} ${nodePositions[endNode].y} ${nodePositions[endNode].z}; color: black"></a-entity>`
     thickLines.push(Utils.htmlToElement(thickLine));
   });
-  document.getElementById("thicklines").append(...thickLines);
-  document.getElementById("thicklinesMap").append(...thickLines.map(el => el.cloneNode()));
+  document.getElementById("graph-container").append(...thickLines);
+  document.getElementById("graph-map").append(...thickLines.map(el => el.cloneNode()));
   renderCells(scatter, clusterColors, 1, .04); // .1, .004
 }
 
@@ -297,7 +297,7 @@ const createBranchPoints = (curve) => {
   labelEntity.addEventListener('click', () => {
     currentBranch = curve.branch_id;
   })
-  const curveLabels = document.getElementById('curve-labels');
+  const curveLabels = document.getElementById('graph-labels-container');
   curveLabels.appendChild(labelEntity);
   curve.xyz.forEach((coord, _) => {
       const curvePoint = `<a-curve-point position="${coord.x * 100} ${coord.y * 100} ${coord.z * 100}"></a-curve-point>`;
@@ -323,9 +323,9 @@ const setDrawContainerContent = (branch_els, branch_draw_els) => {
   branch_container_el.append(...branch_els);
   const map_branch_container = document.getElementById("curve-map");
   map_branch_container.append(...branch_els.map(el => el.cloneNode()));
-  const branch_draw_container = document.getElementById("curve-draw");
+  const branch_draw_container = document.getElementById("graph-container");
   branch_draw_container.append(...branch_draw_els);
-  const map_draw_container = document.getElementById("draw-map");
+  const map_draw_container = document.getElementById("graph-map");
   map_draw_container.append(...branch_draw_els.map(el => el.cloneNode()));
 }
 
@@ -342,7 +342,7 @@ const renderStream = async (curves, cells, metadata) => {
   const camvec = new THREE.Vector3();
   const camera = AFRAME.scenes[0].camera;
   camera.getWorldPosition(camvec);
-  document.getElementById('draw-map').object3D.lookAt(-camera.position.x, -camera.position.y, -camera.position.z);
+  document.getElementById('graph-map').object3D.lookAt(-camera.position.x, -camera.position.y, -camera.position.z);
   const branches = [];
   curves.forEach((coord, _) => {
       if (!branches.includes(coord.branch_id)) {
@@ -461,7 +461,7 @@ document.body.addEventListener('keydown', (e) => {
       "gene",
     ]
   };
-  const resultsEntity = document.getElementById("test_input");
+  const resultsEntity = document.getElementById("search_input");
   let result1 = '';
   let result2 = '';
   let result3 = '';
@@ -502,14 +502,14 @@ document.querySelector('a-scene').addEventListener('enter-vr', () => {
   setHudPosition(visibleWidthAtZDepth(-1) - .5, visibleHeightAtZDepth(-1), -1);
   if (Utils.mobilecheck()) {
     document.getElementById('hud').object3D.visible = false;
-    scalePagaLines(Utils.divide);
+    // scalePagaLines(Utils.divide);
   }
 });
 
 document.querySelector('a-scene').addEventListener('exit-vr', () => {
   setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
   if (Utils.mobilecheck()) {
-    scalePagaLines(Utils.multiply);
+    // scalePagaLines(Utils.multiply);
   }
 });
 
