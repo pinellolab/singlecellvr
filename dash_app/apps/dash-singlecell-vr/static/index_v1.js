@@ -208,7 +208,7 @@ const renderCells = (cells, cellMetadata, scale, radius) => {
 // ---------------------------------- Paga --------------------------------
 
 const scalePagaLines = (f) => {
-  const line_els = Array.from(document.getElementById("thicklines").children);
+  const line_els = Array.from(document.getElementById("graph-container").children);
   line_els.forEach(line_el => {
     const oldWidth = line_el.getAttribute("meshline").lineWidth;
     line_el.setAttribute("meshline", "lineWidth", f(oldWidth, 2));
