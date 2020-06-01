@@ -143,18 +143,14 @@ const movement = (num) => {
 const viewGene = async (geneFileName, colorField) => {
   const gene = await report.file(geneFileName + ".json").async("string");
   const cellsByGene = JSON.parse(gene);
-  cellsByGene.forEach((cell) => {
-    paintElement(cell.cell_id, cell[colorField]);
-  });
+  const colors = Array.from(cellsByGene.map(cell => cell.color));
+  document.getElementById('cells').setAttribute("cells", {colors: colors});
 }
 
 const renderAnnotation = (annotation, cellColors) => {
-  Object.entries(cellColors[annotation]).forEach(([id, cell]) => {
-    paintElement(id, cell.cluster_color);
-  });
+  const colors = Array.from(Object.entries(cellColors[annotation]).map(([id, cell]) => cell.cluster_color));
+  document.getElementById('cells').setAttribute("cells", {colors: colors});
 }
-
-const paintElement = (id, color) => document.getElementById(id).setAttribute("color", color);
 
 // <-------------------------------------------------------------------->
 
@@ -190,17 +186,15 @@ const createCellMetadataObject = (metadata) => {
 // ---------------------------------- Cells -------------------------------
 
 const renderCells = (cells, cellMetadata, scale, radius) => {
-  const cellEntities = Array.from(cells.map((cell) => {
-    const x = cell.x * scale;
-    const y = cell.y * scale;
-    const z = cell.z * scale;
-
-    // Colors cells based on the first annotation in the cell metadata object
-    const color = cellMetadata[Object.keys(cellMetadata)[0]][cell.cell_id].cluster_color;
-    const html_str = `<a-sphere id="${cell.cell_id}" position="${x} ${y} ${z}" radius="${radius}" color="${color}"></a-sphere>`;
-    return Utils.htmlToElement(html_str);
-  }));
-  document.getElementById('cells-container').append(...cellEntities);
+  cellPositions = [];
+  colors = [];
+  cells.map((cell) => {
+      cellPositions.push([cell.x, cell.y, cell.z]);
+      colors.push(cellMetadata[Object.keys(cellMetadata)[0]][cell.cell_id].cluster_color);
+  });  
+  const el = document.createElement('a-entity');
+  el.setAttribute("cells", {positions: cellPositions, count: cells.length, colors: colors, scale: scale, radius: radius});
+  document.getElementById('cells-container').append(el);
 }
 
 // ------------------------------------------------------------------------
