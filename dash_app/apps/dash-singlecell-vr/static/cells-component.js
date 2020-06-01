@@ -71,9 +71,9 @@ AFRAME.registerComponent('cells', {
 
         return function ( matrix ) {
 
-            position.x = pos[0];
-            position.y = pos[1];
-            position.z = pos[2];
+            position.x = pos[0] * scaler;
+            position.y = pos[1] * scaler;
+            position.z = pos[2] * scaler;
 
             rotation.x = 0;
             rotation.y = 0;
@@ -81,14 +81,14 @@ AFRAME.registerComponent('cells', {
 
             quaternion.setFromEuler( rotation );
 
-            scale.x = scale.y = scale.z = scaler;
+            scale.x = scale.y = scale.z = 1;
 
             matrix.compose( position, quaternion, scale );
 
         };
 
     },
-    update: function(oldData) {
+    update: function( oldData ) {
         const newColors = this.data.colors;
         const color = new THREE.Color();
 
@@ -99,7 +99,6 @@ AFRAME.registerComponent('cells', {
 
         }
 
-        // this.instanceColorsBase = new Float32Array(this.instanceColors.length);
         this.instanceColorsBase.set(this.instanceColors);
         this.geometry.setAttribute( 'instanceColor', new THREE.InstancedBufferAttribute( new Float32Array( this.instanceColors ), 3 ) );
         this.geometry.setAttribute( 'instanceColorBase', new THREE.BufferAttribute(new Float32Array( this.instanceColorsBase ), 3 ) );
