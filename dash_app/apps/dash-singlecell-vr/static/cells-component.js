@@ -101,7 +101,7 @@ AFRAME.registerComponent('cells', {
 
         this.instanceColorsBase.set(this.instanceColors);
         this.geometry.setAttribute( 'instanceColor', new THREE.InstancedBufferAttribute( new Float32Array( this.instanceColors ), 3 ) );
-        this.geometry.setAttribute( 'instanceColorBase', new THREE.BufferAttribute(new Float32Array( this.instanceColorsBase ), 3 ) );
+        this.geometry.setAttribute( 'instanceColorBase', new THREE.BufferAttribute( new Float32Array( this.instanceColorsBase ), 3 ) );
     },
     remove: function () {
 
