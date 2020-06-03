@@ -95,7 +95,6 @@ const initializeAnnotationMenu = (annotations, clusterColors) => {
     el.setAttribute("height", ".5");
     el.setAttribute("value", annotation);
     el.setAttribute("id", `${annotation}-selector`);
-    el.setAttribute("margin", "0 0 0.05 0");
     el.setAttribute("toggle", true);
     annotation_menu.appendChild(el);
   });
@@ -238,7 +237,7 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
     let x = cell_point.xyz.x * 1; //.1
     let y = cell_point.xyz.y * 1;
     let z = cell_point.xyz.z * 1;
-    const cell = `<a-sphere text="value: ${cell_point.node_name}; width: 10; color: black; align: center; side: double; zOffset: .05" id="${cell_point.node_name}" position="${x} ${y} ${z}" radius=".07" billboard></a-sphere>`;
+    const cell = `<a-sphere text="value: ${cell_point.node_name}; width: 10; color: black; align: center; side: double; zOffset: .05" id="${cell_point.node_name}" position="${x} ${y} ${z}" radius=".07" watch="targetId: player-camera"></a-sphere>`;
     nodePositions[cell_point.node_name.replace(/\D/g,'')] = {"x": x, "y": y, "z": z};
     cellEntities.push(Utils.htmlToElement(cell));
   });
@@ -286,7 +285,7 @@ const createBranchPoints = (curve) => {
   labelEntity.setAttribute("text", textValue);
   const labelPosition = `${midpoint.x * 100} ${midpoint.y * 100} ${midpoint.z * 100}`;
   labelEntity.setAttribute("position", labelPosition);
-  labelEntity.setAttribute("billboard", "");
+  labelEntity.setAttribute("watch", "targetId: player-camera");
   labelEntity.className = curve.branch_id;
   labelEntity.addEventListener('click', () => {
     currentBranch = curve.branch_id;
@@ -435,6 +434,8 @@ const initialize = async (uuid) => {
   initializeMenu();
   // Updates the hud players position to the correct initial position.
   movement(.05);
+
+  document.getElementById("scene").renderer.shadowMap = THREE.BasicShadowMap
 }
 
 window.onload = () => {

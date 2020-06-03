@@ -39,4 +39,6 @@ class Utils {
 
     static isDigits = (str) => RegExp(/^[0-9]*$/g).test(str);
 
+    static nearestPow2 = ( n ) =>  Math.pow( 2, Math.round( Math.log( n ) / Math.log( 2 ) ) ); 
+
 }
