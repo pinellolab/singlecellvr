@@ -59,26 +59,33 @@ const initializeMenu = () => {
 }
 
 const renderLegend = (annotation, clusterColors) => {
+  const unorderedLegendColors = {};
   const legendColors = {};
   Object.values(clusterColors[annotation]).forEach((metadatum) => {
-    legendColors[metadatum.label] = metadatum.cluster_color;
+    unorderedLegendColors[metadatum.label] = metadatum.cluster_color;
   });
+
+  Object.keys(unorderedLegendColors).sort().forEach((key) => {
+    legendColors[key] = unorderedLegendColors[key];
+  });
+
   const legend = document.getElementById('legend');
 
   if (Object.keys(legendColors).every(Utils.isDigits)) {
     const labels = Object.keys(legendColors);
     const maxLabel = Math.max(...labels);
     const minLabel = Math.min(...labels);
-    const medianLabel = labels.sort()[Math.floor(labels.length / 2)];
+    const medianLabel = labels[Math.floor(labels.length / 2)];
     const colorbar = Utils.htmlToElement(`<a-entity color-gradient="colors: ${Object.values(legendColors)}; maxLabel: ${maxLabel}; minLabel: ${minLabel}; medianLabel: ${medianLabel}; height: 4; width: 1; verticalOffset: .5" position="0 -2.5 0"></a-entity>`);
     legend.appendChild(colorbar);
     legend.setAttribute('opacity', 0);
   } else {
     Object.keys(legendColors).forEach((key) => {
-      const el = document.createElement("a-gui-button");
+      const el = document.createElement("a-gui-label");
       el.setAttribute("width", "2.5");
       el.setAttribute("height", ".25");
       el.setAttribute("value", key);
+      el.setAttribute("font-width", 6);
       el.setAttribute("font-color", "black");
       el.setAttribute("background-color", legendColors[key]);
       legend.appendChild(el);
