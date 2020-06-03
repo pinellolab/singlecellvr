@@ -71,6 +71,7 @@ const renderLegend = (annotation, clusterColors) => {
 
   const legend = document.getElementById('legend');
 
+  console.log(Object.keys(legendColors).every(Utils.isDigits))
   if (Object.keys(legendColors).every(Utils.isDigits)) {
     const labels = Object.keys(legendColors);
     const maxLabel = Math.max(...labels);
