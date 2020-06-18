@@ -496,9 +496,9 @@ document.body.addEventListener('keydown', (e) => {
 
   }
   resultsEntity.setAttribute('text', 'value', "Search: " + currentSearch);
-  document.getElementById("result1").setAttribute('text', 'value', result1);
-  document.getElementById("result2").setAttribute('text', 'value', result2);
-  document.getElementById("result3").setAttribute('text', 'value', result3);
+  document.getElementById("result1").setAttribute('gui-button', 'text', result1);
+  document.getElementById("result2").setAttribute('gui-button', 'text', result2);
+  document.getElementById("result3").setAttribute('gui-button', 'text', result3);
 });
 
 document.querySelector('a-scene').addEventListener('enter-vr', () => {
@@ -531,7 +531,7 @@ document.body.addEventListener('keyup', (e) => {
 resultElements.forEach((element) => {
   const result = document.getElementById(element);
   result.addEventListener("click", () => {
-    viewGene('gene_' + result.getAttribute('text').value, 'color');
+    viewGene('gene_' + result.getAttribute('gui-button').text, 'color');
   });
 });
 
