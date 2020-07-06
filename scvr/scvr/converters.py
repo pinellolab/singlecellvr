@@ -197,12 +197,14 @@ def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=Non
     ann_list = list(dict.fromkeys(ann_list))
     ### make sure all labels exist
     for ann in ann_list:
+        ann = ann.strip(" ").strip("\n")
         if ann not in adata.obs.columns:
             raise ValueError('could not find %s in %s'  % (ann,adata.obs.columns))
     if(gene_list is not None):
         ###remove duplicate keys
         gene_list = list(dict.fromkeys(gene_list)) 
         for gene in gene_list:
+            gene = gene.strip(" ").strip("\n")
             if(gene not in adata.var_names):
                 raise ValueError('could not find %s in `adata.var_names`'  % (gene))
     try:
