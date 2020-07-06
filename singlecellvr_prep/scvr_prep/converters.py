@@ -9,6 +9,9 @@ import matplotlib as mpl
 from . import palettes
 
 def get_colors(adata,ann):
+    
+    from matplotlib import cm
+    
     df_cell_colors = pd.DataFrame(index=adata.obs.index)
     df_cell_colors[ann+'_color'] = ''
 
@@ -143,7 +146,7 @@ def output_paga_cells(adata,ann_list,reportdir='./paga_report',genes=None):
 
         ## output gene expression of cells
         if(genes is not None):
-            df_genes = pd.DataFrame(adata.raw.X,index=adata.raw.obs_names,columns=adata.raw.var_names)
+            df_genes = pd.DataFrame(adata.X,index=adata.obs_names,columns=adata.var_names)
             cm = mpl.cm.get_cmap('viridis',512)
             for g in genes:
                 list_genes = []
