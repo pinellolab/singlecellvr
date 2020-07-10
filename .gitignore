@@ -3,7 +3,6 @@ node_modules
 *.json
 *.log
 __pycache__
-app_uploaded_files
 *.pyc
 *.bmp
 .DS_Store

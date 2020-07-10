@@ -92,7 +92,8 @@ app.layout = dbc.Container(
                                         {'label': 'Mouse blood developmental trajectories', 'value': 'Nestorowa2016-STREAM'},
                                         {'label': 'Mouse myeloid and erythroid differentiation graph', 'value': 'Paul2015-PAGA'},
                                         {'label': 'Tabula Muris - Mouse Cell Atlas', 'value': 'TabulaMuris-SCANPY'},
-                                        {'label': 'Tabula Muris - ATAC', 'value': 'TabulaMurisATAC-SCANPY'}
+                                        {'label': 'Tabula Muris - ATAC', 'value': 'TabulaMurisATAC-SCANPY'},
+                                        {'label': 'Mouse Paneth Cells', 'value': 'Grun2016-PanethCells-SEURAT'}
                                     ],
                                     value=None
                                 ),
@@ -230,6 +231,8 @@ def update_output(value):
             file_id = 'tabula_muris-scanpy-clustering'
         elif(value=="TabulaMurisATAC-SCANPY"):
             file_id = 'tabula_muris-atac-scanpy-scvr'
+        elif(value=="Grun2016-PanethCells-SEURAT"):
+            file_id = 'grun2016-PanethCells-seurat'
         save_qr_image(file_id)
         return ['You have selected "{}"'.format(value),
                 file_id, 
