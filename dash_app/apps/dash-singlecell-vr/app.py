@@ -91,6 +91,8 @@ app.layout = dbc.Container(
                                     options=[
                                         {'label': 'Mouse blood developmental trajectories', 'value': 'Nestorowa2016-STREAM'},
                                         {'label': 'Mouse myeloid and erythroid differentiation graph', 'value': 'Paul2015-PAGA'},
+                                        {'label': 'Tabula Muris - Mouse Cell Atlas', 'value': 'TabulaMuris-SCANPY'},
+                                        {'label': 'Tabula Muris - ATAC', 'value': 'TabulaMurisATAC-SCANPY'}
                                     ],
                                     value=None
                                 ),
@@ -224,6 +226,10 @@ def update_output(value):
             file_id = 'nestorowa2016_stream_report'
         elif(value=="Paul2015-PAGA"):
             file_id = 'paul2015_paga_report'
+        elif(value=="TabulaMuris-SCANPY"):
+            file_id = 'tabula_muris-scanpy-clustering'
+        elif(value=="TabulaMurisATAC-SCANPY"):
+            file_id = 'tabula_muris-atac-scanpy-scvr'
         save_qr_image(file_id)
         return ['You have selected "{}"'.format(value),
                 file_id, 
