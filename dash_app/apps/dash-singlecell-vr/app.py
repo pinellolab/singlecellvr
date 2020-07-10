@@ -94,7 +94,8 @@ app.layout = dbc.Container(
                                         {'label': 'Tabula Muris - Mouse Cell Atlas', 'value': 'TabulaMuris-SCANPY'},
                                         {'label': 'Tabula Muris - ATAC', 'value': 'TabulaMurisATAC-SCANPY'},
                                         {'label': 'Mouse Paneth Cells', 'value': 'Grun2016-PanethCells-SEURAT'},
-                                        {'label': 'Micro-dissected Mouse Bone Marrow Cells', 'value': 'Grun2016-Marrow-SEURAT'}
+                                        {'label': 'Micro-dissected Mouse Bone Marrow Cells', 'value': 'Grun2016-Marrow-SEURAT'},
+                                        {'label': 'Single-cell transcriptome atlas of the human pancreas', 'value': 'Grun2016-Pancreas-SEURAT'}
                                     ],
                                     value=None
                                 ),
@@ -236,6 +237,8 @@ def update_output(value):
             file_id = 'grun2016-PanethCells-seurat'
         elif(value=="Grun2016-Marrow-SEURAT"):
             file_id = 'grun2016-Marrow-seurat'
+        elif(value=="Grun2016-Pancreas-SEURAT"):
+            file_id = 'grun2016-Pancreas-seurat'
         save_qr_image(file_id)
         return ['You have selected "{}"'.format(value),
                 file_id, 
