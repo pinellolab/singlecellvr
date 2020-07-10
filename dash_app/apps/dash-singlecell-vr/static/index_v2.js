@@ -96,6 +96,16 @@ const renderLegend = (annotation, clusterColors) => {
 
 const initializeAnnotationMenu = (annotations, clusterColors) => {
   const annotation_menu = document.getElementById('annotation_menu');
+
+  // Ensure menu items dont overflow the container
+  totalItemsHeight = annotations.length * .5;
+  console.log(totalItemsHeight)
+  if (totalItemsHeight > 5) {
+    adjustedContainerHeight = totalItemsHeight + 1.5;
+    annotation_menu.setAttribute('height', adjustedContainerHeight);
+    annotation_menu.object3D.position.set(1.85, (5 - adjustedContainerHeight) / 2, 0)
+  }
+
   annotations.forEach((annotation) => {
     const el = document.createElement("a-gui-button");
     el.setAttribute("width", "2.5");
