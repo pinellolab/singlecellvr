@@ -76,7 +76,7 @@ const renderLegend = (annotation, clusterColors) => {
     const maxLabel = Math.max(...labels);
     const minLabel = Math.min(...labels);
     const medianLabel = labels[Math.floor(labels.length / 2)];
-    const colorbar = Utils.htmlToElement(`<a-entity color-gradient="colors: ${Object.values(legendColors)}; maxLabel: ${maxLabel}; minLabel: ${minLabel}; medianLabel: ${medianLabel}; height: 4; width: 1; verticalOffset: -.2" position="0 -2.5 0"></a-entity>`);
+    const colorbar = Utils.htmlToElement(`<a-entity color-gradient="colors: ${Object.values(legendColors)}; maxLabel: ${maxLabel}; minLabel: ${minLabel}; medianLabel: ${medianLabel}; height: 4; width: 1; verticalOffset: 0" position="0 -2.5 0"></a-entity>`);
     legend.appendChild(colorbar);
     legend.setAttribute('opacity', 0);
   } else {
