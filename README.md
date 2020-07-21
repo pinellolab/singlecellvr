@@ -6,6 +6,10 @@ http://www.singlecellvr.com/
 
 SingleCellVR can be used with our preprocessed datasets found at the link above or by following the steps below to process your own dataset.
 
+<img src="images/SCVR_logo.png" alt="http://www.singlecellvr.com" width="300" height="130">
+
+<img src="images/scvr.jpeg" alt="http://www.singlecellvr.com" width="300" height="30">
+
 ## SingleCellVR Preprocess:  
 
 Prepare your data for the visualization on Single Cell VR website <https://singlecellvr.com/>
