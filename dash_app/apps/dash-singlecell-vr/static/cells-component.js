@@ -14,8 +14,7 @@ AFRAME.registerComponent('cells', {
         this.instanceColors = new Float32Array(count * 3);
         this.instanceColorsBase = new Float32Array(this.instanceColors.length);
 
-        this.geometry = new THREE.SphereBufferGeometry(radius);
-        const material = new THREE.MeshLambertMaterial({ flatShading: true });
+        const material = this.material = new THREE.MeshLambertMaterial({ flatShading: true });
 
         const colorParsChunk = [
             'attribute vec3 instanceColor;',
@@ -49,17 +48,6 @@ AFRAME.registerComponent('cells', {
 
         };
 
-        const matrix = new THREE.Matrix4();
-        const mesh = new THREE.InstancedMesh( this.geometry, material, count );
-
-        for ( let i = 0; i < count; i ++ ) {
-
-            this.setMatrix(positions[i], scale)( matrix );
-            mesh.setMatrixAt( i, matrix );
-
-        }
-
-        this.el.object3D.add( mesh );
         this.el.setAttribute("id", "cells");
     },
     setMatrix: function ( pos, scaler ) {
@@ -89,19 +77,38 @@ AFRAME.registerComponent('cells', {
 
     },
     update: function( oldData ) {
-        const newColors = this.data.colors;
-        const color = new THREE.Color();
+        if (oldData.radius !== this.data.radius) {
+            this.el.object3D.remove( this.mesh );
 
-        for ( let i = 0; i < this.count; i ++ ) {
+            this.geometry = new THREE.SphereBufferGeometry(this.data.radius);
 
-            color.set(newColors[i]);
-            color.toArray(this.instanceColors, i * 3);
+            this.matrix = new THREE.Matrix4();
+            this.mesh = new THREE.InstancedMesh( this.geometry, this.material, this.data.count );
 
+            for ( let i = 0; i < this.data.count; i ++ ) {
+
+                this.setMatrix(this.data.positions[i], this.data.scale)( this.matrix );
+                this.mesh.setMatrixAt( i, this.matrix );
+    
+            }
+            
+            this.el.object3D.add( this.mesh );
         }
+        if (oldData.colors !== this.data.colors) {
+            const newColors = this.data.colors;
+            const color = new THREE.Color();
 
-        this.instanceColorsBase.set(this.instanceColors);
-        this.geometry.setAttribute( 'instanceColor', new THREE.InstancedBufferAttribute( new Float32Array( this.instanceColors ), 3 ) );
-        this.geometry.setAttribute( 'instanceColorBase', new THREE.BufferAttribute( new Float32Array( this.instanceColorsBase ), 3 ) );
+            for ( let i = 0; i < this.count; i ++ ) {
+
+                color.set(newColors[i]);
+                color.toArray(this.instanceColors, i * 3);
+
+            }
+
+            this.instanceColorsBase.set(this.instanceColors);
+            this.geometry.setAttribute( 'instanceColor', new THREE.InstancedBufferAttribute( new Float32Array( this.instanceColors ), 3 ) );
+            this.geometry.setAttribute( 'instanceColorBase', new THREE.BufferAttribute( new Float32Array( this.instanceColorsBase ), 3 ) );
+        } 
     },
     remove: function () {
 

@@ -461,6 +461,7 @@ window.onload = () => {
 }
 
 // --------------------- Listeners ----------------------------
+const keyPressed = {};
 document.body.addEventListener('keydown', (e) => {
   var options = {
     shouldSort: true,
@@ -495,6 +496,20 @@ document.body.addEventListener('keydown', (e) => {
       movement(-.05);
   } else if (e.code === 'Enter') {
     currentSearch = '';
+  } else if (e.key === 'Control') {
+    keyPressed[e.key] = true;
+  } else if (keyPressed['Control'] && e.key === "+") {
+    e.preventDefault();
+    const cells = document.getElementById('cells');
+    const radius = cells.components.cells.attrValue.radius;
+    cells.setAttribute('cells', 'radius', radius + .01)
+  } else if (keyPressed['Control'] && e.key === "-") {
+    e.preventDefault();
+    const cells = document.getElementById('cells');
+    const radius = cells.components.cells.attrValue.radius;
+    if (radius - .01 >= 0) {
+      cells.setAttribute('cells', 'radius', radius - .01);
+    }
   } else if (e.key.length === 1) {
     currentSearch = currentSearch + e.key;
     let fuse = new Fuse(geneList, options);
@@ -535,6 +550,7 @@ document.body.addEventListener('keyup', (e) => {
       document.getElementById("cursor").object3D.visible = true;
     }
   }
+  delete keyPressed[event.key];
 });
 
 resultElements.forEach((element) => {
