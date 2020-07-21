@@ -4,6 +4,8 @@ Single cell visualization using Virtual Reality (VR)
 
 http://www.singlecellvr.com/
 
+SingleCellVR can be used with our preprocessed datasets found at the link above or by following the steps below to process your own dataset.
+
 ## SingleCellVR Preprocess:  
 
 Prepare your data for the visualization on Single Cell VR website <https://singlecellvr.com/>
