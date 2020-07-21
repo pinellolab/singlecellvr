@@ -1,14 +1,14 @@
 # singlecellvr
 
+<img src="images/SCVR_logo.png" alt="http://www.singlecellvr.com" width="400" height="160">
+
+<img src="images/scvr.jpeg" alt="http://www.singlecellvr.com" width="400" height="40">
+
 Single cell visualization using Virtual Reality (VR)  
 
 http://www.singlecellvr.com/
 
 SingleCellVR can be used with our preprocessed datasets found at the link above or by following the steps below to process your own dataset.
-
-<img src="images/SCVR_logo.png" alt="http://www.singlecellvr.com" width="400" height="160">
-
-<img src="images/scvr.jpeg" alt="http://www.singlecellvr.com" width="400" height="40">
 
 ## SingleCellVR Preprocess:  
 
