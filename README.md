@@ -1,5 +1,9 @@
 # singlecellvr
 
+<img src="images/SCVR_logo.png" alt="http://www.singlecellvr.com" width="400" height="160">
+
+<img src="images/scvr.jpeg" alt="http://www.singlecellvr.com" width="400" height="40">
+
 Single cell visualization using Virtual Reality (VR)  
 
 http://www.singlecellvr.com/
