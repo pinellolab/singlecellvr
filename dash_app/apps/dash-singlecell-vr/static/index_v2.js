@@ -418,9 +418,16 @@ const getGeneList = (report) => {
   const allFileNames = Object.keys(report.files);
   const geneNames = [];
   allFileNames.forEach((file) => {
-    const splitName = file.split("_");
-    if (splitName.length > 1 && splitName[0] === 'gene') {
+    let splitName = file.split("_");
+    if (splitName.length == 2 && splitName[0] === 'gene') {
       geneNames.push({'gene': splitName[1].split('.')[0]})
+    } else if (splitName.length > 2 && splitName[0] === 'gene') {
+      splitName.shift();
+      splitName = splitName.join("_").split('.');
+      splitName.pop();
+      splitName = splitName.join(".");
+      console.log(splitName)
+      geneNames.push({'gene': splitName});
     }
   });
   return geneNames;
