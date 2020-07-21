@@ -485,10 +485,7 @@ document.body.addEventListener('keydown', (e) => {
   let result1 = '';
   let result2 = '';
   let result3 = '';
-  if (e.code === 'Space') {
-    summonMenus();
-    currentSearch = '';
-  } else if (e.key === "Shift") {
+  if (e.key === "Shift") {
     if (Utils.mobilecheck()) {
       const hud = document.getElementById("hud").object3D;
       if (!hud.visible) {
@@ -517,6 +514,12 @@ document.body.addEventListener('keydown', (e) => {
     if (radius - .01 >= 0) {
       cells.setAttribute('cells', 'radius', radius - .01);
     }
+  } else if (keyPressed['Control'] && e.code === 'Space') {
+    e.preventDefault();
+    document.getElementById('menuContainer').object3D.position.set(10, 0, 0);
+  } else if (e.code === 'Space') {
+    summonMenus();
+    currentSearch = '';
   } else if (e.key.length === 1) {
     currentSearch = currentSearch + e.key;
     let fuse = new Fuse(geneList, options);
