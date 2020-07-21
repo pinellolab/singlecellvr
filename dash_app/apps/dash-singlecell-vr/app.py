@@ -148,9 +148,9 @@ app.layout = dbc.Container(
                                 html.Div(id='intermediate-value', style={'display': 'none'}),
                                 html.Div(
                                     children=[
-                                        html.P("How to prepare for your submission:",id="heatmap-title2"),
+                                        html.H3("How to prepare for your submission:",id="heatmap-title2"),
                                         dcc.Markdown('''
-                                            check out our package [scvr_prep](https://pypi.org/project/scvr-prep/)
+                                            Check out our package [scvr](https://pypi.org/project/scvr/)
                                             ''')
                                 ]),
                                 html.Div(id="qr-output"),
@@ -208,7 +208,7 @@ def render_qrcode(unique_id):
         save_qr_image(unique_id)
         return html.Div(
                     children=[
-                        html.P("Uploaded dataset:"),
+                        html.H3("Uploaded dataset:"),
                         html.Img(src='/assets/' + str(unique_id) + '.bmp', style={'width': '40%', 'margin-bottom': '20px'}),
                     ]
                 )
@@ -247,7 +247,7 @@ def update_output(value):
                 file_id, 
                 html.Div(
                     children=[
-                        html.P("Preprocessed dataset:"),
+                        html.H3("Preprocessed dataset:"),
                         html.Img(src='/assets/' + str(file_id) + '.bmp', style={'width': '40%'}),
                     ]
                 )]
