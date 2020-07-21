@@ -166,7 +166,7 @@ app.layout = dbc.Container(
                             children=[
                                 html.H3(id="chart-selector2", children="Video tutorial:"),
                                 html.Div([
-                                    html.Iframe(id='demo_video',src="https://www.youtube.com/embed/i4Zt3JZejbg"),
+                                    html.Iframe(id='demo_video',src="https://www.youtube.com/embed/CcEpnrw34zM"),
                                 ]),
                             ],
                         ),
