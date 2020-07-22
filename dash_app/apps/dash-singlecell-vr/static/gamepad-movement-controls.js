@@ -8,8 +8,10 @@ AFRAME.registerComponent('gamepad-movement-controls', {
         this.onbuttonup = function(e) {
           this.toggleMovement();
         }
-        controlsEl.addEventListener('buttondown', this.onbuttondown.bind(this));
-        controlsEl.addEventListener('buttonup', this.onbuttonup.bind(this));
+        if (Utils.mobilecheck()) {
+            controlsEl.addEventListener('buttondown', this.onbuttondown.bind(this));
+            controlsEl.addEventListener('buttonup', this.onbuttonup.bind(this));
+        }
     },
     tick: function (time, timeDelta) {
         if (this.moving) {
