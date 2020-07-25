@@ -89,14 +89,14 @@ app.layout = dbc.Container(
                                 dcc.Dropdown(
                                     id='chart-dropdown',
                                     options=[
-                                        {'label': 'Mouse blood developmental trajectories', 'value': 'Nestorowa2016-STREAM'},
-                                        {'label': 'Mouse myeloid and erythroid differentiation graph', 'value': 'Paul2015-PAGA'},
-                                        {'label': 'Tabula Muris - Mouse Cell Atlas', 'value': 'TabulaMuris-SCANPY'},
-                                        {'label': 'Tabula Muris - ATAC', 'value': 'TabulaMurisATAC-SCANPY'},
-                                        {'label': 'Mouse Paneth Cells', 'value': 'Grun2016-PanethCells-SEURAT'},
-                                        {'label': 'Micro-dissected Mouse Bone Marrow Cells', 'value': 'Grun2016-Marrow-SEURAT'},
-                                        {'label': 'Single-cell transcriptome atlas of the human pancreas', 'value': 'Grun2016-Pancreas-SEURAT'},
-                                        {'label': 'Single-cell chromatin accessibility of human hematopoietic differentiation', 'value': 'Buenrostro2018-BM-STREAM'},
+                                        {'label': 'STREAM - scRNA-seq - Mouse blood developmental trajectories', 'value': 'Nestorowa2016-STREAM'},
+                                        {'label': 'PAGA - scRNA-seq - Mouse myeloid and erythroid differentiation graph', 'value': 'Paul2015-PAGA'},
+                                        {'label': 'SCANPY - scRNA-seq - Tabula Muris - Mouse Cell Atlas', 'value': 'TabulaMuris-SCANPY'},
+                                        {'label': 'SCANPY - scATAC-seq - Tabula Muris - ATAC', 'value': 'TabulaMurisATAC-SCANPY'},
+                                        {'label': 'Seurat - scRNA-seq - Mouse Paneth Cells', 'value': 'Grun2016-PanethCells-SEURAT'},
+                                        {'label': 'Seurat - scRNA-seq - Micro-dissected Mouse Bone Marrow Cells', 'value': 'Grun2016-Marrow-SEURAT'},
+                                        {'label': 'Seurat - scRNA-seq - Single-cell transcriptome atlas of the human pancreas', 'value': 'Grun2016-Pancreas-SEURAT'},
+                                        {'label': 'STREAM - scRNA-seq - Single-cell chromatin accessibility of human hematopoietic differentiation', 'value': 'Buenrostro2018-BM-STREAM'},
                                     ],
                                     value=None
                                 ),
