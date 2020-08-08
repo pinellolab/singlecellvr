@@ -287,7 +287,7 @@ const renderSeurat = (scatter, metadata) => {
   const [annotations, clusterColors] = createCellMetadataObject(metadata);
   renderLegend(annotations[0], clusterColors);
   initializeAnnotationMenu(annotations, clusterColors);
-  renderCells(scatter, clusterColors, .5, .05);
+  renderCells(scatter, clusterColors, .5, .14);
 }
 
 //--------------------------------------------------------------------
@@ -373,7 +373,7 @@ const renderStream = async (curves, cells, metadata) => {
   const [annotations, clusterColors] = createCellMetadataObject(metadata);
   initializeAnnotationMenu(annotations, clusterColors);
   renderLegend(annotations[0], clusterColors);
-  renderCells(cells, clusterColors, 100, .05);
+  renderCells(cells, clusterColors, 100, .14);
 }
 
 // -------------------------------------------------------------------
@@ -581,6 +581,4 @@ document.getElementById("pauseGlobalRotation").addEventListener("click", () => {
 });
 
 // ---------------------------------------------------------------------
-
-
 
