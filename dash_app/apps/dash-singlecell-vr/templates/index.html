@@ -6,7 +6,7 @@
     <script src="https://rawgit.com/andreasplesch/aframe-meshline-component/master/dist/aframe-meshline-component.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
     <script src="https://unpkg.com/aframe-button-controls@^1.1.0/aframe-button-controls.js"></script>
-    <script src="https://unpkg.com/aframe-super-keyboard@1.0.0/dist/aframe-super-keyboard.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/davidfstein/aframe-super-keyboard/dist/aframe-super-keyboard.min.js"></script>
     <script src="/static/jszip.min.js"></script>
     <script src="/static/bab_utils.js"></script>
     <script src="/static/color-gradient-component.js"></script>
@@ -62,6 +62,15 @@
               font-family="Arial"
               margin="-0.2 0 0.5 0">
             </a-gui-button>
+            <a-gui-button
+              id="toggleKeyboard"
+              onclick="toggleElementVisibilityById('keyboard')"
+              width="2.7" height="0.75" 
+              background-color="#22252a"
+              font-color="#d3d3d4"
+              value="Keyboard"
+            >
+            </a-gui-button>
             <a-gui-input id="search_input"
                 width="2.7" height="0.7"
                 text="value: Search:; width: 6; color: black; align: center;"
@@ -103,11 +112,13 @@
               margin="-0.2 0 0.5 0">
             </a-gui-label>
           </a-gui-flex-container>
-
+ 
           <a-gui-flex-container
             flex-direction="column" justify-content="center" align-items="normal" component-padding="0.1" opacity="0.7" width="3.7" height="5"
             position="5.55 0 0" rotation="0 0 0" id="legend">
           </a-gui-flex-container>
+
+          <a-entity id="keyboard" super-keyboard="hand: #cursor; imagePath: /assets; width: 8; multipleInputs: true; show: true" position="2 -5 0"></a-entity>
 
         </a-entity>   
       </a-entity>

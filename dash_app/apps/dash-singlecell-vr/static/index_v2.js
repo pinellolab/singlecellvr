@@ -2,6 +2,17 @@
 /*global Fuse, THREE, AFRAME, JSZip, Utils*/
 let report = {};
 let geneList = [];
+const FUSE_SEARCH_OPTIONS = {
+  shouldSort: true,
+  threshold: 0.6,
+  location: 0,
+  distance: 100,
+  maxPatternLength: 32,
+  minMatchCharLength: 1,
+  keys: [
+    "gene",
+  ]
+};
 let currentSearch = '';
 const resultElements = ["result1", "result2", "result3"];
 
@@ -426,7 +437,6 @@ const getGeneList = (report) => {
       splitName = splitName.join("_").split('.');
       splitName.pop();
       splitName = splitName.join(".");
-      console.log(splitName)
       geneNames.push({'gene': splitName});
     }
   });
@@ -459,7 +469,10 @@ const initialize = async (uuid) => {
   // Updates the hud players position to the correct initial position.
   movement(.05);
 
-  document.getElementById("scene").renderer.shadowMap = THREE.BasicShadowMap
+  document.getElementById("scene").renderer.shadowMap = THREE.BasicShadowMap;
+
+  // Hide the vr keyboard by default
+  toggleElementVisibilityById("keyboard");
 }
 
 window.onload = () => {
@@ -470,21 +483,6 @@ window.onload = () => {
 // --------------------- Listeners ----------------------------
 const keyPressed = {};
 document.body.addEventListener('keydown', (e) => {
-  var options = {
-    shouldSort: true,
-    threshold: 0.6,
-    location: 0,
-    distance: 100,
-    maxPatternLength: 32,
-    minMatchCharLength: 1,
-    keys: [
-      "gene",
-    ]
-  };
-  const resultsEntity = document.getElementById("search_input");
-  let result1 = '';
-  let result2 = '';
-  let result3 = '';
   if (e.key === "Shift") {
     if (Utils.mobilecheck()) {
       const hud = document.getElementById("hud").object3D;
@@ -494,12 +492,13 @@ document.body.addEventListener('keydown', (e) => {
       }
       document.getElementById("cursor").object3D.visible = false;
     }
-  } else if (e.keyCode === 38) {
+  } else if (e.key === "ArrowUp") {
       movement(.05);
-  } else if (e.keyCode === 40) {
+  } else if (e.key === "ArrowDown") {
       movement(-.05);
-  } else if (e.code === 'Enter') {
+  } else if (e.key === 'Enter') {
     currentSearch = '';
+    updateSearch(currentSearch);
   } else if (e.key === 'Control') {
     keyPressed[e.key] = true;
   } else if (keyPressed['Control'] && e.key === "+") {
@@ -514,25 +513,50 @@ document.body.addEventListener('keydown', (e) => {
     if (radius - .01 >= 0) {
       cells.setAttribute('cells', 'radius', radius - .01);
     }
-  } else if (keyPressed['Control'] && e.code === 'Space') {
+  } else if (keyPressed['Control'] && e.key === ' ') {
     e.preventDefault();
     document.getElementById('menuContainer').object3D.position.set(10, 0, 0);
-  } else if (e.code === 'Space') {
+  } else if (e.key === ' ') {
     summonMenus();
     currentSearch = '';
+    updateSearch(currentSearch);
   } else if (e.key.length === 1) {
     currentSearch = currentSearch + e.key;
-    let fuse = new Fuse(geneList, options);
-    let result = fuse.search(currentSearch);
-    result1 = result.length > 0 ? result[0].gene : "";
-    result2 = result.length > 1 ? result[1].gene : "";
-    result3 = result.length > 2 ? result[2].gene : "";
-
+    updateSearch(currentSearch);
   }
+});
+
+const updateSearch = (value) => {
+  const resultsEntity = document.getElementById("search_input");
+  let result1 = '';
+  let result2 = '';
+  let result3 = '';
+  
+  let fuse = new Fuse(geneList, FUSE_SEARCH_OPTIONS);
+  let result = fuse.search(currentSearch);
+  result1 = result.length > 0 ? result[0].gene : "";
+  result2 = result.length > 1 ? result[1].gene : "";
+  result3 = result.length > 2 ? result[2].gene : "";
+
   resultsEntity.setAttribute('text', 'value', "Search: " + currentSearch);
   document.getElementById("result1").setAttribute('gui-button', 'text', result1);
   document.getElementById("result2").setAttribute('gui-button', 'text', result2);
   document.getElementById("result3").setAttribute('gui-button', 'text', result3);
+}
+
+document.getElementById("keyboard").addEventListener('superkeyboardchange', (e) => {
+  // Hack to detect if backspace was hit on virtual keyboard.
+  if ((currentSearch + e.detail.value).length > currentSearch.length) {
+    currentSearch = currentSearch + e.detail.value;
+  } else {
+    currentSearch = currentSearch.slice(0, -1);
+  }
+  updateSearch(currentSearch);
+});
+
+document.getElementById("keyboard").addEventListener('superkeyboardinput', (e) => {
+  currentSearch = '';
+  updateSearch(currentSearch);
 });
 
 document.querySelector('a-scene').addEventListener('enter-vr', () => {
@@ -580,5 +604,12 @@ document.getElementById("pauseGlobalRotation").addEventListener("click", () => {
   }
 });
 
+// document.getElementById("toggleKeyboard").addEventListener
+
 // ---------------------------------------------------------------------
 
+toggleElementVisibilityById = (targetId) => {
+  const attribute = 'visible';
+  const target = document.getElementById(targetId);
+  target.setAttribute(attribute, !target.getAttribute(attribute));
+}
