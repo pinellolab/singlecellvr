@@ -14,6 +14,7 @@ const FUSE_SEARCH_OPTIONS = {
   ]
 };
 let currentSearch = '';
+let movementSpeed = .05;
 const resultElements = ["result1", "result2", "result3"];
 
 // --------------------------------------------------------
@@ -467,7 +468,7 @@ const initialize = async (uuid) => {
   geneList = getGeneList(result);
   initializeMenu();
   // Updates the hud players position to the correct initial position.
-  movement(.05);
+  movement(movementSpeed);
 
   document.getElementById("scene").renderer.shadowMap = THREE.BasicShadowMap;
 
@@ -493,9 +494,9 @@ document.body.addEventListener('keydown', (e) => {
       document.getElementById("cursor").object3D.visible = false;
     }
   } else if (e.key === "ArrowUp") {
-      movement(.05);
+      movement(movementSpeed);
   } else if (e.key === "ArrowDown") {
-      movement(-.05);
+      movement(-movementSpeed);
   } else if (e.key === 'Enter') {
     currentSearch = '';
     updateSearch(currentSearch);
@@ -612,4 +613,9 @@ toggleElementVisibilityById = (targetId) => {
   const attribute = 'visible';
   const target = document.getElementById(targetId);
   target.setAttribute(attribute, !target.getAttribute(attribute));
+}
+
+adjustMovementSpeed = (step) => {
+  newSpeed = movementSpeed + step;
+  movementSpeed = newSpeed > 0 ? newSpeed : movementSpeed;
 }
