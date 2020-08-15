@@ -111,11 +111,12 @@ const initializeAnnotationMenu = (annotations, clusterColors) => {
 
   // Ensure menu items dont overflow the container
   totalItemsHeight = annotations.length * .5;
-  console.log(totalItemsHeight)
   if (totalItemsHeight > 5) {
     adjustedContainerHeight = totalItemsHeight + 1.5;
     annotation_menu.setAttribute('height', adjustedContainerHeight);
-    annotation_menu.object3D.position.set(1.85, (5 - adjustedContainerHeight) / 2, 0)
+    annotation_menu.object3D.position.set(1.85, (5 - adjustedContainerHeight) / 2, 0);
+    // Have to move the vr keyboard down as well
+    document.getElementById("keyboard").object3D.position.set(2, -adjustedContainerHeight, 0);
   }
 
   annotations.forEach((annotation) => {
@@ -222,7 +223,7 @@ const renderCells = (cells, cellMetadata, scale, radius) => {
   });  
   const el = document.createElement('a-entity');
   el.setAttribute("cells", {positions: cellPositions, count: cells.length, colors: colors, scale: scale, radius: radius});
-  document.getElementById('cells-container').append(el);
+  document.getElementById('cells-container').append(el);  
 }
 
 // ------------------------------------------------------------------------
@@ -280,7 +281,7 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
   });
   document.getElementById("graph-container").append(...thickLines);
   document.getElementById("graph-map").append(...thickLines.map(el => el.cloneNode()));
-  renderCells(scatter, clusterColors, 1, .04); // .1, .004
+  renderCells(scatter, clusterColors, 1, .14); // .1, .004
 }
 
 // -------------------------------------------------------------------
@@ -473,7 +474,9 @@ const initialize = async (uuid) => {
   document.getElementById("scene").renderer.shadowMap = THREE.BasicShadowMap;
 
   // Hide the vr keyboard by default
-  toggleElementVisibilityById("keyboard");
+  // toggleElementVisibilityById("keyboard");
+
+  document.getElementById("loadingHelp").setAttribute('loading', {'show': false});
 }
 
 window.onload = () => {
@@ -499,6 +502,9 @@ document.body.addEventListener('keydown', (e) => {
       movement(-movementSpeed);
   } else if (e.key === 'Enter') {
     currentSearch = '';
+    updateSearch(currentSearch);
+  } else if (e.key === 'Backspace') {
+    currentSearch = currentSearch.slice(0, -1);
     updateSearch(currentSearch);
   } else if (e.key === 'Control') {
     keyPressed[e.key] = true;
@@ -547,8 +553,10 @@ const updateSearch = (value) => {
 
 document.getElementById("keyboard").addEventListener('superkeyboardchange', (e) => {
   // Hack to detect if backspace was hit on virtual keyboard.
-  if ((currentSearch + e.detail.value).length > currentSearch.length) {
-    currentSearch = currentSearch + e.detail.value;
+  if (e.detail.value.length > currentSearch.length) {
+    console.log(e)
+    currentSearch = e.detail.value;
+    // console.log(currentSearch);
   } else {
     currentSearch = currentSearch.slice(0, -1);
   }

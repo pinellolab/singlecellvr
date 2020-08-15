@@ -16,6 +16,7 @@
     <script src="/static/remove-light-component.js"></script>
     <script src="/static/aframe-gui.min.js"></script>
     <script src="/static/gamepad-movement-controls.js"></script>
+    <script src="/static/loading-component.js"></script>
   </head>
   <body>
     <a-scene id="scene" device-orientation-permission-ui="enabled: true" gamepad-movement-controls renderer="alpha: false">
@@ -79,9 +80,11 @@
             <a-gui-button
               id="pauseGlobalRotation"
               width="2.7" height="0.75"
-              value="Toggle Rotation"
+              font-color="#d3d3d4"
               font-family="Arial"
-              margin="-0.2 0 0.5 0">
+              margin="-0.2 0 0.5 0"
+              value="Toggle Rotation"
+            >
             </a-gui-button>
             <a-gui-button
               id="toggleKeyboard"
@@ -130,6 +133,7 @@
               font-width="6"
               background-color="#22252a"
               font-color="#d3d3d4"
+              opacity="0.7"
               margin="-0.2 0 0.5 0">
             </a-gui-label>
           </a-gui-flex-container>
@@ -143,6 +147,8 @@
 
         </a-entity>   
       </a-entity>
+
+      <!-- <a-entity id="loadingHelp" loading position="0 0 -1"></a-entity> -->
 
       <a-entity environment="skyType: atmosphere; dressing: none; lighting: none; groundTexture: checkerboard; groundColor: #c9c4c4; groundColor2: #c9c4c4; grid: none; shadow: false" remove-lighting></a-entity>
     </a-scene>
