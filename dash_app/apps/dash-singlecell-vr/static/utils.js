@@ -37,7 +37,13 @@ class Utils {
 
     static divide = (a,b) => a / b;
 
-    static isDigits = (str) => RegExp(/^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/g).test(str);
+    static isDigits = (str, allowNanString) => {
+        const isDigit = RegExp(/^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/g).test(str);
+        if (allowNanString) {
+            return str.toLowerCase() === 'nan' || isDigit;
+        } 
+        return isDigit;
+    } 
 
     static nearestPow2 = ( n ) =>  Math.pow( 2, Math.round( Math.log( n ) / Math.log( 2 ) ) ); 
 

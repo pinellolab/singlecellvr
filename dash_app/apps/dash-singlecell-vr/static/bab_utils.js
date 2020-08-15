@@ -70,8 +70,14 @@ _defineProperty(Utils, "divide", function (a, b) {
   return a / b;
 });
 
-_defineProperty(Utils, "isDigits", function (str) {
-  return RegExp(/^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/g).test(str);
+_defineProperty(Utils, "isDigits", function (str, allowNanString) {
+  var isDigit = RegExp(/^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/g).test(str);
+
+  if (allowNanString) {
+    return str.toLowerCase() === 'nan' || isDigit;
+  }
+
+  return isDigit;
 });
 
 _defineProperty(Utils, "nearestPow2", function (n) {
