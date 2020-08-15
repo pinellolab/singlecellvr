@@ -474,9 +474,9 @@ const initialize = async (uuid) => {
   document.getElementById("scene").renderer.shadowMap = THREE.BasicShadowMap;
 
   // Hide the vr keyboard by default
-  // toggleElementVisibilityById("keyboard");
+  toggleElementVisibilityById("keyboard");
 
-  document.getElementById("loadingHelp").setAttribute('loading', {'show': false});
+  // document.getElementById("loadingHelp").setAttribute('loading', {'show': false});
 }
 
 window.onload = () => {
