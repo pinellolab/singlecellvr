@@ -6,11 +6,6 @@ AFRAME.registerComponent('loading', {
     },
     init: function() {
         this.initialized = performance.now();
-        const width = this.visibleWidthAtZDepth(this.data.zDepth);
-        const height = this.visibleHeightAtZDepth(this.data.zDepth);
-        this.el.setAttribute('width', width);
-        this.el.setAttribute('height', height);
-
     },
     update: function(oldData) {
         if (this.data.show !== oldData.show && !this.data.show) {
@@ -20,14 +15,20 @@ AFRAME.registerComponent('loading', {
                 this.el.object3D.visible = false;
                 document.getElementById("hud").setAttribute('visible', true);
                 document.getElementById("player-camera").setAttribute("look-controls", "");
+                document.getElementById("scene").setAttribute("vr-mode-ui", "enabled: true");
             } else {
                 setTimeout(() => {
                     this.el.object3D.visible = false;
                     document.getElementById("hud").setAttribute('visible', true);
                     document.getElementById("player-camera").setAttribute("look-controls", "");
+                    document.getElementById("scene").setAttribute("vr-mode-ui", "enabled: true");
                 }, ((this.data.time - elapsedSeconds) * 1000))
             }
         }
+        const width = this.visibleWidthAtZDepth(this.data.zDepth);
+        const height = this.visibleHeightAtZDepth(this.data.zDepth);
+        this.el.setAttribute('width', width);
+        this.el.setAttribute('height', height);
     },
     tick: function() {
         const cameraPosition = document.getElementById('rig').object3D.position;
