@@ -453,6 +453,7 @@ const createLoadingElement = () => {
 }
 
 const initialize = async (uuid) => {
+  screen.orientation.lock('landscape');
   createLoadingElement();
   setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
   // Hide this until the loading screen goes away
