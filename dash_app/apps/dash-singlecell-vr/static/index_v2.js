@@ -46,8 +46,6 @@ const setHudPosition = ( fovWidth, fovHeight, depth) => {
   document.getElementById('hud').object3D.position.set(-fovWidth/2 + .25, fovHeight/2 - .25, depth);
 }
 
-setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
-
 // -----------------------------------------------------------
 
 const summonMenus = () => {
@@ -122,7 +120,7 @@ const initializeAnnotationMenu = (annotations, clusterColors) => {
     const el = document.createElement("a-gui-button");
     el.setAttribute("width", "2.5");
     el.setAttribute("height", ".5");
-    el.setAttribute("value", annotation);
+    el.setAttribute("text", `value: ${annotation}; width: 5; color: #d3d3d4; align: center; zOffset: .1`)
     el.setAttribute("id", `${annotation}-selector`);
     el.setAttribute("toggle", true);
     annotation_menu.appendChild(el);
@@ -132,7 +130,8 @@ const initializeAnnotationMenu = (annotations, clusterColors) => {
   annotations.forEach((annotation) => {
     const el = document.getElementById(`${annotation}-selector`);
     el.addEventListener('click', () => {
-      const value = el.getAttribute("value");
+      const value = el.getAttribute("text").value;
+      console.log(value)
       changeAnnotation(value, clusterColors);
       annotations.forEach(an => {
         if (an !== annotation) {
@@ -444,7 +443,20 @@ const getGeneList = (report) => {
   return geneNames;
 }
 
+const createLoadingElement = () => {
+  const loadingElement = document.createElement("a-video");
+  loadingElement.setAttribute("id", "loadingHelp");
+  loadingElement.setAttribute("loading", "");
+  const loadingTips = ["/assets/loading_1.m4v", "/assets/loading_2.m4v", "/assets/loading_3.m4v"];
+  loadingElement.setAttribute("src", loadingTips[Math.floor(Math.random() * loadingTips.length)]);
+  document.getElementById('scene').append(loadingElement);
+}
+
 const initialize = async (uuid) => {
+  createLoadingElement();
+  setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
+  // Hide this until the loading screen goes away
+  document.getElementById("hud").setAttribute('visible', false);
   const result = await Utils.unzip(uuid);
   report = result;
   const index = await result.file("index.json").async("string");
@@ -475,7 +487,7 @@ const initialize = async (uuid) => {
   // Hide the vr keyboard by default
   toggleElementVisibilityById("keyboard");
 
-  // document.getElementById("loadingHelp").setAttribute('loading', {'show': false});
+  document.getElementById("loadingHelp").setAttribute('loading', {'show': false});
 }
 
 window.onload = () => {
