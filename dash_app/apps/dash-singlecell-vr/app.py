@@ -97,6 +97,7 @@ app.layout = dbc.Container(
                                         {'label': 'Seurat - scRNA-seq - Micro-dissected Mouse Bone Marrow Cells', 'value': 'Grun2016-Marrow-SEURAT'},
                                         {'label': 'Seurat - scRNA-seq - Single-cell transcriptome atlas of the human pancreas', 'value': 'Grun2016-Pancreas-SEURAT'},
                                         {'label': 'STREAM - scRNA-seq - Single-cell chromatin accessibility of human hematopoietic differentiation', 'value': 'Buenrostro2018-BM-STREAM'},
+                                        {'label': 'STREAM - scProteomics - Single-cell proteomics of human monocytes and macrophages', 'value': 'specht2019_stream_proteomics'},
                                     ],
                                     value=None
                                 ),
@@ -242,6 +243,8 @@ def update_output(value):
             file_id = 'grun2016-Pancreas-seurat'
         elif(value=="Buenrostro2018-BM-STREAM"):
             file_id = 'buenrostro2018_BM_atac_stream'
+        elif(value=="specht2019_stream_proteomics"):
+            file_id = 'specht2019_stream_proteomics'
         save_qr_image(file_id)
         return ['You have selected "{}"'.format(value),
                 file_id, 
