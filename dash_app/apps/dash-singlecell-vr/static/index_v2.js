@@ -456,7 +456,6 @@ const createLoadingElement = () => {
 const initialize = async (uuid) => {
   createLoadingElement();
   window.onresize = () => {
-    console.log('resized')
     const data = document.getElementById('loadingHelp').components['loading'].data;
     document.getElementById('loadingHelp').components['loading'].update(data);
   };

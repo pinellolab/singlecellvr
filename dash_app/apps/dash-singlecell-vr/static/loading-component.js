@@ -30,15 +30,19 @@ AFRAME.registerComponent('loading', {
         }
         const width = this.visibleWidthAtZDepth(this.data.zDepth);
         const height = this.visibleHeightAtZDepth(this.data.zDepth);
-        if (this.adjusted) {
-            this.width = width;
-            this.height = height;
-        }
+        // if (!this.adjusted) {
+        //     console.log("This width: ", this.width);
+        //     console.log("This height: ", this.height);
+        //     console.log("Width: ", width);
+        //     console.log("Height: ", height);
+        //     this.width = width;
+        //     this.height = height;
+        //     this.adjusted = true;
+        // }
         const matchMedia = window.webkitMatchMedia || window.mozMatchMedia || window.oMatchMedia || window.msMatchMedia || window.matchMedia;
         const isPortrait = (matchMedia && matchMedia("(orientation: portrait)").matches) || 
                             (["portrait", "portrait-primary", "portrait-secondary"].includes(window.screen.orientation) ||
                             (Utils.mobilecheck() && window.height > window.width))
-        console.log(isPortrait)
         if (isPortrait) {
             this.el.object3D.rotation.set(0, 0, -32.987);
             this.el.setAttribute('width', this.height);
@@ -46,8 +50,8 @@ AFRAME.registerComponent('loading', {
             document.getElementById('hud').object3D.position.set(-width/2 + .25, height/2 - .25, this.data.zDepth);
         } else {
             this.el.object3D.rotation.set(0, 0, 0);
-            this.el.setAttribute('width', this.width);
-            this.el.setAttribute('height', this.height);
+            this.el.setAttribute('width', this.height);
+            this.el.setAttribute('height', this.width);
             document.getElementById('hud').object3D.position.set(-width/2 + .25, height/2 - .25, this.data.zDepth);
         }
     },
