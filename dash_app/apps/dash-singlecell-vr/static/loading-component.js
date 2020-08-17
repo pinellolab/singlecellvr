@@ -27,13 +27,14 @@ AFRAME.registerComponent('loading', {
         }
         const width = this.visibleWidthAtZDepth(this.data.zDepth);
         const height = this.visibleHeightAtZDepth(this.data.zDepth);
-        if (window.matchMedia("(orientation: portrait)").matches || 
+        const matchMedia = window.webkitMatchMedia || window.mozMatchMedia || window.oMatchMedia || window.msMatchMedia || window.matchMedia;
+        if (matchMedia("(orientation: portrait)").matches || 
             ["portrait", "portrait-primary", "portrait-secondary"].includes(window.screen.orientation) ) {
             this.el.object3D.rotation.set(0, 0, -32.987);
             this.el.setAttribute('width', height);
             this.el.setAttribute('height', width);
             document.getElementById('hud').object3D.position.set(-width/2 + .25, height/2 - .25, this.data.zDepth);
-        } else if (window.matchMedia("(orientation: landscape)").matches ||
+        } else if (matchMedia("(orientation: landscape)").matches ||
             ["landscape", "landscape-primary", "landscape-secondary"].includes(window.screen.orientation) ) {
             this.el.object3D.rotation.set(0, 0, 0);
             this.el.setAttribute('width', width);
