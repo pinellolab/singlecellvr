@@ -1,6 +1,6 @@
 AFRAME.registerComponent('loading', {
     schema: {
-        time: {type: 'number', default: 1000},
+        time: {type: 'number', default: 10},
         show: {type: 'boolean', default: true},
         zDepth: {type: 'number', default: -1}
     },
@@ -9,6 +9,16 @@ AFRAME.registerComponent('loading', {
         this.adjusted = false;
         this.width = this.visibleWidthAtZDepth(this.data.zDepth);
         this.height = this.visibleHeightAtZDepth(this.data.zDepth);
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        this.isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+        this.startedPortrait = (matchMedia && matchMedia("(orientation: portrait)").matches) || 
+                (["portrait", "portrait-primary", "portrait-secondary"].includes(window.screen.orientation) ||
+                (Utils.mobilecheck() && window.height > window.width));
+        const geometry = new THREE.PlaneBufferGeometry( this.width, this.height );
+        const material = new THREE.MeshBasicMaterial( {color: 0x1F2630, side: THREE.DoubleSide} );
+        const plane = new THREE.Mesh( geometry, material );
+        this.buffer = document.getElementById("loadingBuffer");
+        this.buffer.object3D.add( plane );
     },
     update: function(oldData) {
         if (this.data.show !== oldData.show && !this.data.show) {
@@ -16,12 +26,14 @@ AFRAME.registerComponent('loading', {
             const elapsedSeconds = (dismissTime - this.initialized) / 1000;
             if (elapsedSeconds > this.data.time) {
                 this.el.object3D.visible = false;
+                this.buffer.object3D.visible = false;
                 document.getElementById("hud").setAttribute('visible', true);
                 document.getElementById("player-camera").setAttribute("look-controls", "");
                 document.getElementById("scene").setAttribute("vr-mode-ui", "enabled: true");
             } else {
                 setTimeout(() => {
                     this.el.object3D.visible = false;
+                    this.buffer.object3D.visible = false;
                     document.getElementById("hud").setAttribute('visible', true);
                     document.getElementById("player-camera").setAttribute("look-controls", "");
                     document.getElementById("scene").setAttribute("vr-mode-ui", "enabled: true");
@@ -41,13 +53,31 @@ AFRAME.registerComponent('loading', {
                             (Utils.mobilecheck() && window.height > window.width))
         if (isPortrait) {
             this.el.object3D.rotation.set(0, 0, -32.987);
-            this.el.setAttribute('width', this.height);
-            this.el.setAttribute('height', this.width);
+            if (this.isIOS && this.startedPortrait) {
+                this.el.setAttribute('width', this.height);
+                this.el.setAttribute('height', this.width);
+            } else if (this.isIOS) {
+                this.el.setAttribute('width', this.width * .55);
+                this.el.setAttribute('height', this.height * .55);
+            } else {
+                this.el.setAttribute('width', height);
+                this.el.setAttribute('height', width);
+            }
             document.getElementById('hud').object3D.position.set(-width/2 + .25, height/2 - .25, this.data.zDepth);
         } else {
             this.el.object3D.rotation.set(0, 0, 0);
-            this.el.setAttribute('width', width);
-            this.el.setAttribute('height', height);
+            if (this.isIOS && this.startedPortrait) {
+                this.buffer.setAttribute('geometry', 'width', this.height * 3);
+                this.buffer.setAttribute('geometry', 'height', this.width * 3);
+                this.buffer.setAttribute('material', 'color', 0x1F2630);
+                this.el.setAttribute('width', this.height * 1.5);
+                this.el.setAttribute('height', this.width * 1.5);
+                console.log(this.el.getAttribute('position').x);
+                this.buffer.object3D.position.set(this.el.getAttribute('position').x, this.el.getAttribute('position').y, this.el.getAttribute('position').z - 1);
+            } else {
+                this.el.setAttribute('width', width);
+                this.el.setAttribute('height', height);
+            }
             document.getElementById('hud').object3D.position.set(-width/2 + .25, height/2 - .25, this.data.zDepth);
         }
     },
