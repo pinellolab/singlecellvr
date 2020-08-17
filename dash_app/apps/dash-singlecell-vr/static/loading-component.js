@@ -46,8 +46,8 @@ AFRAME.registerComponent('loading', {
             document.getElementById('hud').object3D.position.set(-width/2 + .25, height/2 - .25, this.data.zDepth);
         } else {
             this.el.object3D.rotation.set(0, 0, 0);
-            this.el.setAttribute('width', this.height * 1.8);
-            this.el.setAttribute('height', this.width * 1.8);
+            this.el.setAttribute('width', width);
+            this.el.setAttribute('height', height);
             document.getElementById('hud').object3D.position.set(-width/2 + .25, height/2 - .25, this.data.zDepth);
         }
     },
