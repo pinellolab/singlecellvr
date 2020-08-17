@@ -274,7 +274,8 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
   branch_els.forEach((branch) => {
     const curveid = branch.getAttribute("id"); 
     const [startNode, endNode] = Utils.strip(curveid).split("_");
-    const thickLine = `<a-entity meshline="lineWidth: ${edgeWeights[Utils.strip(curveid)] * 10}; path: ${nodePositions[startNode].x} ${nodePositions[startNode].y} ${nodePositions[startNode].z}, ${nodePositions[endNode].x} ${nodePositions[endNode].y} ${nodePositions[endNode].z}; color: black"></a-entity>`
+    const lineMultiplier = Utils.mobilecheck() ? 1 : 10;
+    const thickLine = `<a-entity meshline="lineWidth: ${edgeWeights[Utils.strip(curveid)] * lineMultiplier}; path: ${nodePositions[startNode].x} ${nodePositions[startNode].y} ${nodePositions[startNode].z}, ${nodePositions[endNode].x} ${nodePositions[endNode].y} ${nodePositions[endNode].z}; color: black"></a-entity>`
     thickLines.push(Utils.htmlToElement(thickLine));
   });
   document.getElementById("graph-container").append(...thickLines);
@@ -566,7 +567,6 @@ const updateSearch = (value) => {
 }
 
 document.getElementById("keyboard").addEventListener('superkeyboardchange', (e) => {
-  console.log("Event Fired")
   // Hack to detect if backspace was hit on virtual keyboard.
   if (e.detail.value.length > currentSearch.length) {
     currentSearch = e.detail.value;
