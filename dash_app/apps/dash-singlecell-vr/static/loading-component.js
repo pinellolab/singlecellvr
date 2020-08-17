@@ -6,6 +6,7 @@ AFRAME.registerComponent('loading', {
     },
     init: function() {
         this.initialized = performance.now();
+        this.adjusted = false;
         this.width = this.visibleWidthAtZDepth(this.data.zDepth);
         this.height = this.visibleHeightAtZDepth(this.data.zDepth);
     },
@@ -26,6 +27,12 @@ AFRAME.registerComponent('loading', {
                     document.getElementById("scene").setAttribute("vr-mode-ui", "enabled: true");
                 }, ((this.data.time - elapsedSeconds) * 1000))
             }
+        }
+        const width = this.visibleWidthAtZDepth(this.data.zDepth);
+        const height = this.visibleHeightAtZDepth(this.data.zDepth);
+        if (this.adjusted) {
+            this.width = width;
+            this.height = height;
         }
         const matchMedia = window.webkitMatchMedia || window.mozMatchMedia || window.oMatchMedia || window.msMatchMedia || window.matchMedia;
         const isPortrait = (matchMedia && matchMedia("(orientation: portrait)").matches) || 
