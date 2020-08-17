@@ -1,6 +1,6 @@
 AFRAME.registerComponent('loading', {
     schema: {
-        time: {type: 'number', default: 10},
+        time: {type: 'number', default: 1000},
         show: {type: 'boolean', default: true},
         zDepth: {type: 'number', default: -1}
     },
@@ -31,6 +31,7 @@ AFRAME.registerComponent('loading', {
         const isPortrait = (matchMedia && matchMedia("(orientation: portrait)").matches) || 
                             (["portrait", "portrait-primary", "portrait-secondary"].includes(window.screen.orientation) ||
                             (Utils.mobilecheck() && window.height > window.width))
+        console.log(isPortrait)
         if (isPortrait) {
             this.el.object3D.rotation.set(0, 0, -32.987);
             this.el.setAttribute('width', height);
@@ -38,8 +39,8 @@ AFRAME.registerComponent('loading', {
             document.getElementById('hud').object3D.position.set(-width/2 + .25, height/2 - .25, this.data.zDepth);
         } else {
             this.el.object3D.rotation.set(0, 0, 0);
-            this.el.setAttribute('width', width);
-            this.el.setAttribute('height', height);
+            this.el.setAttribute('width', this.visibleWidthAtZDepth(this.data.zDepth));
+            this.el.setAttribute('height', this.visibleHeightAtZDepth(this.data.zDepth));
             document.getElementById('hud').object3D.position.set(-width/2 + .25, height/2 - .25, this.data.zDepth);
         }
     },
