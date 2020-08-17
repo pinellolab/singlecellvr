@@ -585,14 +585,14 @@ document.querySelector('a-scene').addEventListener('enter-vr', () => {
   setHudPosition(visibleWidthAtZDepth(-1) - .5, visibleHeightAtZDepth(-1), -1);
   if (Utils.mobilecheck()) {
     document.getElementById('hud').object3D.visible = false;
-    scalePagaLines(Utils.divide);
+    // scalePagaLines(Utils.divide);
   }
 });
 
 document.querySelector('a-scene').addEventListener('exit-vr', () => {
   setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
   if (Utils.mobilecheck()) {
-    scalePagaLines(Utils.multiply);
+    // scalePagaLines(Utils.multiply);
   }
 });
 
