@@ -458,7 +458,6 @@ const initialize = async (uuid) => {
     const data = document.getElementById('loadingHelp').components['loading'].data;
     document.getElementById('loadingHelp').components['loading'].update(data);
   };
-  // setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
   // Hide this until the loading screen goes away
   document.getElementById("hud").setAttribute('visible', false);
   const result = await Utils.unzip(uuid);
@@ -489,7 +488,7 @@ const initialize = async (uuid) => {
   document.getElementById("scene").renderer.shadowMap = THREE.BasicShadowMap;
 
   // Hide the vr keyboard by default
-  toggleElementVisibilityById("keyboard");
+  toggleKeyboard();
 
   document.getElementById("loadingHelp").setAttribute('loading', {'show': false});
 }
@@ -567,11 +566,10 @@ const updateSearch = (value) => {
 }
 
 document.getElementById("keyboard").addEventListener('superkeyboardchange', (e) => {
+  console.log("Event Fired")
   // Hack to detect if backspace was hit on virtual keyboard.
   if (e.detail.value.length > currentSearch.length) {
-    console.log(e)
     currentSearch = e.detail.value;
-    // console.log(currentSearch);
   } else {
     currentSearch = currentSearch.slice(0, -1);
   }
@@ -628,14 +626,11 @@ document.getElementById("pauseGlobalRotation").addEventListener("click", () => {
   }
 });
 
-// document.getElementById("toggleKeyboard").addEventListener
-
 // ---------------------------------------------------------------------
 
-toggleElementVisibilityById = (targetId) => {
-  const attribute = 'visible';
-  const target = document.getElementById(targetId);
-  target.setAttribute(attribute, !target.getAttribute(attribute));
+toggleKeyboard = () => {
+  const keyboard = document.getElementById('keyboard');
+  keyboard.getAttribute('visible') ? keyboard.components['super-keyboard'].close() : keyboard.components['super-keyboard'].open()
 }
 
 adjustMovementSpeed = (step) => {
