@@ -458,7 +458,7 @@ const initialize = async (uuid) => {
     const data = document.getElementById('loadingHelp').components['loading'].data;
     document.getElementById('loadingHelp').components['loading'].update(data);
   };
-  setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
+  // setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
   // Hide this until the loading screen goes away
   document.getElementById("hud").setAttribute('visible', false);
   const result = await Utils.unzip(uuid);
