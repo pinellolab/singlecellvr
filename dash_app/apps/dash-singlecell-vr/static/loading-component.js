@@ -30,7 +30,7 @@ AFRAME.registerComponent('loading', {
         const matchMedia = window.webkitMatchMedia || window.mozMatchMedia || window.oMatchMedia || window.msMatchMedia || window.matchMedia;
         const isPortrait = (matchMedia && matchMedia("(orientation: portrait)").matches) || 
                             (["portrait", "portrait-primary", "portrait-secondary"].includes(window.screen.orientation) ||
-                            (Utils.mobileCheck() && window.height > window.width))
+                            (Utils.mobilecheck() && window.height > window.width))
         if (isPortrait) {
             this.el.object3D.rotation.set(0, 0, -32.987);
             this.el.setAttribute('width', height);
