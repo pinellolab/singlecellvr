@@ -27,8 +27,15 @@ AFRAME.registerComponent('loading', {
         }
         const width = this.visibleWidthAtZDepth(this.data.zDepth);
         const height = this.visibleHeightAtZDepth(this.data.zDepth);
-        this.el.setAttribute('width', width);
-        this.el.setAttribute('height', height);
+        if (window.matchMedia("(orientation: portrait)").matches) {
+            this.el.object3D.rotation.set(0, 0, -32.987);
+            this.el.setAttribute('width', height);
+            this.el.setAttribute('height', width);
+        } else if (window.matchMedia("(orientation: landscape)").matches) {
+            this.el.object3D.rotation.set(0, 0, 0);
+            this.el.setAttribute('width', width);
+            this.el.setAttribute('height', height);
+        }
     },
     tick: function() {
         const cameraPosition = document.getElementById('rig').object3D.position;

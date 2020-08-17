@@ -453,8 +453,6 @@ const createLoadingElement = () => {
 }
 
 const initialize = async (uuid) => {
-  window.screen.orientation = "landscape";
-  // window.screen.lockOrientation("landscape");
   createLoadingElement();
   window.onresize = () => {
     const data = document.getElementById('loadingHelp').components['loading'].data;
