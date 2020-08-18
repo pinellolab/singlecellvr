@@ -69,7 +69,6 @@ app.layout = dbc.Container(
             id="header", className="justify-content-between align-items-center",
             children=[
                 html.Img(id='logo', className="col-lg-4 col-md-4 col-sm-12", src=app.get_asset_url("SCVR_logo.png")),
-                # html.Div(className="clearfix visible-xs-block visible-sm-block visible-md-block visible-lg-block"),
                 html.A(className="col-lg-2 col-md-2 col-sm-2", href='/help/', children=[dbc.Button("Help", id='button-help', color="dark", disabled=False, n_clicks=0)]),
             ],
         ),  
@@ -82,6 +81,14 @@ app.layout = dbc.Container(
                             id="dropdown-container",
                             className="col-content",
                             children=[ 
+                                html.H3(
+                                    children="Check out our preprint:",
+                                ),
+                                html.A(
+                                    href="https://www.biorxiv.org/content/10.1101/2020.07.30.229534v1",
+                                    target="_blank",
+                                    children="https://www.biorxiv.org/content/10.1101/2020.07.30.229534v1",
+                                ),
                                 html.H3(
                                     id="slider-text",
                                     children="Choose dataset:",
