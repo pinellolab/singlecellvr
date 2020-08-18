@@ -130,4 +130,14 @@ body {
     .VirtualizedSelectOption {
         white-space:nowrap;
     }    
+
+    .Select-menu div::-webkit-scrollbar {
+        display: none;
+    }
+
+    .Select-menu div {
+        -ms-overflow-style: none;  
+        scrollbar-width: none;  
+        overflow-x: scroll;
+    }
 }
