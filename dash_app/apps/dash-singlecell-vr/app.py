@@ -99,7 +99,7 @@ app.layout = dbc.Container(
                                         {'label': 'STREAM - scRNA-seq - Mouse blood developmental trajectories', 'value': 'Nestorowa2016-STREAM'},
                                         {'label': 'PAGA - scRNA-seq - Mouse myeloid and erythroid differentiation graph', 'value': 'Paul2015-PAGA'},
                                         {'label': 'SCANPY - scRNA-seq - Tabula Muris - Mouse Cell Atlas', 'value': 'TabulaMuris-SCANPY'},
-                                        {'label': 'SCANPY - scATAC-seq - Tabula Muris - ATAC', 'value': 'TabulaMurisATAC-SCANPY'},
+                                        {'label': 'SCANPY - scATAC-seq - 10x PBMC 10k', 'value': 'TabulaMurisATAC-SCANPY'},
                                         {'label': 'Seurat - scRNA-seq - Mouse Paneth Cells', 'value': 'Grun2016-PanethCells-SEURAT'},
                                         {'label': 'Seurat - scRNA-seq - Micro-dissected Mouse Bone Marrow Cells', 'value': 'Grun2016-Marrow-SEURAT'},
                                         {'label': 'Seurat - scRNA-seq - Single-cell transcriptome atlas of the human pancreas', 'value': 'Grun2016-Pancreas-SEURAT'},
@@ -108,7 +108,7 @@ app.layout = dbc.Container(
                                         {'label': 'SCANPY - scRNA-seq - COVID19 study; nasal swab', 'value': 'Ziegler2020-Nasal-SCANPY'},
                                         {'label': 'SCANPY - scRNA-seq - COVID19 study; ileum', 'value': 'Ziegler2020-Ileum-SCANPY'},
                                         {'label': 'STREAM - scProteomics - Single-cell proteomics of human monocytes and macrophages', 'value': 'specht2019_stream_proteomics'},
-                                        {'label': 'Seurat - scATAC-seq + scRNA-seq - 10x PBMC 10k dataset', 'value': 'seurat_multiomics'},
+                                        {'label': 'Seurat - scATAC-seq + scRNA-seq - 10x PBMC 10k datasets', 'value': 'seurat_multiomics'},
                                         {'label': 'SCANPY - scRNA-seq - Allen Brain Institute 1.1 M cell mouse hippocampus and cortex', 'value': 'aba_hippocampus_cortex_mouse'}
                                     ],
                                     value=None
