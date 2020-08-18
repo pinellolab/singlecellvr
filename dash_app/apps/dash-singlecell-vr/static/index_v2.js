@@ -453,7 +453,7 @@ const createLoadingElement = () => {
   document.getElementById('scene').append(loadingElement);
 }
 
-createHelpElement = () => {
+const createHelpElement = () => {
   const helpElement = document.createElement("a-video");
   helpElement.setAttribute("id", "help");
   helpElement.setAttribute("help", "show: false");
