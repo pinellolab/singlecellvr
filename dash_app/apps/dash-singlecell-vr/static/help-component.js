@@ -18,7 +18,9 @@ AFRAME.registerComponent('help', {
         this.el.setAttribute('visible', false);
     },
     update: function(oldData) {
+        console.log(this.data.show)
         if (this.data.show) {
+            document.getElementById("hud").setAttribute('visible', false);
             this.el.setAttribute('visible', true);
             const width = this.visibleWidthAtZDepth(this.data.zDepth);
             const height = this.visibleHeightAtZDepth(this.data.zDepth);
@@ -40,11 +42,14 @@ AFRAME.registerComponent('help', {
             this.el.setAttribute('src', '/assets/tips_1.m4v');
             setTimeout(() => {
                 this.el.setAttribute('src', '/assets/tips_2.m4v');
+                setTimeout(() => {
+                    this.el.setAttribute('src', '/assets/tips_3.m4v');
+                    setTimeout(() => {
+                        this.dismiss();
+                    }, 5000)
+                }, 5000);
             }, 5000);
-            setTimeout(() => {
-                this.el.setAttribute('src', '/assets/tips_2.m4v');
-            }, 5000);
-            this.dismiss();
+            
         } else {
             this.dismiss();
         }
@@ -72,6 +77,7 @@ AFRAME.registerComponent('help', {
     dismiss: function() {
         this.el.setAttribute('visible', false);
         this.buffer.setAttribute('visible', false);
+        document.getElementById("hud").setAttribute('visible', true);
     }
 
 });
