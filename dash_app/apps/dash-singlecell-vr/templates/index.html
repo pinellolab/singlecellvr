@@ -18,6 +18,7 @@
     <script src="/static/aframe-gui.min.js"></script>
     <script src="/static/gamepad-movement-controls.js"></script>
     <script src="/static/loading-component.js"></script>
+    <script src="/static/help-component.js"></script>
   </head>
   <body>
     <a-scene id="scene" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: true" gamepad-movement-controls renderer="alpha: false">
@@ -54,7 +55,7 @@
         <a-entity id="menuContainer" position="10 0 0" watch="targetId: player-camera">
           
           <a-image src="/assets/SCVR_logo_512x256.png" position="2 4 0" width="6" height="3"></a-image>
-          <a-gui-flex-container flex-direction="column" justify-content="center" align-items="center" component-padding="0.1" opacity="0.7" width=".45" height="1.7"
+          <a-gui-flex-container flex-direction="column" justify-content="center" align-items="center" component-padding="0.1" opacity="0.7" width=".45" height="2.4"
           position="-3.95 0 0" rotation="0 0 0">
             <a-gui-button
               id="increaseSpeed"
@@ -62,7 +63,7 @@
               width=".35" height="0.75"
               background-color="#22252a"
               font-color="#d3d3d4"
-              value="↑"
+              value= "↑"
             >
             </a-gui-button>
             <a-gui-button
@@ -73,6 +74,14 @@
               font-color="#d3d3d4"
               value="↓"
             >
+            </a-gui-button>
+            <a-gui-button
+              id="helpButton"
+              onclick="displayHelp()"
+              width=".35" height="0.75"
+              background-color="#22252a"
+              font-color="#d3d3d4"
+              text="value: ?; width: 5; color: #d3d3d4; align: center; zOffset: .1">
             </a-gui-button>
           </a-gui-flex-container>
           <a-gui-flex-container
@@ -147,6 +156,7 @@
       </a-entity>
 
       <a-entity id="loadingBuffer"></a-entity>
+      <a-entity id="helpBuffer"></a-entity>
 
       <a-entity environment="skyType: atmosphere; dressing: none; lighting: none; groundTexture: checkerboard; groundColor: #c9c4c4; groundColor2: #c9c4c4; grid: none; shadow: false" remove-lighting></a-entity>
     </a-scene>

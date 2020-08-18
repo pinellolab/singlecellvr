@@ -453,8 +453,20 @@ const createLoadingElement = () => {
   document.getElementById('scene').append(loadingElement);
 }
 
+createHelpElement = () => {
+  const helpElement = document.createElement("a-video");
+  helpElement.setAttribute("id", "help");
+  helpElement.setAttribute("help", "show: false");
+  document.getElementById('player-camera').append(helpElement);
+}
+
+const displayHelp = () => {
+  document.getElementById('help').setAttribute('help', 'show', true);
+}
+
 const initialize = async (uuid) => {
   createLoadingElement();
+  createHelpElement();
   window.onresize = () => {
     const data = document.getElementById('loadingHelp').components['loading'].data;
     document.getElementById('loadingHelp').components['loading'].update(data);
@@ -621,6 +633,13 @@ document.getElementById("pauseGlobalRotation").addEventListener("click", () => {
     drawContainer.play();
   }
 });
+
+document.getElementById('scene').addEventListener('mousedown', () => {
+  const helpEl = document.getElementById('help');
+  if (helpEl.getAttribute('help').show) {
+    helpEl.setAttribute('help', 'show', false);
+  }
+});  
 
 // ---------------------------------------------------------------------
 

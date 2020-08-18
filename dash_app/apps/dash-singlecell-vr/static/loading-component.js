@@ -39,7 +39,7 @@ AFRAME.registerComponent('loading', {
                     document.getElementById("scene").setAttribute("vr-mode-ui", "enabled: true");
                 }, ((this.data.time - elapsedSeconds) * 1000))
             }
-        }
+        } 
         const width = this.visibleWidthAtZDepth(this.data.zDepth);
         const height = this.visibleHeightAtZDepth(this.data.zDepth);
         if (!this.adjusted) {
