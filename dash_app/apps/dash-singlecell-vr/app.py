@@ -97,6 +97,9 @@ app.layout = dbc.Container(
                                         {'label': 'Seurat - scRNA-seq - Micro-dissected Mouse Bone Marrow Cells', 'value': 'Grun2016-Marrow-SEURAT'},
                                         {'label': 'Seurat - scRNA-seq - Single-cell transcriptome atlas of the human pancreas', 'value': 'Grun2016-Pancreas-SEURAT'},
                                         {'label': 'STREAM - scRNA-seq - Single-cell chromatin accessibility of human hematopoietic differentiation', 'value': 'Buenrostro2018-BM-STREAM'},
+                                        {'label': 'SCANPY - scRNA-seq - Macosko et al 2015', 'value': 'Macosko2015-SCANPY'},
+                                        {'label': 'SCANPY - scRNA-seq - COVID19 study; nasal swab', 'value': 'Ziegler2020-Nasal-SCANPY'},
+                                        {'label': 'SCANPY - scRNA-seq - COVID19 study; ileum', 'value': 'Ziegler2020-Ileum-SCANPY'}
                                     ],
                                     value=None
                                 ),
@@ -242,6 +245,12 @@ def update_output(value):
             file_id = 'grun2016-Pancreas-seurat'
         elif(value=="Buenrostro2018-BM-STREAM"):
             file_id = 'buenrostro2018_BM_atac_stream'
+        elif(value=="Macosko2015-SCANPY"):
+            file_id = 'macosko2015_scanpy'
+        elif(value=="Ziegler2020-Nasal-SCANPY"):
+            file_id = 'ziegler2020_nasal_scanpy_report'
+        elif(value=='Ziegler2020-Ileum-SCANPY'):
+            file_id = 'ziegler2020_ileum_scanpy_report'
         save_qr_image(file_id)
         return ['You have selected "{}"'.format(value),
                 file_id, 
