@@ -112,8 +112,6 @@ const initializeAnnotationMenu = (annotations, clusterColors) => {
     adjustedContainerHeight = totalItemsHeight + 1.5;
     annotation_menu.setAttribute('height', adjustedContainerHeight);
     annotation_menu.object3D.position.set(1.85, (5 - adjustedContainerHeight) / 2, 0);
-    // Have to move the vr keyboard down as well
-    document.getElementById("keyboard").object3D.position.set(2, -adjustedContainerHeight, 0);
   }
 
   annotations.forEach((annotation) => {

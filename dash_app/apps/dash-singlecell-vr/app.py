@@ -100,7 +100,9 @@ app.layout = dbc.Container(
                                         {'label': 'SCANPY - scRNA-seq - Macosko et al 2015', 'value': 'Macosko2015-SCANPY'},
                                         {'label': 'SCANPY - scRNA-seq - COVID19 study; nasal swab', 'value': 'Ziegler2020-Nasal-SCANPY'},
                                         {'label': 'SCANPY - scRNA-seq - COVID19 study; ileum', 'value': 'Ziegler2020-Ileum-SCANPY'},
-                                        {'label': 'STREAM - scProteomics - Single-cell proteomics of human monocytes and macrophages', 'value': 'specht2019_stream_proteomics'}
+                                        {'label': 'STREAM - scProteomics - Single-cell proteomics of human monocytes and macrophages', 'value': 'specht2019_stream_proteomics'},
+                                        {'label': 'Seurat - scATAC-seq + scRNA-seq - 10x PBMC 10k dataset', 'value': 'seurat_multiomics'},
+                                        {'label': 'scanpy - scRNA-seq - Allen Brain Institute 1.1 M cell mouse hippocampus and cortex', 'value': 'aba_hippocampus_cortex_mouse'}
                                     ],
                                     value=None
                                 ),
@@ -254,6 +256,10 @@ def update_output(value):
             file_id = 'ziegler2020_ileum_scanpy_report'
         elif(value=="specht2019_stream_proteomics"):
             file_id = 'specht2019_stream_proteomics'
+        elif(value=="seurat_multiomics"):
+            file_id = 'seurat_multiomics'
+        elif(value=="aba_hippocampus_cortex_mouse"):
+            file_id = 'aba_hippocampus_cortex_mouse'
         save_qr_image(file_id)
         return ['You have selected "{}"'.format(value),
                 file_id, 
