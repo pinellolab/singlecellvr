@@ -454,12 +454,13 @@ const createLoadingElement = () => {
 const createHelpElement = () => {
   const helpElement = document.createElement("a-video");
   helpElement.setAttribute("id", "help");
-  helpElement.setAttribute("help", "show: false");
-  document.getElementById('player-camera').append(helpElement);
+  helpElement.setAttribute("help", "");
+  document.getElementById('menuContainer').append(helpElement);
 }
 
-const displayHelp = () => {
-  document.getElementById('help').setAttribute('help', 'show', true);
+const toggleHelp = () => {
+  const helpEl = document.getElementById('help')
+  helpEl.setAttribute('help', 'show', !helpEl.getAttribute('help').show)
 }
 
 const initialize = async (uuid) => {
@@ -631,13 +632,6 @@ document.getElementById("pauseGlobalRotation").addEventListener("click", () => {
     drawContainer.play();
   }
 });
-
-document.getElementById('scene').addEventListener('mousedown', () => {
-  const helpEl = document.getElementById('help');
-  if (helpEl.getAttribute('help').show) {
-    helpEl.setAttribute('help', 'show', false);
-  }
-});  
 
 // ---------------------------------------------------------------------
 

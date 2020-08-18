@@ -102,7 +102,7 @@ app.layout = dbc.Container(
                                         {'label': 'SCANPY - scRNA-seq - COVID19 study; ileum', 'value': 'Ziegler2020-Ileum-SCANPY'},
                                         {'label': 'STREAM - scProteomics - Single-cell proteomics of human monocytes and macrophages', 'value': 'specht2019_stream_proteomics'},
                                         {'label': 'Seurat - scATAC-seq + scRNA-seq - 10x PBMC 10k dataset', 'value': 'seurat_multiomics'},
-                                        {'label': 'scanpy - scRNA-seq - Allen Brain Institute 1.1 M cell mouse hippocampus and cortex', 'value': 'aba_hippocampus_cortex_mouse'}
+                                        {'label': 'SCANPY - scRNA-seq - Allen Brain Institute 1.1 M cell mouse hippocampus and cortex', 'value': 'aba_hippocampus_cortex_mouse'}
                                     ],
                                     value=None
                                 ),
