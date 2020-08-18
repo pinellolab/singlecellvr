@@ -100,6 +100,7 @@ app.layout = dbc.Container(
                                         {'label': 'SCANPY - scRNA-seq - Macosko et al 2015', 'value': 'Macosko2015-SCANPY'},
                                         {'label': 'SCANPY - scRNA-seq - COVID19 study; nasal swab', 'value': 'Ziegler2020-Nasal-SCANPY'},
                                         {'label': 'SCANPY - scRNA-seq - COVID19 study; ileum', 'value': 'Ziegler2020-Ileum-SCANPY'}
+                                        {'label': 'STREAM - scProteomics - Single-cell proteomics of human monocytes and macrophages', 'value': 'specht2019_stream_proteomics'},
                                     ],
                                     value=None
                                 ),
@@ -251,6 +252,8 @@ def update_output(value):
             file_id = 'ziegler2020_nasal_scanpy_report'
         elif(value=='Ziegler2020-Ileum-SCANPY'):
             file_id = 'ziegler2020_ileum_scanpy_report'
+        elif(value=="specht2019_stream_proteomics"):
+            file_id = 'specht2019_stream_proteomics'
         save_qr_image(file_id)
         return ['You have selected "{}"'.format(value),
                 file_id, 
