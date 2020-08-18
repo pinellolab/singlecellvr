@@ -99,8 +99,8 @@ app.layout = dbc.Container(
                                         {'label': 'STREAM - scRNA-seq - Single-cell chromatin accessibility of human hematopoietic differentiation', 'value': 'Buenrostro2018-BM-STREAM'},
                                         {'label': 'SCANPY - scRNA-seq - Macosko et al 2015', 'value': 'Macosko2015-SCANPY'},
                                         {'label': 'SCANPY - scRNA-seq - COVID19 study; nasal swab', 'value': 'Ziegler2020-Nasal-SCANPY'},
-                                        {'label': 'SCANPY - scRNA-seq - COVID19 study; ileum', 'value': 'Ziegler2020-Ileum-SCANPY'}
-                                        {'label': 'STREAM - scProteomics - Single-cell proteomics of human monocytes and macrophages', 'value': 'specht2019_stream_proteomics'},
+                                        {'label': 'SCANPY - scRNA-seq - COVID19 study; ileum', 'value': 'Ziegler2020-Ileum-SCANPY'},
+                                        {'label': 'STREAM - scProteomics - Single-cell proteomics of human monocytes and macrophages', 'value': 'specht2019_stream_proteomics'}
                                     ],
                                     value=None
                                 ),
