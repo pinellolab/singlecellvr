@@ -24,21 +24,21 @@ AFRAME.registerComponent('help', {
             this.el.setAttribute('visible', true);
             const width = this.visibleWidthAtZDepth(this.data.zDepth);
             const height = this.visibleHeightAtZDepth(this.data.zDepth);
-            if (height > width) {
-                this.el.setAttribute('width', width);
-                this.el.setAttribute('height', height);
-                this.buffer.setAttribute('geometry', 'width', width * 3);
-                this.buffer.setAttribute('geometry', 'height', height * 3);
-                this.buffer.setAttribute('material', 'color', 0x1F2630);
-                this.buffer.setAttribute('visible', true);
-                this.buffer.object3D.position.set(this.el.getAttribute('position').x, 
-                                                this.el.getAttribute('position').y, 
-                                                this.el.getAttribute('position').z - 1);
-            } else {
-                this.el.setAttribute('width', width);
-                this.el.setAttribute('height', height);
-                this.buffer.setAttribute('visible', false);
-            }
+            // if (height > width) {
+            //     this.el.setAttribute('width', width);
+            //     this.el.setAttribute('height', height);
+            //     this.buffer.setAttribute('geometry', 'width', width * 3);
+            //     this.buffer.setAttribute('geometry', 'height', height * 3);
+            //     this.buffer.setAttribute('material', 'color', 0x1F2630);
+            //     this.buffer.setAttribute('visible', true);
+            //     this.buffer.object3D.position.set(this.el.getAttribute('position').x, 
+            //                                     this.el.getAttribute('position').y, 
+            //                                     this.el.getAttribute('position').z - 1);
+            // } else {
+            this.el.setAttribute('width', width);
+            this.el.setAttribute('height', height);
+            this.buffer.setAttribute('visible', false);
+            // }
             this.el.setAttribute('src', '/assets/tips_1.m4v');
             setTimeout(() => {
                 this.el.setAttribute('src', '/assets/tips_2.m4v');
