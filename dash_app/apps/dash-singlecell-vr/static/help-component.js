@@ -14,16 +14,10 @@ AFRAME.registerComponent('help', {
         if (this.data.show) {
             document.getElementById('cursor').setAttribute('raycaster', 'objects', '#helpButton');
             this.el.setAttribute('visible', true);
-            this.el.setAttribute('src', '/assets/tips_1.m4v');
+            this.el.setAttribute('src', '/assets/scvr_inapp_help.m4v');
             setTimeout(() => {
-                this.el.setAttribute('src', '/assets/tips_2.m4v');
-                setTimeout(() => {
-                    this.el.setAttribute('src', '/assets/tips_3.m4v');
-                    setTimeout(() => {
-                        this.dismiss();
-                    }, 5000)
-                }, 5000);
-            }, 5000);
+                this.dismiss();
+            }, 15000);
             
         } else {
             this.dismiss();

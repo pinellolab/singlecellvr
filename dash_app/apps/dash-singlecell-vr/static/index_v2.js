@@ -448,7 +448,7 @@ const createLoadingElement = () => {
   const loadingElement = document.createElement("a-video");
   loadingElement.setAttribute("id", "loadingHelp");
   loadingElement.setAttribute("loading", "");
-  const loadingTips = ["/assets/tips_1.m4v", "/assets/tips_2.m4v", "/assets/tips_3.m4v"];
+  const loadingTips = ["/assets/scvr_loadingscreen_1.m4v", "/assets/scvr_loadingscreen_2.m4v", "/assets/scvr_loadingscreen_3.m4v"];
   loadingElement.setAttribute("src", loadingTips[Math.floor(Math.random() * loadingTips.length)]);
   document.getElementById('scene').append(loadingElement);
 }
