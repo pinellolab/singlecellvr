@@ -81,6 +81,7 @@ const renderLegend = (annotation, clusterColors) => {
   
   const legend = document.getElementById('legend');
   if (Object.keys(legendColors).every((n) => Utils.isDigits(n, true))) {
+    console.log("where it should be")
     const labels = Object.keys(legendColors).filter((s) => s.toLowerCase() !== 'nan');
     const maxLabel = Math.ceil(Math.max(...labels) * 100) / 100; 
     const minLabel = Math.ceil(Math.min(...labels) * 100) / 100; 
@@ -89,6 +90,7 @@ const renderLegend = (annotation, clusterColors) => {
     legend.appendChild(colorbar);
     legend.setAttribute('opacity', 0);
   } else if (Object.keys(legendColors).length < 100) {
+    console.log("less than 100")
     Object.keys(legendColors).forEach((key) => {
       const el = document.createElement("a-gui-label");
       el.setAttribute("width", "2.5");
