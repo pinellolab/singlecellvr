@@ -6,33 +6,44 @@
     <link rel="stylesheet" type="text/css" href="/static/help.css">
 </head>
 <body style="background-color:#F2F3F4;color:#6D7181">
-    <h1>Single Cell VR Help</h1>
-    <h3>What is Single Cell VR</h3>
-    <p>SingleCellVR is a website that allows users to interactively explore published studies or new data through an innovative VR interface. In a 3D space, users can explore developmental trajectories, cellular composition, and stable cell states. In addition, cells can be colored based on metadata such as cell type, respective clustering, and gene expression.</p>
+    <h1><i>singlecellVR</i> Help</h1>
+    <h3>What is <i>singlecellVR</i></h3>
+    <p><i>singlecellVR</i> is a browser-contained, free, and open-access tool that allows users to interactively explore published studies or new data through an innovative VR interface. singlecellVR supports clustering, trajectory inference and abstract graph analysis for transcriptomic as well as epigenomic single cell data. We have developed a one-command conversion tool called <a href="https://pypi.org/project/scvr/">scvr</a> to make the results of commonly-used single-cell analysis tools compatible with singlecellVR.</p>
     <br>
-    <br><img src="/static/screenshot1.png" alt="Figure1" width="50%" height="50%"></p>
+    <br><img src="/static/fig1.png" alt="Figure1" width="50%" height="50%"></p>
     <br>
 
-    <h3>What can I do with Single Cell VR?</h3>
-    <p>SingleCellVR can be used to visualize two types of analysis results on transcriptomic data:</p>
+    <h3>What can I do with <i>singlecellVR</i>?</h3>
+    <p><i>singlecellVR</i> can be used to visualize the output of commonly-used single cell analysis tools, including Scanpy/epiScanpy, Seurat, PAGA, and STREAM. <i>singlecellVR</i> also supports multiple cell annotations (e.g. FACS-sorting labels, clustering solutions, pseudotime, etc.), and feature quantification (gene expression levels, transcription factor deviation, etc.). </p>
 
-    <p>(1) STREAM trajectories:
+    <p>(1) Scanpy and epiScanpy
         <ul>
-            You can visualize and explore the cellular developmental trajectories, cell states, and their gene expression patterns at single-cell level <a href="https://github.com/pinellolab/STREAM">https://github.com/pinellolab/STREAM</a>.
+            You can visualize and explore the cellular clusters and gene expression/open chromatin/DNA methylation patterns at single-cell level <a href="https://scanpy.readthedocs.io/">https://scanpy.readthedocs.io</a>.
+        </ul>
+    </p>
+    <p>(2) Seruat:
+        <ul>
+            You can visualize and explore the cellular clusters and gene expression/open chromatin patterns at single-cell level <a href="https://satijalab.org/seurat/">https://satijalab.org/seurat</a>.
         </ul>
     </p>
 
-    <p>(2) PAGA graph:
+    <p>(3) PAGA graph:
         <ul>
             You can visualize and explore the coarse-grained connectivity structures of cellular complex manifolds, cell states and their gene expression patterns at single-cell level <a href="https://github.com/theislab/paga">https://github.com/theislab/paga</a>.
         </ul>
     </p>
 
+    <p>(4) STREAM trajectories:
+        <ul>
+            You can visualize and explore the cellular developmental trajectories, cell states, and their gene expression/open chromatin/protein patterns at single-cell level <a href="https://github.com/pinellolab/STREAM">https://github.com/pinellolab/STREAM</a>.
+        </ul>
+    </p>
+
     <h3>How can I use it?</h3>
-    <p>Single Cell Virtual Reality is a web tool for single-cell data exploration. VR Headset device required. Google Cardboard is currently the primarily supported headset for this data visualization software.</p>
+    <p><i>singlecellVR</i> is a web tool for single-cell data exploration. VR Headset device required. Google Cardboard is currently the primarily supported headset for this data visualization software.</p>
 
     <h4>What type of hardware do I need?</h4>
-    <p>There are several similar versions of a cardboard adapter available for ~$15. This can be purchased on websites like Amazon.com or Google. You can also simply use your computer screen to do initial exploration of the data in 2-D. It is advisable to use a keyboard to unlock the full set of interactive functionalities associated with these key shortcuts:</p>
+    <p>There are several similar versions of a cardboard adapter available for ~$8. This can be purchased on websites like Amazon.com or Google. You can also simply use your computer screen to do initial exploration of the data in 2-D. It is advisable to use a keyboard to unlock the full set of interactive functionalities associated with these key shortcuts:</p>
     <ul class="ul1">
         <li><b>Space bar</b>: Summons the menu in front of the camera</li>
         <li><b>Control-Space bar</b>: Sends the menu to its starting position</li>
@@ -42,7 +53,11 @@
         <li><b>Up and down arrows</b>: Move user in direction or opposite direction of where they are looking</li>
         <li><b>Control-Plus and Control-Minus</b>: Occasionally, cells may appear too large or too small and may interfere with the visualization. In such a case, Control-plus will increase the size of the cells and Control-minus will decrease the size of the cells.</li>
     </ul>
-    <p>You can easily connect a keyboard with your smartphone using a bluetooth enabled keyboard (a small portable keyboard can be purchased from Amazon for ~$15). However, you can still use a normal computer and your browser and explore with your mouse and keyboard the 3d transcriptional space with cells, trajectories and the graph abstraction.</p>
+    <br><img src="/assets/scvr_loadingscreen_1.key.png" alt="load1" width="50%" height="50%"></p>
+    <br><img src="/assets/scvr_loadingscreen_2.key.png" alt="load2" width="50%" height="50%"></p>
+    <br><img src="/assets/scvr_loadingscreen_3.key.png" alt="load3" width="50%" height="50%"></p>
+
+    <p>You can easily connect a keyboard with your smartphone using a bluetooth enabled keyboard (a small portable keyboard can be purchased from Amazon for ~$8). However, you can still use a normal computer and your browser and explore with your mouse and keyboard the 3d transcriptional space with cells, trajectories and the graph abstraction.</p>
     <p>Many VR headsets such as Google Cardboard have a single button that allows a user to click the screen of their phone while immersed in a virtual reality experience. By holding down this button, users without a keyboard may move forward in the direction of their gaze.
        Additionally, users may select the "keyboard" button on the menu to render a virtual keyboard. Cardboard users may use this keyboard to search for available features to render on the display. The "Enter/Return" key on the virtual keyboard clears the current search. Subsequently selecting the "keyboard" button will hide the keyboard from view.
     </p>
@@ -55,13 +70,13 @@
         <li>If you do not have a standard visor, scan the QR barcode on your visor or on a website like the following: https://www.hypergridbusiness.com/faq/vr-headset-qr-codes/</li>
     </ul>
 
-    <h3>How much does it cost to use Single-Cell VR?</h3>
-    <p>Single-Cell VR is free!</p>
+    <h3>How much does it cost to use <i>singlecellVR</i>?</h3>
+    <p><i>singlecellVR</i> is free!</p>
 
-    <h3>How can I cite Single-Cell VR?</h3>
-    <p>For now, you can simply use the link to the website. </p>
+    <h3>How can I cite <i>singlecellVR</i>?</h3>
+    <p>Please cite our preprint <a href="https://www.biorxiv.org/content/10.1101/2020.07.30.229534v1">Stein DF*, Chen H*, Vinyard ME*, Pinello L. singlecellVR: interactive visualization of single-cell data in virtual reality. BioRxiv,  (2020).</a> </p>
 
-    <h3>Issues using singlecellVR.com?</h3>
+    <h3>Issues using <i>singlecellVR</i>?</h3>
     <p>Please report an issue on our Github <a href="https://github.com/pinellolab/singlecellvr">https://github.com/pinellolab/singlecellvr</a></p>
 
 
