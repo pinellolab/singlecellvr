@@ -17,7 +17,7 @@ AFRAME.registerComponent('help', {
             this.el.setAttribute('src', '/assets/scvr_inapp_help.m4v');
             setTimeout(() => {
                 this.dismiss();
-            }, 15000);
+            }, 30000);
             
         } else {
             this.dismiss();
