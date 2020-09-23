@@ -81,14 +81,14 @@ app.layout = dbc.Container(
                             id="dropdown-container",
                             className="col-content",
                             children=[ 
-                                html.H3(
-                                    children="Check out our preprint:",
-                                ),
-                                html.A(
-                                    href="https://www.biorxiv.org/content/10.1101/2020.07.30.229534v1",
-                                    target="_blank",
-                                    children="https://www.biorxiv.org/content/10.1101/2020.07.30.229534v1",
-                                ),
+                                # html.H3(
+                                #     children="Check out our preprint:",
+                                # ),
+                                # html.A(
+                                #     href="https://www.biorxiv.org/content/10.1101/2020.07.30.229534v1",
+                                #     target="_blank",
+                                #     children="https://www.biorxiv.org/content/10.1101/2020.07.30.229534v1",
+                                # ),
                                 html.H3(
                                     id="slider-text",
                                     children="Choose dataset:",
