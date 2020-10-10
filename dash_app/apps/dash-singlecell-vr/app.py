@@ -1,4 +1,5 @@
 import os
+import matplotlib as mpl
 import pathlib
 import re
 
@@ -8,20 +9,23 @@ import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
 from dash.dependencies import Input, Output, State
-from flask import Flask, send_from_directory,redirect,render_template
+from flask import Flask, send_from_directory,redirect,render_template, jsonify, request
 from urllib.parse import quote as urlquote
 import base64
 import uuid
 import qrcode
+from glob import glob
   
+import scanpy as sc
+
 # Load data
+from scipy.sparse import isspmatrix
 
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 
-# DATASET_DIRECTORY = os.path.join(APP_PATH, "app_datasets")
+DATASET_DIRECTORY = os.path.join(APP_PATH, "app_datasets")
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
 QR_DIRECTORY = os.path.join(APP_PATH, "assets")
-
 
 # "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
 
@@ -57,6 +61,53 @@ def serve_static(uid):
 @app.server.route('/help/')
 def show_help():
     return render_template('help.html')
+
+@app.server.route('/coordinates')
+def get_cooridinates():
+    database = request.args.get('database')
+    adata = sc.read(glob(os.path.join(DATASET_DIRECTORY, f'{database}_*'))[0])
+    list_cells = []
+    for i in range(adata.shape[0]):
+        dict_coord_cells = dict()
+        dict_coord_cells['cell_id'] = adata.obs_names[i]
+        dict_coord_cells['x'] = str(adata.obsm['X_umap'][i, 0])
+        dict_coord_cells['y'] = str(adata.obsm['X_umap'][i, 1])
+        dict_coord_cells['z'] = str(adata.obsm['X_umap'][i, 2])
+        list_cells.append(dict_coord_cells)
+    return jsonify(list_cells)
+
+@app.server.route('/features')
+def get_features():
+    database = request.args.get('database')
+    feature = request.args.get('feature')
+
+    adata = sc.read(glob(os.path.join(DATASET_DIRECTORY, f'{database}_*'))[0])
+    list_metadata = []
+    if feature == 'clusters':
+        dict_colors = {'clusters': dict(zip(adata.obs['clusters'].cat.categories,
+                                            adata.uns['clusters_colors']))}
+        for i in range(adata.shape[0]):
+            dict_metadata = dict()
+            dict_metadata['cell_id'] = adata.obs_names[i]
+            dict_metadata['clusters'] = adata.obs['clusters'].tolist()[i]
+            dict_metadata['clusters_color'] = dict_colors['clusters'][dict_metadata['clusters']]
+            list_metadata.append(dict_metadata)
+    elif feature == 'expression':
+        gene = request.args.get('gene')
+        if gene not in adata.var_names:
+            return jsonify({})
+        else:
+            expr = adata[:, gene].X.toarray()[:, 0] if isspmatrix(adata.X) else adata[:, gene].X
+            cm = mpl.cm.get_cmap('viridis', 512)
+            norm = mpl.colors.Normalize(vmin=0, vmax=max(expr), clip=True)
+            list_metadata = []
+            for i, x in enumerate(adata.obs_names):
+                dict_genes = dict()
+                dict_genes['cell_id'] = x
+                dict_genes['color'] = mpl.colors.to_hex(cm(norm(expr[i])))
+                list_metadata.append(dict_genes)
+    return jsonify(list_metadata)
+
 
 app.title = "SingleCellVR"
 
