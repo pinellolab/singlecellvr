@@ -7,6 +7,7 @@ import networkx as nx
 import matplotlib as mpl
 from scipy.sparse import isspmatrix
 from pandas.api.types import is_string_dtype,is_numeric_dtype
+import scvelo as scv
 
 from . import palettes
 
@@ -54,13 +55,13 @@ def output_scanpy_cells(adata,ann_list,reportdir='./scanpy_report',gene_list=Non
             raise ValueError('could not find %s in %s'  % (ann,adata.obs.columns))
     if(gene_list is not None):
         ###remove duplicate keys
-        gene_list = list(dict.fromkeys(gene_list)) 
+        gene_list = list(dict.fromkeys(gene_list))
         for gene in gene_list:
             if(gene not in adata.raw.var_names):
                 raise ValueError('could not find %s in `adata.var_names`'  % (gene))
     try:
         if(not os.path.exists(reportdir)):
-                os.makedirs(reportdir)    
+                os.makedirs(reportdir)
         ## output coordinates of cells
         list_cells = []
         for i in range(adata.shape[0]):
@@ -69,9 +70,9 @@ def output_scanpy_cells(adata,ann_list,reportdir='./scanpy_report',gene_list=Non
             dict_coord_cells['x'] = str(adata.obsm['X_umap'][i,0])
             dict_coord_cells['y'] = str(adata.obsm['X_umap'][i,1])
             dict_coord_cells['z'] = str(adata.obsm['X_umap'][i,2])
-            list_cells.append(dict_coord_cells)    
+            list_cells.append(dict_coord_cells)
         with open(os.path.join(reportdir,'scatter.json'), 'w') as f:
-            json.dump(list_cells, f)    
+            json.dump(list_cells, f)
 
         ## output metadata file of cells
         list_metadata = []
@@ -79,7 +80,7 @@ def output_scanpy_cells(adata,ann_list,reportdir='./scanpy_report',gene_list=Non
         for i in range(adata.shape[0]):
             dict_metadata = dict()
             dict_metadata['cell_id'] = adata.obs_names[i]
-            for ann in ann_list:     
+            for ann in ann_list:
                 dict_metadata[ann] = adata.obs[ann].tolist()[i]
                 dict_metadata[ann+'_color'] = dict_colors[ann][i]
             list_metadata.append(dict_metadata)
@@ -101,7 +102,7 @@ def output_scanpy_cells(adata,ann_list,reportdir='./scanpy_report',gene_list=Non
                     dict_genes['color'] = mpl.colors.to_hex(cm(norm(df_genes.loc[x,g])))
                     list_genes.append(dict_genes)
                 with open(os.path.join(reportdir,'gene_'+g+'.json'), 'w') as f:
-                    json.dump(list_genes, f)      
+                    json.dump(list_genes, f)
     except:
         print("Output cells: failed!")
         raise
@@ -123,7 +124,7 @@ def get_paga_colors(adata,ann_list):
             dict_colors[ann] = df_cell_colors[ann+'_color'].tolist()
         else:
             dict_colors[ann] = get_colors(adata,ann)
-    return(dict_colors) 
+    return(dict_colors)
 
 def get_paga3d_pos(adata):
     assert (adata.obsm['X_umap'].shape[1]>=3),\
@@ -202,14 +203,14 @@ def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=Non
             raise ValueError('could not find %s in %s'  % (ann,adata.obs.columns))
     if(gene_list is not None):
         ###remove duplicate keys
-        gene_list = list(dict.fromkeys(gene_list)) 
+        gene_list = list(dict.fromkeys(gene_list))
         for gene in gene_list:
             gene = gene.strip(" ").strip("\n")
             if(gene not in adata.var_names):
                 raise ValueError('could not find %s in `adata.var_names`'  % (gene))
     try:
         if(not os.path.exists(reportdir)):
-                os.makedirs(reportdir)    
+                os.makedirs(reportdir)
         ## output coordinates of cells
         list_cells = []
         for i in range(adata.shape[0]):
@@ -218,7 +219,7 @@ def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=Non
             dict_coord_cells['x'] = str(adata.obsm['umap_cell_embeddings'][i,0])
             dict_coord_cells['y'] = str(adata.obsm['umap_cell_embeddings'][i,1])
             dict_coord_cells['z'] = str(adata.obsm['umap_cell_embeddings'][i,2])
-            list_cells.append(dict_coord_cells)    
+            list_cells.append(dict_coord_cells)
         with open(os.path.join(reportdir,'scatter.json'), 'w') as f:
             json.dump(list_cells, f)
 
@@ -230,7 +231,7 @@ def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=Non
         for i in range(adata.shape[0]):
             dict_metadata = dict()
             dict_metadata['cell_id'] = adata.obs_names[i]
-            for ann in ann_list:     
+            for ann in ann_list:
                 dict_metadata[ann] = adata.obs[ann].tolist()[i]
                 dict_metadata[ann+'_color'] = dict_colors[ann][i]
             list_metadata.append(dict_metadata)
@@ -252,9 +253,71 @@ def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=Non
                     dict_genes['color'] = mpl.colors.to_hex(cm(norm(df_genes.loc[x,g])))
                     list_genes.append(dict_genes)
                 with open(os.path.join(reportdir,'gene_'+g+'.json'), 'w') as f:
-                    json.dump(list_genes, f)      
+                    json.dump(list_genes, f)
     except:
         print("Output cells: failed!")
         raise
     else:
         print("Output cells: finished!")
+
+
+def output_velocity_cells(adata, ann_field, gene_list=None,
+                          reportdir='./velocity_report'):
+
+    if gene_list is not None:
+        ###remove duplicate keys
+        gene_list = list(dict.fromkeys(gene_list))
+        for gene in gene_list:
+            if gene not in adata.raw.var_names:
+                raise ValueError('could not find %s in `adata.var_names`'  % (gene))
+    try:
+        if not os.path.exists(reportdir):
+            os.makedirs(reportdir)
+
+        list_cells = []
+        for i in range(adata.shape[0]):
+            dict_coord_cells = dict()
+            dict_coord_cells['cell_id'] = adata.obs_names[i]
+            dict_coord_cells['x0'] = str(adata.obsm['X_umap'][i,0])
+            dict_coord_cells['y0'] = str(adata.obsm['X_umap'][i,1])
+            dict_coord_cells['z0'] = str(adata.obsm['X_umap'][i,2])
+
+            dict_coord_cells['x1'] = str(adata.obsm['velocity_umap'][i,0])
+            dict_coord_cells['y1'] = str(adata.obsm['velocity_umap'][i,1])
+            dict_coord_cells['z1'] = str(adata.obsm['velocity_umap'][i,2])
+            list_cells.append(dict_coord_cells)
+        with open(os.path.join(reportdir, 'scatter.json'), 'w') as f:
+            json.dump(list_cells, f)
+
+        list_metadata = []
+        print(adata.uns)
+
+        dict_colors = {ann_field: dict(zip(adata.obs[ann_field].cat.categories,
+                                           adata.uns[f'{ann_field}_colors']))}
+        print(dict_colors)
+        for i in range(adata.shape[0]):
+            dict_metadata = dict()
+            dict_metadata['cell_id'] = adata.obs_names[i]
+            dict_metadata[ann_field] = adata.obs[ann_field].tolist()[i]
+            dict_metadata[ann_field+'_color'] = dict_colors[ann_field][dict_metadata[ann_field]]
+            list_metadata.append(dict_metadata)
+        with open(os.path.join(reportdir,'metadata.json'), 'w') as f:
+            json.dump(list_metadata, f)
+
+        if gene_list is not None:
+            df_genes = pd.DataFrame(adata.raw.X.toarray() if isspmatrix(adata.raw.X) else adata.raw.X,
+                                    index=adata.raw.obs_names,
+                                    columns=adata.raw.var_names)
+            cm = mpl.cm.get_cmap('viridis',512)
+            for g in gene_list:
+                list_genes = []
+                norm = mpl.colors.Normalize(vmin=0, vmax=max(df_genes[g]),clip=True)
+                for x in adata.obs_names:
+                    dict_genes = dict()
+                    dict_genes['cell_id'] = x
+                    dict_genes['color'] = mpl.colors.to_hex(cm(norm(df_genes.loc[x,g])))
+                    list_genes.append(dict_genes)
+                with open(os.path.join(reportdir,'gene_'+g+'.json'), 'w') as f:
+                    json.dump(list_genes, f)
+    except:
+        print("Output velocity failed")

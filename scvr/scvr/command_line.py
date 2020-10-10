@@ -11,6 +11,7 @@ __tool_name__='scvr'
 
 import pandas as pd
 import anndata as ad
+import scvelo as scv
 import json
 import argparse
 import os
@@ -26,7 +27,7 @@ def main():
     parser.add_argument("-f", "--filename", dest="filename",default = None,required=True,
                         help="Analysis result file name", metavar="FILE")
     parser.add_argument("-t", "--toolname",dest="toolname", default=None,required=True,
-                        type = str.lower,choices=['scanpy','paga','seurat','stream'],
+                        type = str.lower,choices=['scanpy','paga','seurat','stream','velocity'],
                         help="Tool used to generate the analysis result.")
     parser.add_argument("-a","--annotations",dest="annotations", default=None,required=True,
                         help="Annotation file name. It contains the cell annotation key(s) to visualize in one column.")
@@ -44,16 +45,18 @@ def main():
 
     if(annotations is None):
         raise Exception("Annotation file must be specified when %s is chosen." % (toolname))
-    try:
-        ann_list = pd.read_csv(annotations,sep='\t',header=None,index_col=None).iloc[:,0].tolist()
-    except FileNotFoundError as fnf_error:
-        print(fnf_error)
-        raise
-    except:
-        print('Failed to load in annotation file.')
-        raise
-    else:
-        ann_list = list(set(ann_list))
+
+    if toolname != 'velocity':
+        try:
+            ann_list = pd.read_csv(annotations,sep='\t',header=None,index_col=None).iloc[:,0].tolist()
+        except FileNotFoundError as fnf_error:
+            print(fnf_error)
+            raise
+        except:
+            print('Failed to load in annotation file.')
+            raise
+        else:
+            ann_list = list(set(ann_list))
 
     if(genes is not None):
         try:
@@ -92,6 +95,10 @@ def main():
                 json.dump({ "tool": toolname }, f)
         shutil.make_archive(base_name=output, format='zip',root_dir=output)
         shutil.rmtree(output)
+    if toolname == 'velocity':
+        assert (filename.lower().endswith('.h5ad') or filename.lower().endswith('.loom')), 'Velocity supports .h5ad or .loom.'
+        adata = scv.read(filename)
+        scvr.output_velocity_cells(adata, ann_field=annotations, gene_list=gene_list, reportdir=output)
     if(toolname=='stream'):
         try:
             import stream as st
