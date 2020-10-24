@@ -10,20 +10,18 @@ import dash_html_components as html
 import pandas as pd
 from dash.dependencies import Input, Output, State
 from flask import Flask, send_from_directory,redirect,render_template, jsonify, request
+import json
 from urllib.parse import quote as urlquote
 import base64
 import uuid
 import qrcode
 from glob import glob
-  
-import scanpy as sc
+import requests
 
-# Load data
-from scipy.sparse import isspmatrix
 
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 
-DATASET_DIRECTORY = os.path.join(APP_PATH, "app_datasets")
+DATASET_DIRECTORY = os.path.join(APP_PATH, "../singlecell-vr-api/app_datasets")
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
 QR_DIRECTORY = os.path.join(APP_PATH, "assets")
 
@@ -62,59 +60,11 @@ def serve_static(uid):
 def show_help():
     return render_template('help.html')
 
-@app.server.route('/coordinates')
-def get_cooridinates():
-    database = request.args.get('database')
-    adata = sc.read(glob(os.path.join(DATASET_DIRECTORY, f'{database}_*'))[0])
-    list_cells = []
-    for i in range(adata.shape[0]):
-        dict_coord_cells = dict()
-        dict_coord_cells['cell_id'] = adata.obs_names[i]
-        dict_coord_cells['x'] = str(adata.obsm['X_umap'][i, 0])
-        dict_coord_cells['y'] = str(adata.obsm['X_umap'][i, 1])
-        dict_coord_cells['z'] = str(adata.obsm['X_umap'][i, 2])
-        list_cells.append(dict_coord_cells)
-    return jsonify(list_cells)
-
-@app.server.route('/features')
-def get_features():
-    database = request.args.get('database')
-    feature = request.args.get('feature')
-
-    adata = sc.read(glob(os.path.join(DATASET_DIRECTORY, f'{database}_*'))[0])
-    list_metadata = []
-    if feature == 'clusters':
-        dict_colors = {'clusters': dict(zip(adata.obs['clusters'].cat.categories,
-                                            adata.uns['clusters_colors']))}
-        for i in range(adata.shape[0]):
-            dict_metadata = dict()
-            dict_metadata['cell_id'] = adata.obs_names[i]
-            dict_metadata['clusters'] = adata.obs['clusters'].tolist()[i]
-            dict_metadata['clusters_color'] = dict_colors['clusters'][dict_metadata['clusters']]
-            list_metadata.append(dict_metadata)
-    elif feature == 'expression':
-        gene = request.args.get('gene')
-        if gene not in adata.var_names:
-            return jsonify({})
-        else:
-            expr = adata[:, gene].X.toarray()[:, 0] if isspmatrix(adata.X) else adata[:, gene].X
-            cm = mpl.cm.get_cmap('viridis', 512)
-            norm = mpl.colors.Normalize(vmin=0, vmax=max(expr), clip=True)
-            list_metadata = []
-            for i, x in enumerate(adata.obs_names):
-                dict_genes = dict()
-                dict_genes['cell_id'] = x
-                dict_genes['color'] = mpl.colors.to_hex(cm(norm(expr[i])))
-                list_metadata.append(dict_genes)
-    return jsonify(list_metadata)
-
 
 app.title = "SingleCellVR"
-
-# App layout 
 app.layout = dbc.Container(
     id="root",
-    fluid=True, 
+    fluid=True,
     children=[
         dbc.Row(
             id="header", className="justify-content-between align-items-center",
@@ -122,16 +72,16 @@ app.layout = dbc.Container(
                 html.Img(id='logo', className="col-lg-4 col-md-4 col-sm-12", src=app.get_asset_url("SCVR_logo.png")),
                 html.A(className="col-lg-2 col-md-2 col-sm-2", href='/help/', children=[dbc.Button("Help", id='button-help', color="dark", disabled=False, n_clicks=0)]),
             ],
-        ),  
+        ),
         dbc.Row(
             children=[
-                html.Div( 
+                html.Div(
                     className="col-container col-lg-4 col-md-12 col-sm-12",
                     children=[
                         html.Div(
                             id="dropdown-container",
                             className="col-content",
-                            children=[ 
+                            children=[
                                 # html.H3(
                                 #     children="Check out our preprint:",
                                 # ),
@@ -146,27 +96,27 @@ app.layout = dbc.Container(
                                 ),
                                 dcc.Dropdown(
                                     id='chart-dropdown',
-                                    options=[
-                                        {'label': 'STREAM - scRNA-seq - Mouse blood developmental trajectories', 'value': 'Nestorowa2016-STREAM'},
-                                        {'label': 'PAGA - scRNA-seq - Mouse myeloid and erythroid differentiation graph', 'value': 'Paul2015-PAGA'},
-                                        {'label': 'SCANPY - scRNA-seq - Tabula Muris - Mouse Cell Atlas', 'value': 'TabulaMuris-SCANPY'},
-                                        {'label': 'SCANPY - scATAC-seq - 10x PBMC 10k', 'value': 'TabulaMurisATAC-SCANPY'},
-                                        {'label': 'Seurat - scRNA-seq - Mouse Paneth Cells', 'value': 'Grun2016-PanethCells-SEURAT'},
-                                        {'label': 'Seurat - scRNA-seq - Micro-dissected Mouse Bone Marrow Cells', 'value': 'Grun2016-Marrow-SEURAT'},
-                                        {'label': 'Seurat - scRNA-seq - Single-cell transcriptome atlas of the human pancreas', 'value': 'Grun2016-Pancreas-SEURAT'},
-                                        {'label': 'STREAM - scRNA-seq - Single-cell chromatin accessibility of human hematopoietic differentiation', 'value': 'Buenrostro2018-BM-STREAM'},
-                                        {'label': 'SCANPY - scRNA-seq - Macosko et al 2015', 'value': 'Macosko2015-SCANPY'},
-                                        {'label': 'SCANPY - scRNA-seq - COVID19 study; nasal swab', 'value': 'Ziegler2020-Nasal-SCANPY'},
-                                        {'label': 'SCANPY - scRNA-seq - COVID19 study; ileum', 'value': 'Ziegler2020-Ileum-SCANPY'},
-                                        {'label': 'STREAM - scProteomics - Single-cell proteomics of human monocytes and macrophages', 'value': 'specht2019_stream_proteomics'},
-                                        {'label': 'Seurat - scATAC-seq + scRNA-seq - 10x PBMC 10k datasets', 'value': 'seurat_multiomics'},
-                                        {'label': 'SCANPY - scRNA-seq - Allen Brain Institute 1.1 M cell mouse hippocampus and cortex', 'value': 'aba_hippocampus_cortex_mouse'},
-                                        {'label': 'STREAM - scRNA-seq - Kowalczyk et al C57_LTHSC', 'value': 'kowalczyk2015_stream'}
-                                    ],
+                                    options=[],
+                                    #    {'label': 'STREAM - scRNA-seq - Mouse blood developmental trajectories', 'value': 'Nestorowa2016-STREAM'},
+                                    #    {'label': 'PAGA - scRNA-seq - Mouse myeloid and erythroid differentiation graph', 'value': 'Paul2015-PAGA'},
+                                    #    {'label': 'SCANPY - scRNA-seq - Tabula Muris - Mouse Cell Atlas', 'value': 'TabulaMuris-SCANPY'},
+                                    #    {'label': 'SCANPY - scATAC-seq - 10x PBMC 10k', 'value': 'TabulaMurisATAC-SCANPY'},
+                                    #    {'label': 'Seurat - scRNA-seq - Mouse Paneth Cells', 'value': 'Grun2016-PanethCells-SEURAT'},
+                                    #    {'label': 'Seurat - scRNA-seq - Micro-dissected Mouse Bone Marrow Cells', 'value': 'Grun2016-Marrow-SEURAT'},
+                                    #    {'label': 'Seurat - scRNA-seq - Single-cell transcriptome atlas of the human pancreas', 'value': 'Grun2016-Pancreas-SEURAT'},
+                                    #    {'label': 'STREAM - scRNA-seq - Single-cell chromatin accessibility of human hematopoietic differentiation', 'value': 'Buenrostro2018-BM-STREAM'},
+                                    #    {'label': 'SCANPY - scRNA-seq - Macosko et al 2015', 'value': 'Macosko2015-SCANPY'},
+                                    #    {'label': 'SCANPY - scRNA-seq - COVID19 study; nasal swab', 'value': 'Ziegler2020-Nasal-SCANPY'},
+                                    #    {'label': 'SCANPY - scRNA-seq - COVID19 study; ileum', 'value': 'Ziegler2020-Ileum-SCANPY'},
+                                    #    {'label': 'STREAM - scProteomics - Single-cell proteomics of human monocytes and macrophages', 'value': 'specht2019_stream_proteomics'},
+                                    #    {'label': 'Seurat - scATAC-seq + scRNA-seq - 10x PBMC 10k datasets', 'value': 'seurat_multiomics'},
+                                    #    {'label': 'SCANPY - scRNA-seq - Allen Brain Institute 1.1 M cell mouse hippocampus and cortex', 'value': 'aba_hippocampus_cortex_mouse'},
+                                    #    {'label': 'STREAM - scRNA-seq - Kowalczyk et al C57_LTHSC', 'value': 'kowalczyk2015_stream'}
+                                    #],
                                     value=None
                                 ),
                                 html.Div(id='dd-output-container'),
-                                html.Div(id='intermediate-value2', style={'display': 'none'})       
+                                html.Div(id='intermediate-value2', style={'display': 'none'})
                             ],
                         ),
                     ]),
@@ -186,7 +136,7 @@ app.layout = dbc.Container(
                         ),
                     ]),
             ]),
-        dbc.Row( 
+        dbc.Row(
             children=[
                 html.Div(
                     className="col-container col-lg-4 col-sm-12 col-xs-12",
@@ -196,7 +146,7 @@ app.layout = dbc.Container(
                             className="col-content",
                             children=[
                                 html.H3("Or upload your data:",
-                                    id="heatmap-title"),
+                                        id="heatmap-title"),
                                 dcc.Upload(
                                     id='upload-data',
                                     className="dropper",
@@ -217,11 +167,11 @@ app.layout = dbc.Container(
                                         dcc.Markdown('''
                                             Check out our package [scvr](https://pypi.org/project/scvr/)
                                             ''')
-                                ]),
+                                    ]),
                                 html.Div(id="qr-output"),
                                 # Evil hack
                                 html.Div(id="qr-output-secondary")
-                        ])]),
+                            ])]),
                 dbc.Col(
                     className="col-container",
                     children=[
@@ -240,7 +190,21 @@ app.layout = dbc.Container(
             ],
         ),
     ],
-)  
+)
+
+
+@app.callback(
+    Output('chart-dropdown', 'options'),
+    [Input('dropdown-container', 'n_clicks')]
+)
+def update_options(n_clicks):
+    try:
+        options = json.loads(requests.get('http://localhost:8000/databases').text)
+        return options
+    except:
+        print('222')
+        return {'label':'test', 'value':'test'}
+
 
 def save_file(name, content):
     """Decode and store a file uploaded with Plotly Dash."""
