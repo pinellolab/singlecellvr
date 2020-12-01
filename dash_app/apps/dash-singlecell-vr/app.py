@@ -21,9 +21,9 @@ import requests
 
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 
-DATASET_DIRECTORY = os.path.join(APP_PATH, "../singlecell-vr-api/app_datasets")
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
 QR_DIRECTORY = os.path.join(APP_PATH, "assets")
+API = 'http://localhost:8000/'
 
 # "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
 
@@ -47,14 +47,17 @@ app = dash.Dash(
 )
 server = app.server
 
+
 @server.route("/download/<path:path>")
 def download(path):
     """Serve a file from the upload directory."""
     return send_from_directory(UPLOAD_DIRECTORY, path, as_attachment=True)
 
+
 @app.server.route('/view/<uid>')
 def serve_static(uid):
 	return render_template('index.html', name=uid)
+
 
 @app.server.route('/help/')
 def show_help():
@@ -198,12 +201,8 @@ app.layout = dbc.Container(
     [Input('dropdown-container', 'n_clicks')]
 )
 def update_options(n_clicks):
-    try:
-        options = json.loads(requests.get('http://localhost:8000/databases').text)
-        return options
-    except:
-        print('222')
-        return {'label':'test', 'value':'test'}
+    options = json.loads(requests.get(f'{API}/databases').text)
+    return options
 
 
 def save_file(name, content):
