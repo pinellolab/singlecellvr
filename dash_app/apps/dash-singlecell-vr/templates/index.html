@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
     <script src="https://unpkg.com/aframe-button-controls@^1.1.0/aframe-button-controls.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/davidfstein/aframe-super-keyboard@6549be7948f31fff99f82db274d1cfd95eb1e0c3/dist/aframe-super-keyboard.min.js"></script>
+    <script src="/static/tween.umd.js"></script>
     <script src="/static/jszip.min.js"></script>
     <script src="/static/bab_utils.js"></script>
     <script src="/static/color-gradient-component.js"></script>
@@ -21,7 +22,7 @@
     <script src="/static/help-component.js"></script>
   </head>
   <body>
-    <a-scene id="scene" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: true" gamepad-movement-controls renderer="alpha: false">
+    <a-scene stats id="scene" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: true" gamepad-movement-controls renderer="alpha: false">
 
       <a-entity button-controls></a-entity>
 
@@ -45,7 +46,8 @@
 
 
       <a-entity id="mainContainer">
-        <a-entity id="drawContainer" animation="property: rotation; dir: reverse; easing: linear; to: 0 360 0; loop: true; dur: 60000">
+        <!-- <a-entity id="drawContainer" animation="property: rotation; dir: reverse; easing: linear; to: 0 360 0; loop: true; dur: 60000;"> -->
+        <a-entity id="drawContainer">
           <a-entity id="curve-container"></a-entity>
           <a-entity id="graph-container"></a-entity> 
           <a-entity id="cells-container"></a-entity>

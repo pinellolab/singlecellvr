@@ -212,15 +212,21 @@ const createCellMetadataObject = (metadata) => {
 
 // ---------------------------------- Cells -------------------------------
 
-const renderCells = (cells, cellMetadata, scale, radius) => {
+const renderCells = (cells, cellMetadata, scale, radius, velocity) => {
   cellPositions = [];
   colors = [];
+  cellEndPositions = [];
   cells.map((cell) => {
-      cellPositions.push([cell.x, cell.y, cell.z]);
+      if (velocity) {
+        cellPositions.push([cell.x0, cell.y0, cell.z0]);
+        cellEndPositions.push([cell.x1, cell.y1, cell.z1])
+      } else {
+        cellPositions.push([cell.x, cell.y, cell.z]);
+      }
       colors.push(cellMetadata[Object.keys(cellMetadata)[0]][cell.cell_id].cluster_color);
   });  
   const el = document.createElement('a-entity');
-  el.setAttribute("cells", {positions: cellPositions, count: cells.length, colors: colors, scale: scale, radius: radius});
+  el.setAttribute("cells", {positions: cellPositions, endPositions: cellEndPositions, count: cells.length, colors: colors, scale: scale, radius: radius});
   document.getElementById('cells-container').append(el);  
 }
 
@@ -390,6 +396,22 @@ const renderStream = async (curves, cells, metadata) => {
 
 // -------------------------------------------------------------------
 
+// -------------------------- Velocity -------------------------------
+
+const renderVelocity = (scatter, metadata) => {
+  const xValues = []; 
+  const yValues = [];
+  Object.values(scatter).forEach(obj => { 
+    xValues.push(obj.x0 * .5);
+    yValues.push(obj.y0 * .5);
+  });
+  setInitialCameraAndGroundPosition(xValues, yValues);
+  const [annotations, clusterColors] = createCellMetadataObject(metadata);
+  initializeAnnotationMenu(annotations, clusterColors);
+  renderLegend(annotations[0], clusterColors);
+  renderCells(scatter, clusterColors, .5, .14, true);
+}
+
 // -------------------------- Camera ---------------------------------
 
 const setInitialCameraAndGroundPosition = (xValues, yValues) => {
@@ -489,7 +511,12 @@ const initialize = async (uuid) => {
     const scatterFile = await result.file("scatter.json").async("string");
     const metadataFile = await result.file("metadata.json").async("string");
     renderStream(JSON.parse(streamFile), JSON.parse(scatterFile), JSON.parse(metadataFile));
-  } else {
+  } else if (tool === "velocity") {
+    const scatter = await result.file("scatter.json").async("string");
+    const metadata = await result.file("metadata.json").async("string");
+    renderVelocity(JSON.parse(scatter), JSON.parse(metadata));
+  }
+  else {
     const scatter = await result.file("scatter.json").async("string");
     const metadata = await result.file("metadata.json").async("string");
     renderSeurat(JSON.parse(scatter), JSON.parse(metadata));
