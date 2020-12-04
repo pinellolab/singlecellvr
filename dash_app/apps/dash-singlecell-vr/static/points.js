@@ -14,7 +14,6 @@ AFRAME.registerComponent('cells', {
         },
     },
     init: function() {
-
         const geometry = this.geometry = new THREE.BufferGeometry();
 
         this.vertices = [];
@@ -27,7 +26,7 @@ AFRAME.registerComponent('cells', {
             var yEnd = y + this.data.endPositions[i][1] * this.data.scale;
             var zEnd = z + this.data.endPositions[i][2] * this.data.scale;
 
-            var t = new TWEEN.Tween({x: x, y: y, z: z}).to({x: xEnd, y: yEnd, z: zEnd}, 10000).start()
+            var t = new TWEEN.Tween({x: x, y: y, z: z}).to({x: xEnd, y: yEnd, z: zEnd}, 1000).start()
             t.repeat(Infinity)
             this.vertices.push( x, y, z );
         }
