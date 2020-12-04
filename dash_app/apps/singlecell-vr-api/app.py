@@ -60,7 +60,6 @@ def get_cooridinates():
     embed = request.args.get("embed")
     adata = sc.read(glob(os.path.join(DATASET_DIRECTORY, f"{db_name}.*"))[0])
     list_cells = []
-    print(adata.obsm)
     for i in range(adata.shape[0]):
         dict_coord_cells = dict()
         dict_coord_cells["cell_id"] = adata.obs_names[i]
@@ -89,7 +88,7 @@ def get_features():
     adata = sc.read(glob(os.path.join(DATASET_DIRECTORY, f"{database}.*"))[0])
 
     list_metadata = []
-    if feature in ["clusters", "louvain", "leiden"]:
+    if feature in get_available_annotations_adata(adata):  # cluster columns
         dict_colors = {
             feature: dict(
                 zip(adata.obs[feature].cat.categories, adata.uns[f"{feature}_colors"])
@@ -103,9 +102,8 @@ def get_features():
                 dict_metadata["clusters"]
             ]
             list_metadata.append(dict_metadata)
-    elif feature in ["expression", "rna"] or "time" in feature:
+    elif feature in ["expression", "rna"] or feature in get_available_annotations_adata(adata): # pseudotime or latent_time columns
         gene = request.args.get("gene")
-        print(adata.var_names)
         if gene not in adata.var_names:
             return jsonify({})
         else:
@@ -124,7 +122,6 @@ def get_features():
             for i, x in enumerate(adata.obs_names):
                 dict_genes = dict()
                 dict_genes["cell_id"] = x
-                print(cm(norm(values[i])))
                 dict_genes["color"] = mpl.colors.to_hex(cm(norm(values[i])))
                 list_metadata.append(dict_genes)
     elif feature == "velocity":
@@ -192,3 +189,31 @@ def get_paga3d_pos(adata):
         subset = (groups == groups.cat.categories[i]).values
         paga3d_pos[i] = np.median(adata.obsm["X_umap"][subset], axis=0)
     return paga3d_pos
+
+
+@server.route("/columns", methods=["GET", "POST"])
+def get_available_annotations():
+    """
+    http://127.0.0.1:8000/columns?db_name=1_scanpy_10xpbmc
+    """
+    db_name = request.args.get("db_name")
+    adata = sc.read(glob(os.path.join(DATASET_DIRECTORY, f"{db_name}.*"))[0])
+    return jsonify(list(adata.obs.columns))
+
+
+def get_available_annotations_adata(adata):
+    return adata.obs.columns
+
+
+@server.route("/genes", methods=["GET", "POST"])
+def get_genes():
+    """
+    http://127.0.0.1:8000/genes?db_name=1_scanpy_10xpbmc
+    """
+    db_name = request.args.get("db_name")
+    adata = sc.read(glob(os.path.join(DATASET_DIRECTORY, f"{db_name}.*"))[0])
+    return jsonify(list(adata.var_names))
+
+
+def get_genes_adata(adata):
+    return adata.var_names
