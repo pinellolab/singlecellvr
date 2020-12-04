@@ -345,7 +345,7 @@ def update_output(unique_id,file_id):
 	if(unique_id !=None):
 		return html.A(dbc.Button("Let's fly!", id='button',disabled=False,n_clicks=0, color="link", className="fly-button"),href="/view/"+str(unique_id))
 	if(file_id !=None):     
-		return html.A(dbc.Button("Let's fly!", id='button',disabled=False,n_clicks=0, color="link", className="fly-button"),href="/view/"+str(file_id))
+		return html.A(dbc.Button("Let's fly!", id='button',disabled=False,n_clicks=0, color="link", className="fly-button"),href="/view/jello") #+str(file_id))
  
 @app.callback(
     [Output("file-list", "children"),Output("intermediate-value", "children")],
