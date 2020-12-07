@@ -64,48 +64,53 @@ def get_cooridinates():
     http://127.0.0.1:8000/coordinates?db_name=5_stream_nestorowa16&embed=umap
     """
     db_name = request.args.get("db_name")
-    print(os.path.join(DATASET_DIRECTORY, f"{db_name}.*"))
     filename = glob(os.path.join(DATASET_DIRECTORY, f"{db_name}.*"))[0]
-    print(filename)
 
-    if get_dataset_type_adata(db_name) in ['scanpy', 'velocity', 'seurat']:
+    if get_dataset_type_adata(db_name) in ["scanpy", "velocity", "seurat"]:
         adata = sc.read(filename)
         embed = request.args.get("embed")
     else:
-        adata = st.read(filename, file_format='pkl', workdir='./')
+        adata = st.read(filename, file_format="pkl", workdir="./")
 
-    print(adata)
     list_cells = []
     for i in range(adata.shape[0]):
         dict_coord_cells = dict()
         dict_coord_cells["cell_id"] = adata.obs_names[i]
-        if get_dataset_type_adata(db_name) in ['scanpy', 'velocity']:
+        if get_dataset_type_adata(db_name) in ["scanpy", "velocity"]:
             dict_coord_cells["x"] = str(adata.obsm[f"X_{embed}"][i, 0])
             dict_coord_cells["y"] = str(adata.obsm[f"X_{embed}"][i, 1])
             dict_coord_cells["z"] = str(adata.obsm[f"X_{embed}"][i, 2])
-        elif get_dataset_type_adata(db_name) == 'seurat':
-            dict_coord_cells["x"] = str(adata.obsm[f'{embed}_cell_embeddings'][i, 0])
-            dict_coord_cells["y"] = str(adata.obsm[f'{embed}_cell_embeddings'][i, 1])
-            dict_coord_cells["z"] = str(adata.obsm[f'{embed}_cell_embeddings'][i, 2])
-        elif get_dataset_type_adata(db_name) == 'stream':
-            file_path = os.path.join(adata.uns['workdir'], 'test')
+        elif get_dataset_type_adata(db_name) == "seurat":
+            dict_coord_cells["x"] = str(adata.obsm[f"{embed}_cell_embeddings"][i, 0])
+            dict_coord_cells["y"] = str(adata.obsm[f"{embed}_cell_embeddings"][i, 1])
+            dict_coord_cells["z"] = str(adata.obsm[f"{embed}_cell_embeddings"][i, 2])
+        elif get_dataset_type_adata(db_name) == "stream":
+            file_path = os.path.join(adata.uns["workdir"], "test")
             if not os.path.exists(file_path):
                 os.makedirs(file_path)
-            flat_tree = adata.uns['flat_tree']
-            epg = adata.uns['epg']
-            epg_node_pos = nx.get_node_attributes(epg, 'pos')
-            ft_node_label = nx.get_node_attributes(flat_tree, 'label')
-            ft_node_pos = nx.get_node_attributes(flat_tree, 'pos')
+            flat_tree = adata.uns["flat_tree"]
+            epg = adata.uns["epg"]
+            epg_node_pos = nx.get_node_attributes(epg, "pos")
+            ft_node_label = nx.get_node_attributes(flat_tree, "label")
+            ft_node_pos = nx.get_node_attributes(flat_tree, "pos")
             list_curves = []
             for edge_i in flat_tree.edges():
-                branch_i_pos = np.array([epg_node_pos[i] for i in flat_tree.edges[edge_i]['nodes']])
+                branch_i_pos = np.array(
+                    [epg_node_pos[i] for i in flat_tree.edges[edge_i]["nodes"]]
+                )
                 df_coord_curve_i = pd.DataFrame(branch_i_pos)
                 dict_coord_curves = dict()
-                dict_coord_curves['branch_id'] = ft_node_label[edge_i[0]] + '_' + ft_node_label[edge_i[1]]
-                dict_coord_curves['xyz'] = [{'x': df_coord_curve_i.iloc[j, 0],
-                                             'y': df_coord_curve_i.iloc[j, 1],
-                                             'z': df_coord_curve_i.iloc[j, 2]} for j in
-                                            range(df_coord_curve_i.shape[0])]
+                dict_coord_curves["branch_id"] = (
+                    ft_node_label[edge_i[0]] + "_" + ft_node_label[edge_i[1]]
+                )
+                dict_coord_curves["xyz"] = [
+                    {
+                        "x": df_coord_curve_i.iloc[j, 0],
+                        "y": df_coord_curve_i.iloc[j, 1],
+                        "z": df_coord_curve_i.iloc[j, 2],
+                    }
+                    for j in range(df_coord_curve_i.shape[0])
+                ]
                 list_curves.append(dict_coord_curves)
 
             ## output topology of stream graph
@@ -113,23 +118,30 @@ def get_cooridinates():
             list_edges = []
             for node_i in flat_tree.nodes():
                 dict_nodes_i = dict()
-                dict_nodes_i['node_name'] = ft_node_label[node_i]
-                dict_nodes_i['xyz'] = {'x': ft_node_pos[node_i][0],
-                                       'y': ft_node_pos[node_i][1],
-                                       'z': ft_node_pos[node_i][2]}
+                dict_nodes_i["node_name"] = ft_node_label[node_i]
+                dict_nodes_i["xyz"] = {
+                    "x": ft_node_pos[node_i][0],
+                    "y": ft_node_pos[node_i][1],
+                    "z": ft_node_pos[node_i][2],
+                }
                 dict_nodes[ft_node_label[node_i]] = dict_nodes_i
             for edge_i in flat_tree.edges():
                 dict_edges = dict()
-                dict_edges['nodes'] = [ft_node_label[edge_i[0]], ft_node_label[edge_i[1]]]
-                dict_edges['weight'] = 1
+                dict_edges["nodes"] = [
+                    ft_node_label[edge_i[0]],
+                    ft_node_label[edge_i[1]],
+                ]
+                dict_edges["weight"] = 1
                 list_edges.append(dict_edges)
 
-            dict_coord_cells["x"] = str(adata.obsm['X_dr'][i, 0])
-            dict_coord_cells["y"] = str(adata.obsm['X_dr'][i, 1])
-            dict_coord_cells["z"] = str(adata.obsm['X_dr'][i, 2])
-            return jsonify({'nodes': dict_nodes, 'edges': list_edges, 'graph': list_curves})
+            dict_coord_cells["x"] = str(adata.obsm["X_dr"][i, 0])
+            dict_coord_cells["y"] = str(adata.obsm["X_dr"][i, 1])
+            dict_coord_cells["z"] = str(adata.obsm["X_dr"][i, 2])
+            return jsonify(
+                {"nodes": dict_nodes, "edges": list_edges, "graph": list_curves}
+            )
         else:
-            raise TypeError('not supported format')
+            raise TypeError("not supported format")
         list_cells.append(dict_coord_cells)
     return jsonify(list_cells)
 
@@ -148,21 +160,22 @@ def get_features():
     velocity examples:
       http://127.0.0.1:8000/features?db_name=3_velocity_pancrease&feature=clusters
       http://127.0.0.1:8000/features?db_name=3_velocity_pancrease&feature=expression&gene=Rbbp7
-      http://127.0.0.1:8000/features?db_name=3_velocity_pancrease&feature=velocity&embed=umap
+      http://127.0.0.1:8000/features?db_name=3_velocity_pancrease&feature=velocity&embed=umap&time=None
+      http://127.0.0.1:8000/features?db_name=3_velocity_pancrease&feature=velocity&embed=umap&time=1
+      http://127.0.0.1:8000/features?db_name=3_velocity_pancrease&feature=velocity&embed=umap&time=10
     """
     database = request.args.get("db_name")
     feature = request.args.get("feature")
     filename = glob(os.path.join(DATASET_DIRECTORY, f"{database}.*"))[0]
 
     db_type = get_dataset_type_adata(filename)
-
-    if feature == 'velocity':
+    if feature == "velocity":
         embed = request.args.get("embed")
 
-    if get_dataset_type_adata(database) in ['scanpy', 'velocity', 'seurat']:
+    if get_dataset_type_adata(database) in ["scanpy", "velocity", "seurat"]:
         adata = sc.read(filename)
     else:
-        adata = st.read(filename, file_format='pkl', workdir='./')
+        adata = st.read(filename, file_format="pkl", workdir="./")
 
     list_metadata = []
     if feature in get_available_annotations_adata(adata):  # cluster columns
@@ -179,7 +192,9 @@ def get_features():
                 dict_metadata["clusters"]
             ]
             list_metadata.append(dict_metadata)
-    elif feature in ["expression", "rna"] or feature in get_available_annotations_adata(adata): # pseudotime or latent_time columns
+    elif feature in ["expression", "rna"] or feature in get_available_annotations_adata(
+        adata
+    ):  # pseudotime or latent_time columns
         gene = request.args.get("gene")
         if gene not in adata.var_names:
             return jsonify({})
@@ -187,11 +202,11 @@ def get_features():
             if "time" in feature:
                 values = adata.obs[feature]
             else:
-                if db_type == 'seurat':
+                if db_type == "seurat":
                     values = (
-                        adata[:, gene].layers['norm_data'].toarray()[:, 0]
-                        if isspmatrix(adata.layers['norm_data'])
-                        else adata[:, gene].layers['norm_data'][:, 0]
+                        adata[:, gene].layers["norm_data"].toarray()[:, 0]
+                        if isspmatrix(adata.layers["norm_data"])
+                        else adata[:, gene].layers["norm_data"][:, 0]
                     )
                 else:
                     values = (
@@ -210,15 +225,34 @@ def get_features():
                 list_metadata.append(dict_genes)
     elif feature == "velocity":
         list_metadata = []
+        time = request.args.get("time")
         for i in range(adata.shape[0]):
             dict_coord_cells = dict()
-            dict_coord_cells["cell_id"] = adata.obs_names[i]
+            if isinstance(adata.obs_names[i], bytes):
+                dict_coord_cells["cell_id"] = adata.obs_names[i].decode("utf-8")
+            else:
+                dict_coord_cells["cell_id"] = adata.obs_names[i]
+
             dict_coord_cells["x0"] = str(adata.obsm[f"X_{embed}"][i, 0])
             dict_coord_cells["y0"] = str(adata.obsm[f"X_{embed}"][i, 1])
             dict_coord_cells["z0"] = str(adata.obsm[f"X_{embed}"][i, 2])
-            dict_coord_cells["x1"] = str(adata.obsm[f"velocity_{embed}"][i, 0])
-            dict_coord_cells["y1"] = str(adata.obsm[f"velocity_{embed}"][i, 1])
-            dict_coord_cells["z1"] = str(adata.obsm[f"velocity_{embed}"][i, 2])
+
+            if time == "None":
+                dict_coord_cells["x1"] = str(adata.obsm[f"velocity_{embed}"][i, 0])
+                dict_coord_cells["y1"] = str(adata.obsm[f"velocity_{embed}"][i, 1])
+                dict_coord_cells["z1"] = str(adata.obsm[f"velocity_{embed}"][i, 2])
+            elif time in ["1", "10"]:
+                dict_coord_cells["x1"] = str(
+                    adata.obsm[f"velocity_{embed}_{time}s"][i, 0]
+                )
+                dict_coord_cells["y1"] = str(
+                    adata.obsm[f"velocity_{embed}_{time}s"][i, 1]
+                )
+                dict_coord_cells["z1"] = str(
+                    adata.obsm[f"velocity_{embed}_{time}s"][i, 2]
+                )
+            else:
+                return jsonify({})
             list_metadata.append(dict_coord_cells)
     elif feature == "paga":
         G = nx.from_numpy_matrix(adata.uns["paga"]["connectivities"].toarray())
