@@ -7,7 +7,7 @@ from flask import Flask, jsonify, request
 import matplotlib as mpl
 import networkx as nx
 import numpy as np
-import stream as st
+#import stream as st
 import pandas as pd
 
 
@@ -241,15 +241,15 @@ def get_features():
                 dict_coord_cells["x1"] = str(adata.obsm[f"velocity_{embed}"][i, 0])
                 dict_coord_cells["y1"] = str(adata.obsm[f"velocity_{embed}"][i, 1])
                 dict_coord_cells["z1"] = str(adata.obsm[f"velocity_{embed}"][i, 2])
-            elif time in ["1", "10"]:
+            elif time in list(map(str, [0.1, 1, 5, 10, 20, 30, 50, 100])):
                 dict_coord_cells["x1"] = str(
-                    adata.obsm[f"velocity_{embed}_{time}s"][i, 0]
+                    adata.obsm[f"absolute_velocity_{embed}_{time}s"][i, 0]
                 )
                 dict_coord_cells["y1"] = str(
-                    adata.obsm[f"velocity_{embed}_{time}s"][i, 1]
+                    adata.obsm[f"absolute_velocity_{embed}_{time}s"][i, 1]
                 )
                 dict_coord_cells["z1"] = str(
-                    adata.obsm[f"velocity_{embed}_{time}s"][i, 2]
+                    adata.obsm[f"absolute_velocity_{embed}_{time}s"][i, 2]
                 )
             else:
                 return jsonify({})
@@ -335,3 +335,20 @@ def get_genes():
 
 def get_genes_adata(adata):
     return adata.var_names
+
+
+@server.route("/ts", methods=["GET", "POST"])
+def get_ts():
+    """
+    velocity examples:
+    http://127.0.0.1:8000/ts?db_name=3_velocity_pancrease&feature=clusters
+    """
+
+    db_name = request.args.get("db_name")
+    filename = glob(os.path.join(DATASET_DIRECTORY, f"{db_name}.*"))[0]
+
+    if get_dataset_type_adata(db_name) == "velocity":
+        adata = sc.read(filename)
+        ts = [k.replace('absolute_velocity_umap_', '').replace('s', '')
+              for k in adata.obsm.keys() if k.startswith('absolute')]
+    return jsonify(list(ts))
