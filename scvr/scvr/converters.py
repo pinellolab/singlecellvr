@@ -262,6 +262,7 @@ def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=Non
 
 
 def output_velocity_cells(adata, ann_field, gene_list=None,
+                          time=None, grid=True,
                           reportdir='./velocity_report'):
 
     if gene_list is not None:
@@ -282,16 +283,48 @@ def output_velocity_cells(adata, ann_field, gene_list=None,
             dict_coord_cells['y0'] = str(adata.obsm['X_umap'][i,1])
             dict_coord_cells['z0'] = str(adata.obsm['X_umap'][i,2])
 
-            dict_coord_cells['x1'] = str(adata.obsm['velocity_umap'][i,0])
-            dict_coord_cells['y1'] = str(adata.obsm['velocity_umap'][i,1])
-            dict_coord_cells['z1'] = str(adata.obsm['velocity_umap'][i,2])
+            if time is None:
+                dict_coord_cells['x1'] = str(adata.obsm['velocity_umap'][i,0])
+                dict_coord_cells['y1'] = str(adata.obsm['velocity_umap'][i,1])
+                dict_coord_cells['z1'] = str(adata.obsm['velocity_umap'][i,2])
+            else:
+                dict_coord_cells['x1'] = str(adata.obsm[f'absolute_velocity_umap_{time}s'][i,0])
+                dict_coord_cells['y1'] = str(adata.obsm[f'absolute_velocity_umap_{time}s'][i,1])
+                dict_coord_cells['z1'] = str(adata.obsm[f'absolute_velocity_umap_{time}s'][i,2])
             list_cells.append(dict_coord_cells)
         with open(os.path.join(reportdir, 'scatter.json'), 'w') as f:
             json.dump(list_cells, f)
 
         list_metadata = []
+        if grid:
+            from sklearn.neighbors import NearestNeighbors
+            X_emb = adata.obsm['X_umap']
+            X_grid = []
+            grs = []
+            grid_num = 50 * 0.5
+            for dim_i in range(3):
+                m, M = np.min(X_emb[:, dim_i]), \
+                       np.max(X_emb[:, dim_i])
+                m = m - .025 * np.abs(M - m) # .01
+                M = M + .025 * np.abs(M - m) # .01
+                gr = np.linspace(m, M, int(grid_num))
+                grs.append(gr)
+                print(m, M)
+            meshes_tuple = np.meshgrid(*grs)
+            scale   = np.mean([(g[1] - g[0]) for g in grs]) * 0.5
+            X_grid  = np.vstack([i.flat for i in meshes_tuple]).T
+            nn = NearestNeighbors(n_neighbors=30, n_jobs=-1)                              
+            nn.fit(X_emb)
+            dists, neighs = nn.kneighbors(X_grid)            
+            # evaluate cell density filter
+            from scipy.stats import norm as normal
+            weight = normal.pdf(x=dists, scale=scale)
+            p_mass = weight.sum(1)
+            V_grid = (adata.obsm['velocity_umap'][:, :3][neighs] * weight[:, :, None]).sum(1) / \
+                                    np.maximum(1, p_mass)[:, None]
+            adata.uns['X_grid'] = X_grid[p_mass > 1]
+            adata.uns['V_grid'] = V_grid[p_mass > 1]
         print(adata.uns)
-
         dict_colors = {ann_field: dict(zip(adata.obs[ann_field].cat.categories,
                                            adata.uns[f'{ann_field}_colors']))}
         print(dict_colors)

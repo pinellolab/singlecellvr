@@ -341,7 +341,7 @@ def get_genes_adata(adata):
 def get_ts():
     """
     velocity examples:
-    http://127.0.0.1:8000/ts?db_name=3_velocity_pancrease&feature=clusters
+    http://127.0.0.1:8000/ts?db_name=3_velocity_pancrease
     """
 
     db_name = request.args.get("db_name")
