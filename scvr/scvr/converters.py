@@ -36,7 +36,7 @@ def get_colors(adata,ann):
             elif length <= len(palettes.default_102):  # 103 colors
                 palette = palettes.default_102
             else:
-                rgb_rainbow = cm.rainbow(np.linspace(0,1,length))
+                rgb_rainbow = mpl.cm.rainbow(np.linspace(0,1,length))
                 palette = [mpl.colors.rgb2hex(rgb_rainbow[i,:-1]) for i in range(length)]
         for i,x in enumerate(categories):
             id_cells = np.where(adata.obs[ann]==x)[0]
