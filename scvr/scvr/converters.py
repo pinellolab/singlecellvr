@@ -7,7 +7,7 @@ import networkx as nx
 import matplotlib as mpl
 from scipy.sparse import isspmatrix
 from pandas.api.types import is_string_dtype,is_numeric_dtype
-import scvelo as scv
+# import scvelo as scv
 
 from . import palettes
 
