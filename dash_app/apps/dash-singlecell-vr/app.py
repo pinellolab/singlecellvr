@@ -13,7 +13,7 @@ from urllib.parse import quote as urlquote
 import base64
 import uuid
 import qrcode
-  
+import glob
 # Load data
 
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
@@ -57,6 +57,18 @@ def serve_static(uid):
 @app.server.route('/help/')
 def show_help():
     return render_template('help.html')
+
+@app.server.route('/databases')
+def get_databases():
+    databases = sorted(glob.glob("/databases/*.anndata'"))
+    return databases
+    list_databases = []
+    for i in range(adata.shape[0]):
+        dict_datab = dict()
+        dict_datab['id'] = adata.obs_names[i]
+        dict_datab['description'] = adata.obs['description'].tolist()[i]
+        list_databases.append(dict_datab)
+    return jsonify(list_databases)
 
 app.title = "SingleCellVR"
 
