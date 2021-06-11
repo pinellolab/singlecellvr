@@ -163,6 +163,10 @@ def get_features():
       http://127.0.0.1:8000/features?db_name=3_velocity_pancrease&feature=velocity&embed=umap&time=None
       http://127.0.0.1:8000/features?db_name=3_velocity_pancrease&feature=velocity&embed=umap&time=1
       http://127.0.0.1:8000/features?db_name=3_velocity_pancrease&feature=velocity&embed=umap&time=10
+
+    velocity grid examples:
+      http://127.0.0.1:8000/features?db_name=3_velocity_pancrease&feature=velocity_grid&embed=umap&time=10
+      http://127.0.0.1:8000/features?db_name=3_velocity_pancrease&feature=velocity_grid&embed=umap&time=100
     """
     database = request.args.get("db_name")
     feature = request.args.get("feature")
@@ -250,6 +254,40 @@ def get_features():
                 )
                 dict_coord_cells["z1"] = str(
                     adata.obsm[f"absolute_velocity_{embed}_{time}s"][i, 2]
+                )
+            else:
+                return jsonify({})
+            list_metadata.append(dict_coord_cells)
+    elif feature == "velocity_grid":
+        list_metadata = []
+        time = request.args.get("time")
+        p_mass = adata.uns['p_mass']
+        for i in np.where(p_mass >= 1)[0]:
+            dict_coord_cells = dict()
+            #if isinstance(adata.obs_names[i], bytes):
+            #    dict_coord_cells["cell_id"] = adata.obs_names[i].decode("utf-8")
+            #else:
+            #    dict_coord_cells["cell_id"] = adata.obs_names[i]
+
+            if time == "None":
+                dict_coord_cells["x0"] = str(adata.uns[f"X_grid"][i, 0])
+                dict_coord_cells["y0"] = str(adata.uns[f"X_grid"][i, 1])
+                dict_coord_cells["z0"] = str(adata.uns[f"X_grid"][i, 2])
+                dict_coord_cells["x1"] = str(adata.uns[f"V_grid"][i, 0])
+                dict_coord_cells["y1"] = str(adata.uns[f"V_grid"][i, 1])
+                dict_coord_cells["z1"] = str(adata.uns[f"V_grid"][i, 2])
+            elif time in list(map(str, [0.01, 0.1, 1, 5, 10, 20, 50, 80, 100])):
+                dict_coord_cells["x0"] = str(adata.uns[f"X_grid_{time}"][i, 0])
+                dict_coord_cells["y0"] = str(adata.uns[f"X_grid_{time}"][i, 1])
+                dict_coord_cells["z0"] = str(adata.uns[f"X_grid_{time}"][i, 2])
+                dict_coord_cells["x1"] = str(
+                    adata.uns[f"V_grid_{time}"][i, 0]
+                )
+                dict_coord_cells["y1"] = str(
+                    adata.uns[f"V_grid_{time}"][i, 1]
+                )
+                dict_coord_cells["z1"] = str(
+                    adata.uns[f"V_grid_{time}"][i, 2]
                 )
             else:
                 return jsonify({})
