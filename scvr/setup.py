@@ -27,7 +27,8 @@ setuptools.setup(
           'anndata>=0.7',
           'loompy>=2.0',
           'matplotlib>=3.0',
-          'scipy>=1.3'
-      ],
+          'scipy>=1.3',
+          'requests',
+    ],
     entry_points = {'console_scripts': ['scvr=scvr.command_line:main']}
 )

@@ -7,3 +7,4 @@ pandas>=0.22.0
 dash_bootstrap_components
 qrcode
 pillow
+requests
