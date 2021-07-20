@@ -1,0 +1,191 @@
+{
+    "asset": {
+        "copyright": "(C)2021 DSN7",
+        "generator": "maya2glTF v1.1.0 c13125a0af77",
+        "version": "2.0"
+    },
+    "scenes": [
+        {
+            "nodes": [
+                0
+            ]
+        }
+    ],
+    "scene": 0,
+    "nodes": [
+        {
+            "name": "arrow_grp_optimized",
+            "children": [
+                1
+            ]
+        },
+        {
+            "name": "arrow_grp_optimized|arrow_mesh",
+            "mesh": 0
+        }
+    ],
+    "meshes": [
+        {
+            "name": "arrow_grp_optimized|arrow_mesh|arrow_meshShape",
+            "extras": {
+                "targetNames": []
+            },
+            "primitives": [
+                {
+                    "attributes": {
+                        "NORMAL": 1,
+                        "POSITION": 2,
+                        "TANGENT": 3,
+                        "TEXCOORD_0": 4
+                    },
+                    "indices": 0,
+                    "mode": 4,
+                    "material": 0
+                }
+            ]
+        }
+    ],
+    "materials": [
+        {
+            "name": "arrow_mat",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "metallicFactor": 0.0,
+                "roughnessFactor": 1.0
+            }
+        }
+    ],
+    "accessors": [
+        {
+            "name": "arrow_grp_optimized|arrow_mesh|arrow_meshShape#0/indices",
+            "bufferView": 0,
+            "byteOffset": 0,
+            "componentType": 5123,
+            "count": 96,
+            "max": [
+                65
+            ],
+            "min": [
+                0
+            ],
+            "type": "SCALAR"
+        },
+        {
+            "name": "arrow_grp_optimized|arrow_mesh|arrow_meshShape#0/vertices/NORMAL",
+            "bufferView": 1,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 66,
+            "max": [
+                1.0,
+                0.7222846150398254,
+                1.0
+            ],
+            "min": [
+                -1.0,
+                -1.0,
+                -1.0
+            ],
+            "type": "VEC3"
+        },
+        {
+            "name": "arrow_grp_optimized|arrow_mesh|arrow_meshShape#0/vertices/POSITION",
+            "bufferView": 1,
+            "byteOffset": 792,
+            "componentType": 5126,
+            "count": 66,
+            "max": [
+                2.677098512649536,
+                6.261232852935791,
+                0.10148481279611588
+            ],
+            "min": [
+                -2.677098512649536,
+                0.0,
+                -0.10380270332098009
+            ],
+            "type": "VEC3"
+        },
+        {
+            "name": "arrow_grp_optimized|arrow_mesh|arrow_meshShape#0/vertices/TANGENT",
+            "bufferView": 2,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 66,
+            "max": [
+                1.0,
+                0.9787064790725708,
+                1.0,
+                1.0
+            ],
+            "min": [
+                -0.9363707304000856,
+                -0.9997438192367554,
+                -1.0,
+                -1.0
+            ],
+            "type": "VEC4"
+        },
+        {
+            "name": "arrow_grp_optimized|arrow_mesh|arrow_meshShape#0/vertices/TEXCOORD_0",
+            "bufferView": 3,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 66,
+            "max": [
+                0.875,
+                1.0
+            ],
+            "min": [
+                0.0416666679084301,
+                0.5
+            ],
+            "type": "VEC2"
+        }
+    ],
+    "bufferViews": [
+        {
+            "name": "arrow_optimized/data/indices-2",
+            "buffer": 0,
+            "byteOffset": 3168,
+            "byteLength": 192,
+            "target": 34963
+        },
+        {
+            "name": "arrow_optimized/data/vertices-12",
+            "buffer": 0,
+            "byteOffset": 1056,
+            "byteLength": 1584,
+            "byteStride": 12,
+            "target": 34962
+        },
+        {
+            "name": "arrow_optimized/data/vertices-16",
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteLength": 1056,
+            "byteStride": 16,
+            "target": 34962
+        },
+        {
+            "name": "arrow_optimized/data/vertices-8",
+            "buffer": 0,
+            "byteOffset": 2640,
+            "byteLength": 528,
+            "byteStride": 8,
+            "target": 34962
+        }
+    ],
+    "buffers": [
+        {
+            "name": "arrow_optimized/data",
+            "byteLength": 3360,
+            "uri": "arrow_optimized0.bin"
+        }
+    ]
+}

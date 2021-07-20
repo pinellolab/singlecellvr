@@ -82,8 +82,9 @@ scvr -f ./seurat_result/seurat3d_10xpbmc.loom -t seurat -a annotations.txt -g ge
 ### Velocity:
 To get single cell velocity report for scvelo:
 ``` bash
-scvr -t velocity -f examples/pancrease_velocity.h5ad -a clusters
+scvr -t velocity -f pancrease_velocity.h5ad -a clusters
 ```
+* To generate the `pancrease_velocity.h5ad`, check out examples/velocity_3d.ipynb.
 
 ### STREAM:  
 To get single cell VR report for STREAM : 
