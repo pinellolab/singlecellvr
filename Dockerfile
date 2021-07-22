@@ -8,6 +8,7 @@ RUN conda install python=3.6 && \
     conda install -c bioconda cufflinks 
 
 WORKDIR /app
+ADD . /app
 
 EXPOSE 8000
 

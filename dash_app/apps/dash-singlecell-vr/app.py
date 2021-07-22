@@ -24,7 +24,7 @@ APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
 QR_DIRECTORY = os.path.join(APP_PATH, "assets")
 API = 'http://singlecellvrbackend.herokuapp.com'
-API = 'http://127.0.0.1:8080'
+API = 'http://172.17.0.1:8999'
 
 # "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
 

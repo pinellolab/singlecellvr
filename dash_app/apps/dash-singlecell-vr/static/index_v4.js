@@ -22,7 +22,7 @@ let fullDataset;
 const resultElements = ["result1", "result2", "result3"];
 const velocity_cutoff = 3000
 // const API_URL='https://singlecellvrbackend.herokuapp.com';
-const API_URL='http://127.0.0.1:8080';
+const API_URL='http://172.17.0.1:8999';
 
 // --------------------------------------------------------
 
@@ -309,8 +309,8 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
   const xValues = []; 
   const yValues = [];
   Object.values(nodes).forEach(obj => { 
-    xValues.push(obj.xyz.x0 * 1); //.04
-    yValues.push(obj.xyz.y0 * 1);
+    xValues.push(obj.xyz.x * 1); //.04
+    yValues.push(obj.xyz.y * 1);
   });
   setInitialCameraAndGroundPosition(xValues, yValues);
   delete xValues, yValues;
@@ -331,9 +331,9 @@ const renderPaga = (edges, nodes, scatter, metadata) => {
   const cellEntities = [];
   const nodePositions = {};
   Object.values(nodes).forEach((cell_point, _) => {
-    let x = cell_point.xyz.x0 * 1; //.1
-    let y = cell_point.xyz.y0 * 1;
-    let z = cell_point.xyz.z0 * 1;
+    let x = cell_point.xyz.x * 1; //.1
+    let y = cell_point.xyz.y * 1;
+    let z = cell_point.xyz.z * 1;
     const cell = `<a-sphere text="value: ${cell_point.node_name}; width: 10; color: black; align: center; side: double; zOffset: .05" id="${cell_point.node_name}" position="${x} ${y} ${z}" radius=".07" watch="targetId: player-camera"></a-sphere>`;
     nodePositions[cell_point.node_name.replace(/\D/g,'')] = {"x": x, "y": y, "z": z};
     cellEntities.push(Utils.htmlToElement(cell));
