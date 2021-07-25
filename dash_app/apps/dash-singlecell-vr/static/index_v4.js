@@ -120,7 +120,7 @@ const initializeAnnotationMenu = async (annotations, clusterColors) => {
 
   // Ensure menu items dont overflow the container
   totalItemsHeight = annotations.length * .5;
-  if (totalItemsHeight > 5) {
+  if (totalItemsHeight >= 5) {
     adjustedContainerHeight = totalItemsHeight + 1.5;
     annotation_menu.setAttribute('height', adjustedContainerHeight);
     annotation_menu.object3D.position.set(1.85, (5 - adjustedContainerHeight) / 2, 0);
@@ -383,7 +383,7 @@ const createBranchPoints = (curve) => {
   const curveLabels = document.getElementById('graph-labels-container');
   curveLabels.appendChild(labelEntity);
   curve.xyz.forEach((coord, _) => {
-      const curvePoint = `<a-curve-point position="${coord.x0 * 100} ${coord.y0 * 100} ${coord.z0 * 100}"></a-curve-point>`;
+      const curvePoint = `<a-curve-point position="${coord.x * 100} ${coord.y * 100} ${coord.z * 100}"></a-curve-point>`;
       curvePoints.push(Utils.htmlToElement(curvePoint));
   });
   return curvePoints;
