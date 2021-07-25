@@ -159,7 +159,7 @@ AFRAME.registerComponent('velocity', {
                     this.mesh.geometry.setAttribute( 'instanceColorBase', new THREE.BufferAttribute( new Float32Array( this.instanceColorsBase ), 3 ) );
                 }
             } 
-            if (oldData.endPositions !== this.data.endPositions) {
+            if (oldData.endPositions !== this.data.endPositions || oldData.positions !== this.data.positions) {
                 TWEEN.removeAll();
                 for ( var i = 0; i < this.data.count; i ++ ) {
                     var x = this.data.positions[i][0] * this.data.scale;
