@@ -21,7 +21,7 @@ let velocity;
 let fullDataset;
 const resultElements = ["result1", "result2", "result3"];
 const velocity_cutoff = 3000
-// const API_URL='https://singlecellvrbackend.herokuapp.com';
+let isGrid = false;
 const API_URL='http://172.17.0.1:8999';
 
 // --------------------------------------------------------
@@ -181,10 +181,9 @@ const movement = (num) => {
 
 const viewGene = async (geneName) => {
     if (fullDataset) {
-        const gene = await fetch(API_URL + '/features?db_name=' + dataset_name + '&feature=expression&gene=' + geneName);
-        const cellsByGene = await gene.json();
-        const colors = Array.from(cellsByGene.map(cell => cell.color));
-        if (velocity) {
+        const cellsByGene = await (await fetch(API_URL + '/features?db_name=' + dataset_name + '&feature=expression&gene=' + geneName)).json();
+        const colors = Array.from(cellsByGene.expression.map(cell => cell.color));
+        if (velocity && !isGrid) {
             document.getElementById('velocity').setAttribute("velocity", {count: colors.length, colors: colors});
         } else {
             document.getElementById('cells').setAttribute("cells", {count: colors.length, colors: colors});
@@ -192,7 +191,7 @@ const viewGene = async (geneName) => {
     } else {
         const cellsByGene = JSON.parse(await report.file(geneName + ".json").async("string"));
         const colors = Array.from(cellsByGene.map(cell => cell.color));
-        if (velocity) {
+        if (velocity && !isGrid) {
             document.getElementById('velocity').setAttribute("velocity", {count: colors.length, colors: colors});
         } else {
             document.getElementById('cells').setAttribute("cells", {count: colors.length, colors: colors});
@@ -202,7 +201,7 @@ const viewGene = async (geneName) => {
 
 const renderAnnotation = (annotation, cellColors) => {
     const colors = Array.from(Object.entries(cellColors[annotation]).map(([id, cell]) => cell.clusters_color));
-    if (velocity) {
+    if (velocity && !isGrid) {
         document.getElementById('velocity').setAttribute("velocity", {count: colors.length, colors: colors});
     } else {
         document.getElementById('cells').setAttribute("cells", {count: colors.length, colors: colors});
@@ -623,6 +622,7 @@ const initialize = async (uuid, isFullDataset) => {
     const coords = await (await fetch(API_URL + '/features?db_name=' + uuid + '&feature=velocity&embed=umap&time=1')).json();
     const metadata = await (await fetch(API_URL + '/features?db_name=' + uuid + '&feature=clusters')).json();
     if (coords.velocity.length > velocity_cutoff) {
+        isGrid = true;
         const grid = await (await fetch(API_URL + '/features?db_name=' + uuid + '&feature=velocity_grid&embed=umap&time=1')).json();
         renderGrid(grid.velocity_grid);
         renderVelocity(coords.velocity, metadata.clusters, true);

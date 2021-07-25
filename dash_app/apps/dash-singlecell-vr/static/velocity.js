@@ -145,7 +145,7 @@ AFRAME.registerComponent('velocity', {
     },
     update: function(oldData) {
         if (this.mesh) {
-            if (oldData.colors !== this.data.colors) {
+            if (JSON.stringify(oldData.colors) !== JSON.stringify(this.data.colors)) {
                 if (this.mesh.geometry) {
                     const newColors = this.data.colors;
                     const color = new THREE.Color();
@@ -159,7 +159,8 @@ AFRAME.registerComponent('velocity', {
                     this.mesh.geometry.setAttribute( 'instanceColorBase', new THREE.BufferAttribute( new Float32Array( this.instanceColorsBase ), 3 ) );
                 }
             } 
-            if (oldData.endPositions !== this.data.endPositions || oldData.positions !== this.data.positions) {
+            if (JSON.stringify(oldData.endPositions) !== JSON.stringify(this.data.endPositions) || 
+                JSON.stringify(oldData.positions) !== JSON.stringify(this.data.positions)) {
                 TWEEN.removeAll();
                 for ( var i = 0; i < this.data.count; i ++ ) {
                     var x = this.data.positions[i][0] * this.data.scale;
