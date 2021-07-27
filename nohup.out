@@ -1,0 +1,33 @@
+[2021-07-23 16:34:30 +0000] [1] [INFO] Starting gunicorn 20.1.0
+[2021-07-23 16:34:30 +0000] [1] [INFO] Listening at: http://0.0.0.0:8000 (1)
+[2021-07-23 16:34:30 +0000] [1] [INFO] Using worker: sync
+[2021-07-23 16:34:30 +0000] [10] [INFO] Booting worker with pid: 10
+[2021-07-23 16:34:30 +0000] [10] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/opt/conda/lib/python3.6/site-packages/gunicorn/arbiter.py", line 589, in spawn_worker
+    worker.init_process()
+  File "/opt/conda/lib/python3.6/site-packages/gunicorn/workers/base.py", line 134, in init_process
+    self.load_wsgi()
+  File "/opt/conda/lib/python3.6/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+    self.wsgi = self.app.wsgi()
+  File "/opt/conda/lib/python3.6/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+  File "/opt/conda/lib/python3.6/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+    return self.load_wsgiapp()
+  File "/opt/conda/lib/python3.6/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+    return util.import_app(self.app_uri)
+  File "/opt/conda/lib/python3.6/site-packages/gunicorn/util.py", line 359, in import_app
+    mod = importlib.import_module(module)
+  File "/opt/conda/lib/python3.6/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 994, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 971, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 953, in _find_and_load_unlocked
+ModuleNotFoundError: No module named 'app'
+[2021-07-23 16:34:30 +0000] [10] [INFO] Worker exiting (pid: 10)
+[2021-07-23 16:34:31 +0000] [1] [INFO] Shutting down: Master
+[2021-07-23 16:34:31 +0000] [1] [INFO] Reason: Worker failed to boot.
+[2021-07-23 16:38:13 +0000] [1] [INFO] Starting gunicorn 20.1.0
+[2021-07-23 16:38:13 +0000] [1] [INFO] Listening at: http://0.0.0.0:8000 (1)
+[2021-07-23 16:38:13 +0000] [1] [INFO] Using worker: sync
+[2021-07-23 16:38:13 +0000] [10] [INFO] Booting worker with pid: 10

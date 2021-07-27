@@ -21,8 +21,7 @@ let velocity;
 let fullDataset;
 const resultElements = ["result1", "result2", "result3"];
 const velocity_cutoff = 3000
-// const API_URL='https://singlecellvrbackend.herokuapp.com';
-const API_URL='http://172.17.0.1:8999';
+const API_URL='http://host.docker.internal:8999';
 
 // --------------------------------------------------------
 

@@ -1,0 +1,15 @@
+.git
+**/.git
+**/.git/*
+examples
+**/examples
+**/examples/*
+**/scvr
+**/scvr/*
+scvr
+images
+**/images
+**/images/*
+Procfile
+README.md			
+start.sh
