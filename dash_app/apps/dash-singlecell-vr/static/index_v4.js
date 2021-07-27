@@ -22,6 +22,7 @@ let fullDataset;
 const resultElements = ["result1", "result2", "result3"];
 const velocity_cutoff = 3000
 const API_URL='http://host.docker.internal:8999';
+let isGrid = false;
 
 // --------------------------------------------------------
 
@@ -75,44 +76,40 @@ const initializeMenu = () => {
 }
 
 const renderLegend = async (annotation, clusterColors) => {
-  if (fullDataset) {
-    const response = await fetch(API_URL + '/features?db_name=' + dataset_name + '&feature=' + annotation)
-    clusterColors = await response.json()
-  }
-
-  const unorderedLegendColors = {};
-  const legendColors = {};
-
-  Object.values(clusterColors[annotation]).forEach((metadatum) => {
-    unorderedLegendColors[metadatum.label] = metadatum.clusters_color;
-  });
-
-  Object.keys(unorderedLegendColors).sort().forEach((key) => {
-    legendColors[key] = unorderedLegendColors[key];
-  });
+   
+    const unorderedLegendColors = {};
+    const legendColors = {};
   
-  const legend = document.getElementById('legend');
-  if (Object.keys(legendColors).every((n) => Utils.isDigits(n, true))) {
-    const labels = Object.keys(legendColors).filter((s) => s.toLowerCase() !== 'nan');
-    const maxLabel = Math.ceil(Math.max(...labels) * 100) / 100; 
-    const minLabel = Math.ceil(Math.min(...labels) * 100) / 100; 
-    const medianLabel = Math.ceil(labels[Math.floor(labels.length / 2)] * 100) / 100;
-    const colorbar = Utils.htmlToElement(`<a-entity color-gradient="colors: ${Object.values(legendColors)}; maxLabel: ${maxLabel}; minLabel: ${minLabel}; medianLabel: ${medianLabel}; height: 4; width: 1; verticalOffset: 0" position="0 -2.5 0"></a-entity>`);
-    legend.appendChild(colorbar);
-    legend.setAttribute('opacity', 0);
-  } else if (Object.keys(legendColors).length < 100) {
-    Object.keys(legendColors).forEach((key) => {
-      const el = document.createElement("a-gui-label");
-      el.setAttribute("width", "2.5");
-      el.setAttribute("height", ".25");
-      el.setAttribute("value", key);
-      el.setAttribute("font-width", 6);
-      el.setAttribute("font-color", "black");
-      el.setAttribute("background-color", legendColors[key]);
-      legend.appendChild(el);
-      legend.setAttribute('opacity', 0.7);
+    Object.values(clusterColors[annotation]).forEach((metadatum) => {
+      unorderedLegendColors[metadatum.label] = metadatum.clusters_color;
     });
-  }
+  
+    Object.keys(unorderedLegendColors).sort().forEach((key) => {
+      legendColors[key] = unorderedLegendColors[key];
+    });
+    
+    const legend = document.getElementById('legend');
+    if (Object.keys(legendColors).every((n) => Utils.isDigits(n, true))) {
+      const labels = Object.keys(legendColors).filter((s) => s.toLowerCase() !== 'nan');
+      const maxLabel = Math.ceil(Math.max(...labels) * 100) / 100; 
+      const minLabel = Math.ceil(Math.min(...labels) * 100) / 100; 
+      const medianLabel = Math.ceil(labels[Math.floor(labels.length / 2)] * 100) / 100;
+      const colorbar = Utils.htmlToElement(`<a-entity color-gradient="colors: ${Object.values(legendColors)}; maxLabel: ${maxLabel}; minLabel: ${minLabel}; medianLabel: ${medianLabel}; height: 4; width: 1; verticalOffset: 0" position="0 -2.5 0"></a-entity>`);
+      legend.appendChild(colorbar);
+      legend.setAttribute('opacity', 0);
+    } else if (Object.keys(legendColors).length < 100) {
+      Object.keys(legendColors).forEach((key) => {
+        const el = document.createElement("a-gui-label");
+        el.setAttribute("width", "2.5");
+        el.setAttribute("height", ".25");
+        el.setAttribute("value", key);
+        el.setAttribute("font-width", 6);
+        el.setAttribute("font-color", "black");
+        el.setAttribute("background-color", legendColors[key]);
+        legend.appendChild(el);
+        legend.setAttribute('opacity', 0.7);
+      });
+    }
 }
 
 const initializeAnnotationMenu = async (annotations, clusterColors) => {
@@ -123,7 +120,7 @@ const initializeAnnotationMenu = async (annotations, clusterColors) => {
 
   // Ensure menu items dont overflow the container
   totalItemsHeight = annotations.length * .5;
-  if (totalItemsHeight > 5) {
+  if (totalItemsHeight >= 4) {
     adjustedContainerHeight = totalItemsHeight + 1.5;
     annotation_menu.setAttribute('height', adjustedContainerHeight);
     annotation_menu.object3D.position.set(1.85, (5 - adjustedContainerHeight) / 2, 0);
@@ -184,10 +181,9 @@ const movement = (num) => {
 
 const viewGene = async (geneName) => {
     if (fullDataset) {
-        const gene = await fetch(API_URL + '/features?db_name=' + dataset_name + '&feature=expression&gene=' + geneName);
-        const cellsByGene = await gene.json();
-        const colors = Array.from(cellsByGene.map(cell => cell.color));
-        if (velocity) {
+        const cellsByGene = await (await fetch(API_URL + '/features?db_name=' + dataset_name + '&feature=expression&gene=' + geneName)).json();
+        const colors = Array.from(cellsByGene.expression.map(cell => cell.color));
+        if (velocity && !isGrid) {
             document.getElementById('velocity').setAttribute("velocity", {count: colors.length, colors: colors});
         } else {
             document.getElementById('cells').setAttribute("cells", {count: colors.length, colors: colors});
@@ -195,7 +191,7 @@ const viewGene = async (geneName) => {
     } else {
         const cellsByGene = JSON.parse(await report.file(geneName + ".json").async("string"));
         const colors = Array.from(cellsByGene.map(cell => cell.color));
-        if (velocity) {
+        if (velocity && !isGrid) {
             document.getElementById('velocity').setAttribute("velocity", {count: colors.length, colors: colors});
         } else {
             document.getElementById('cells').setAttribute("cells", {count: colors.length, colors: colors});
@@ -205,7 +201,7 @@ const viewGene = async (geneName) => {
 
 const renderAnnotation = (annotation, cellColors) => {
     const colors = Array.from(Object.entries(cellColors[annotation]).map(([id, cell]) => cell.clusters_color));
-    if (velocity) {
+    if (velocity && !isGrid) {
         document.getElementById('velocity').setAttribute("velocity", {count: colors.length, colors: colors});
     } else {
         document.getElementById('cells').setAttribute("cells", {count: colors.length, colors: colors});
@@ -247,11 +243,11 @@ const createCellMetadataObject = (metadata) => {
 
 const adjustT = async (t) => {
     const el = document.getElementById('velocity');
-    const coords = await fetch(API_URL + '/features?db_name=' + dataset_name + '&feature=velocity&embed=umap&time=' + t);
-    const coordsData = await coords.json();
-    cellEndPositions = Array.from(coordsData.velocity.map((cell) => [cell.x1, cell.y1, cell.z1]));  
+    const coords = await (await fetch(API_URL + '/features?db_name=' + dataset_name + '&feature=velocity&embed=umap&time=' + t)).json();
+    gridStartPositions = Array.from(coords.velocity.map((cell) => [cell.x0, cell.y0, cell.z0])); 
+    gridEndPositions = Array.from(coords.velocity.map((cell) => [cell.x1, cell.y1, cell.z1])); 
     const count = el.getAttribute('velocity').count;
-    el.setAttribute('velocity', {count: count, endPositions: cellEndPositions});
+    el.setAttribute('velocity', {count: count, positions: gridStartPositions, endPositions: gridEndPositions});
 }
 
 const renderCells = (cells, cellMetadata, scale, radius, velocity) => {
@@ -387,7 +383,7 @@ const createBranchPoints = (curve) => {
   const curveLabels = document.getElementById('graph-labels-container');
   curveLabels.appendChild(labelEntity);
   curve.xyz.forEach((coord, _) => {
-      const curvePoint = `<a-curve-point position="${coord.x0 * 100} ${coord.y0 * 100} ${coord.z0 * 100}"></a-curve-point>`;
+      const curvePoint = `<a-curve-point position="${coord.x * 100} ${coord.y * 100} ${coord.z * 100}"></a-curve-point>`;
       curvePoints.push(Utils.htmlToElement(curvePoint));
   });
   return curvePoints;
@@ -626,6 +622,7 @@ const initialize = async (uuid, isFullDataset) => {
     const coords = await (await fetch(API_URL + '/features?db_name=' + uuid + '&feature=velocity&embed=umap&time=1')).json();
     const metadata = await (await fetch(API_URL + '/features?db_name=' + uuid + '&feature=clusters')).json();
     if (coords.velocity.length > velocity_cutoff) {
+        isGrid = true;
         const grid = await (await fetch(API_URL + '/features?db_name=' + uuid + '&feature=velocity_grid&embed=umap&time=1')).json();
         renderGrid(grid.velocity_grid);
         renderVelocity(coords.velocity, metadata.clusters, true);
@@ -637,7 +634,6 @@ const initialize = async (uuid, isFullDataset) => {
     if (fullDataset) {
         const scatter = await (await fetch(API_URL + '/coordinates?db_name=' + uuid + '&embed=umap')).json();
         const metadata = await (await fetch(API_URL + '/features?db_name=' + uuid + '&feature=louvain')).json();
-        console.log(metadata)
         renderSeurat(scatter, metadata.louvain);
     } else {
         const scatter = JSON.parse(await report.file("scatter.json").async("string"));
