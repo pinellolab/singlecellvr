@@ -120,7 +120,7 @@ const initializeAnnotationMenu = async (annotations, clusterColors) => {
 
   // Ensure menu items dont overflow the container
   totalItemsHeight = annotations.length * .5;
-  if (totalItemsHeight >= 5) {
+  if (totalItemsHeight >= 4) {
     adjustedContainerHeight = totalItemsHeight + 1.5;
     annotation_menu.setAttribute('height', adjustedContainerHeight);
     annotation_menu.object3D.position.set(1.85, (5 - adjustedContainerHeight) / 2, 0);
