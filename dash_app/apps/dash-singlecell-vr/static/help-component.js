@@ -12,7 +12,7 @@ AFRAME.registerComponent('help', {
     },
     update: function(oldData) {
         if (this.data.show) {
-            document.getElementById('cursor').setAttribute('raycaster', 'objects', '#helpButton');
+            document.getElementById('myCursor').setAttribute('raycaster', 'objects', '#helpButton');
             this.el.setAttribute('visible', true);
             this.el.setAttribute('src', '/assets/scvr_inapp_help.m4v');
             setTimeout(() => {
@@ -24,7 +24,7 @@ AFRAME.registerComponent('help', {
         }
     },
     dismiss: function() {
-        document.getElementById('cursor').setAttribute('raycaster', 'objects', '[gui-interactable]');
+        document.getElementById('myCursor').setAttribute('raycaster', 'objects', '.keyboardRaycastable, [gui-interactable]');
         this.el.setAttribute('visible', false);
     }
 
