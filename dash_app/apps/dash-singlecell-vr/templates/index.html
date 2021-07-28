@@ -6,7 +6,7 @@
     <script src="https://raw.githack.com/andreasplesch/aframe-meshline-component/master/dist/aframe-meshline-component.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.2.0/dist/aframe-environment-component.min.js"></script>
     <script src="https://unpkg.com/aframe-button-controls@^1.1.0/aframe-button-controls.js"></script>
-    <script src="https://unpkg.com/aframe-super-keyboard@1.0.0/dist/aframe-super-keyboard.min.js"></script>
+    <script src="/static/aframe-super-keyboard.min.js"></script>
     <script src="/static/tween.umd.js"></script>
     <script src="/static/jszip.min.js"></script>
     <script src="/static/bab_utils.js"></script>
@@ -23,7 +23,7 @@
     <script src="/static/help-component.js"></script>
   </head>
   <body>
-    <a-scene  id="scene" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: true" gamepad-movement-controls renderer="alpha: false">
+    <a-scene id="scene" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: true" gamepad-movement-controls renderer="alpha: false">
 
       <a-entity button-controls></a-entity>
 
@@ -36,12 +36,13 @@
                     <a-entity scale=".01 .01 .01" id="graph-map" mimic-rotation="masterId: graph-container;"></a-entity>
                 </a-entity>
               </a-entity>
-              <a-gui-cursor id="cursor"
+              <a-gui-cursor id="myCursor"
                     raycaster="objects: [gui-interactable]"
                     fuse="true" fuse-timeout="2000"
                     design="ring"
               >
               </a-gui-cursor>
+              
           </a-entity>
       </a-entity>
 
@@ -188,7 +189,7 @@
             position="5.55 0 0" rotation="0 0 0" id="legend">
           </a-gui-flex-container>
 
-          <a-entity id="keyboard" super-keyboard="hand: #cursor; imagePath: /assets; width: 8; multipleInputs: true; show: true" position="12 0 0"></a-entity>
+          <a-entity id="keyboard" super-keyboard="hand: #myCursor; imagePath: /assets; width: 8; multipleInputs: true; show: true" position="3.5 0 4"></a-entity>
 
         </a-entity>   
       </a-entity>
