@@ -668,7 +668,7 @@ document.body.addEventListener('keydown', (e) => {
         hud.position.set(0, 0, -.5);
         hud.visible = true;
       }
-      document.getElementById("cursor").object3D.visible = false;
+      document.getElementById("myCursor").object3D.visible = false;
     }
   } else if (e.key === "ArrowUp") {
       movement(movementSpeed);
@@ -757,7 +757,7 @@ document.body.addEventListener('keyup', (e) => {
       if (hud.visible) {
         hud.visible = false;
       }
-      document.getElementById("cursor").object3D.visible = true;
+      document.getElementById("myCursor").object3D.visible = true;
     }
   }
   delete keyPressed[event.key];
@@ -788,7 +788,14 @@ document.getElementById("pauseGlobalRotation").addEventListener("click", () => {
 
 toggleKeyboard = () => {
   const keyboard = document.getElementById('keyboard');
-  keyboard.getAttribute('visible') ? keyboard.components['super-keyboard'].close() : keyboard.components['super-keyboard'].open()
+  if (keyboard.getAttribute('visible')) {
+    // This is bad and if you forget you'll spend hours trying to figure out why things arent intersecting
+    document.getElementById('myCursor').setAttribute('raycaster', 'objects', '[gui-interactable]');
+    keyboard.components['super-keyboard'].close()
+  } else {
+    document.getElementById('myCursor').setAttribute('raycaster', 'objects', '.keyboardRaycastable, [gui-interactable]');
+    keyboard.components['super-keyboard'].open()
+  }
 }
 
 adjustMovementSpeed = (step) => {
