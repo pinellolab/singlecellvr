@@ -33,7 +33,8 @@ APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 DATASET_DIRECTORY = os.path.join(APP_PATH, "app_datasets")
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
 QR_DIRECTORY = os.path.join(APP_PATH, "assets")
-API = 'http://0.0.0.0:8000'
+API = 'https://singlecellvr.com'
+
 
 # "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
 
@@ -79,8 +80,7 @@ def get_tool_type(file):
         if tool in file.lower():
             return tool
 
-@app.server.route("/databases", methods=["GET", "POST"])
-def get_databases():
+def datasets_payload():
     adata_files = glob(os.path.join(DATASET_DIRECTORY, "*"))
     adata_list = list()
     for file in adata_files:
@@ -95,7 +95,11 @@ def get_databases():
                 "type": tool,
             }
         )
-    return jsonify(adata_list)
+    return adata_list
+
+@app.server.route("/databases", methods=["GET", "POST"])
+def get_databases():
+    return jsonify(dataset_payload)
 
 @app.server.route("/data_type", methods=["GET", "POST"])
 def get_dataset_type():
@@ -636,8 +640,7 @@ app.layout = dbc.Container(
     [Input('dropdown-container', 'n_clicks')]
 )
 def update_options(n_clicks):
-    options = json.loads(requests.get(f'{API}/databases').text)
-    return options
+    return datasets_payload()
 
 
 def save_file(name, content):
@@ -677,7 +680,7 @@ def render_qrcode(unique_id):
                 )
 
 def save_qr_image(unique_id):
-    img = qrcode.make("https://singlecellvr.herokuapp.com/view/" + str(unique_id))
+    img = qrcode.make(API + "/view/" + str(unique_id))
     i = img.get_image()
     if unique_id:
         i.save(os.path.join(QR_DIRECTORY) + '/' + str(unique_id) + '.bmp')
