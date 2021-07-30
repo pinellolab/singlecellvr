@@ -1,4 +1,5 @@
 node_modules
+nohup.out
 .eslintrc.json
 *.json
 *.log
