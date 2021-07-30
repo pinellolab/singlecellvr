@@ -21,8 +21,8 @@ let velocity;
 let fullDataset;
 const resultElements = ["result1", "result2", "result3"];
 const velocity_cutoff = 3000
-const API_URL='http://guybrushs-mbp.mgh.harvard.edu:8999';
 let isGrid = false;
+const API_URL='http://0.0.0.0:8000';
 
 // --------------------------------------------------------
 
