@@ -23,7 +23,7 @@ APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
 QR_DIRECTORY = os.path.join(APP_PATH, "assets")
-API = 'http://host.docker.internal:8999'
+API = 'http://guybrushs-mbp.mgh.harvard.edu:8999'
 
 # "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
 
