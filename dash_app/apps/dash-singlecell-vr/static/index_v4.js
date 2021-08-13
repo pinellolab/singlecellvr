@@ -76,36 +76,44 @@ const initializeMenu = () => {
 }
 
 const renderLegend = async (annotation, clusterColors) => {
-   
-    const unorderedLegendColors = {};
-    const legendColors = {};
-  
-    Object.values(clusterColors[annotation]).forEach((metadatum) => {
-      unorderedLegendColors[metadatum.label] = metadatum.clusters_color;
-    });
-  
-    Object.keys(unorderedLegendColors).sort().forEach((key) => {
-      legendColors[key] = unorderedLegendColors[key];
-    });
+    let legendColors = {};
+    let labels = [];
+    if (fullDataset && annotation !== 'clusters') {
+        const colors = await (await fetch(API_URL + '/legend?db_name=' + dataset_name + '&feature=' + annotation)).json();
+        legendColors = colors[annotation];
+        labels = colors['labels'].sort()
+        labels = labels.filter((s) => s.toString().toLowerCase() !== 'nan');
+
+    } else {
+        const unorderedLegendColors = {};
+    
+        Object.values(clusterColors[annotation]).forEach((metadatum) => {
+            unorderedLegendColors[metadatum.label] = metadatum.clusters_color;
+        });
+    
+        Object.keys(unorderedLegendColors).sort().forEach((key) => {
+            legendColors[key] = unorderedLegendColors[key];
+        });
+        labels = Object.keys(legendColors).filter((s) => s.toLowerCase() !== 'nan');
+    }
     
     const legend = document.getElementById('legend');
-    if (Object.keys(legendColors).every((n) => Utils.isDigits(n, true))) {
-      const labels = Object.keys(legendColors).filter((s) => s.toLowerCase() !== 'nan');
+    if (labels.every((n) => Number.isFinite(n))) {
       const maxLabel = Math.ceil(Math.max(...labels) * 100) / 100; 
       const minLabel = Math.ceil(Math.min(...labels) * 100) / 100; 
       const medianLabel = Math.ceil(labels[Math.floor(labels.length / 2)] * 100) / 100;
       const colorbar = Utils.htmlToElement(`<a-entity color-gradient="colors: ${Object.values(legendColors)}; maxLabel: ${maxLabel}; minLabel: ${minLabel}; medianLabel: ${medianLabel}; height: 4; width: 1; verticalOffset: 0" position="0 -2.5 0"></a-entity>`);
       legend.appendChild(colorbar);
       legend.setAttribute('opacity', 0);
-    } else if (Object.keys(legendColors).length < 100) {
-      Object.keys(legendColors).forEach((key) => {
+    } else if (labels.length < 100) {
+      labels.forEach((label) => {
         const el = document.createElement("a-gui-label");
         el.setAttribute("width", "2.5");
         el.setAttribute("height", ".25");
-        el.setAttribute("value", key);
+        el.setAttribute("value", label);
         el.setAttribute("font-width", 6);
         el.setAttribute("font-color", "black");
-        el.setAttribute("background-color", legendColors[key]);
+        el.setAttribute("background-color", legendColors[label]);
         legend.appendChild(el);
         legend.setAttribute('opacity', 0.7);
       });
