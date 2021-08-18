@@ -33,8 +33,8 @@ APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 DATASET_DIRECTORY = os.path.join(APP_PATH, "app_datasets")
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
 QR_DIRECTORY = os.path.join(APP_PATH, "assets")
-API = 'https://singlecellvr.pinellolab.partners.org'
-#API = 'http://0.0.0.0:8080'
+#API = 'https://singlecellvr.pinellolab.partners.org'
+API = 'http://0.0.0.0:8080'
 
 # "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
 
@@ -727,7 +727,7 @@ def render_qrcode(unique_id):
         return html.Div(
                     children=[
                         html.H3("Uploaded dataset:"),
-                        html.Img(src='/assets/' + str(unique_id) + '.bmp', style={'width': '40%', 'margin-bottom': '20px'}),
+                        html.Img(src=API + '/assets/' + str(unique_id) + '.bmp', style={'width': '40%', 'margin-bottom': '20px'}),
                     ]
                 )
 
@@ -764,7 +764,7 @@ def update_output(value):
                 html.Div(
                     children=[
                         html.H3("Preprocessed dataset:"),
-                        html.Img(src='/assets/' + file_id + '.bmp', style={'width': '40%'}),
+                        html.Img(src=API + '/assets/' + file_id + '.bmp', style={'width': '40%'}),
                     ]
                 )]
     else:
@@ -776,12 +776,15 @@ def update_output(value):
 def update_output(unique_id, file_id):
     if not unique_id and not file_id:
         return dbc.Button("Please choose or upload dataset!", id='button', className="fly-button", color="link", disabled=True,n_clicks=0)
-    if 'scvr' in file_id:
+    if file_id and 'scvr' in file_id:
         return html.A(dbc.Button("Let's fly!", id='button',disabled=False,n_clicks=0, color="link", className="fly-button"),
-                                    href="/view?dataset="+str(file_id) + "&fulldataset=false")
+                                    href=API + "/view?dataset="+str(file_id) + "&fulldataset=false")
+    elif unique_id and 'scvr' in unique_id:
+        return html.A(dbc.Button("Let's fly!", id='button',disabled=False,n_clicks=0, color="link", className="fly-button"),
+                                    href=API + "/view?dataset="+str(unique_id) + "&fulldataset=false")
     else:     
         return html.A(dbc.Button("Let's fly!", id='button',disabled=False,n_clicks=0, color="link", className="fly-button"),
-                                    href="/view?dataset="+str(file_id) + "&fulldataset=true")
+                                    href=API + "/view?dataset="+str(file_id) + "&fulldataset=true")
   
 @app.callback(
     [Output("file-list", "children"),Output("intermediate-value", "children")],
@@ -792,8 +795,8 @@ def update_output(uploaded_filenames, uploaded_file_contents):
 
     if uploaded_filenames is not None and uploaded_file_contents is not None:
         for name, data in zip(uploaded_filenames, uploaded_file_contents):
-            unique_id = save_file(name, data)
-            return [[html.P('File ' + name + ' has been uploaded.')],unique_id]
+            save_file(name, data)
+            return [[html.P('File ' + name + ' has been uploaded.')],name.split('.')[0]]
     else:
     	return [[html.P("")],None]
 
