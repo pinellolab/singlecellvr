@@ -22,8 +22,8 @@ let fullDataset;
 const resultElements = ["result1", "result2", "result3"];
 const velocity_cutoff = 3000
 let isGrid = false;
-// const API_URL = 'https://singlecellvr.pinellolab.partners.org'
-const API_URL = 'http://0.0.0.0:8080';
+const API_URL = 'https://singlecellvr.pinellolab.partners.org'
+// const API_URL = 'http://0.0.0.0:8080';
 
 // --------------------------------------------------------
 

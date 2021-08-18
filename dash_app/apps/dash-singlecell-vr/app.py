@@ -33,8 +33,8 @@ APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 DATASET_DIRECTORY = os.path.join(APP_PATH, "app_datasets")
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
 QR_DIRECTORY = os.path.join(APP_PATH, "assets")
-#API = 'https://singlecellvr.pinellolab.partners.org'
-API = 'http://0.0.0.0:8080'
+API = 'https://singlecellvr.pinellolab.partners.org'
+#API = 'http://0.0.0.0:8080'
 
 # "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
 
@@ -736,7 +736,7 @@ def render_qrcode(unique_id):
 
 def save_qr_image(unique_id):
     full = "true"
-    if "scvr_processed" in unique_id:
+    if "scvr" in unique_id:
         full = "false"
     img = qrcode.make(API + "/view?dataset=" + str(unique_id) + "&fulldataset=" + full)
     i = img.get_image()
