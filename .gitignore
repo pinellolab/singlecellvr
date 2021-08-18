@@ -8,4 +8,5 @@ __pycache__
 .DS_Store
 .ipynb_checkpoints
 !manifest.json
+app_uploaded_files
 app_datasets
