@@ -33,7 +33,7 @@ APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 DATASET_DIRECTORY = os.path.join(APP_PATH, "app_datasets")
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
 QR_DIRECTORY = os.path.join(APP_PATH, "assets")
-API = 'https://singlecellvr.com'
+API = 'https://singlecellvr.pinellolab.partners.org'
 
 
 # "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
@@ -134,6 +134,7 @@ def get_coordinates():
         adata = sc.read(filename)
         embed = request.args.get("embed")
     else:
+        print(filename)
         adata = st.read(filename, file_format="pkl", workdir="./")
 
     list_cells = []
@@ -482,6 +483,7 @@ def get_genes():
     http://127.0.0.1:8000/genes?db_name=1_scanpy_10xpbmc
     """
     db_name = request.args.get("db_name")
+    filename = glob(os.path.join(DATASET_DIRECTORY, f"{db_name}.*"))[0]
     try:
         del adata
         gc.collect()
@@ -489,7 +491,8 @@ def get_genes():
         pass
     adata = None
     if get_dataset_type_adata(db_name).lower() == 'stream':
-        adata = st.read(glob(os.path.join(DATASET_DIRECTORY, f"{db_name}.*"))[0], file_format="pkl", workdir="./")
+        print(filename)
+        adata = st.read(filename, file_format="pkl", workdir="./")
     else:
         adata = sc.read(glob(os.path.join(DATASET_DIRECTORY, f"{db_name}.*"))[0])
     
@@ -680,7 +683,10 @@ def render_qrcode(unique_id):
                 )
 
 def save_qr_image(unique_id):
-    img = qrcode.make(API + "/view/" + str(unique_id))
+    full = "true"
+    if "scvr_processed" in unique_id:
+        full = "false"
+    img = qrcode.make(API + "/view?dataset=" + str(unique_id) + "&fulldataset=" + full)
     i = img.get_image()
     if unique_id:
         i.save(os.path.join(QR_DIRECTORY) + '/' + str(unique_id) + '.bmp')
