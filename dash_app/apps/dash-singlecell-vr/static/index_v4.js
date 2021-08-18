@@ -22,7 +22,8 @@ let fullDataset;
 const resultElements = ["result1", "result2", "result3"];
 const velocity_cutoff = 3000
 let isGrid = false;
-const API_URL='http://0.0.0.0:8080';
+API = 'https://singlecellvr.pinellolab.partners.org'
+// const API_URL='http://0.0.0.0:8080';
 
 // --------------------------------------------------------
 
@@ -79,21 +80,15 @@ const renderLegend = async (annotation, clusterColors) => {
     let legendColors = {};
     let labels = [];
     if (fullDataset && annotation !== 'clusters') {
-        const colors = await (await fetch(API_URL + '/legend?db_name=' + dataset_name + '&feature=' + annotation)).json();
-        legendColors = colors[annotation];
-        labels = colors['labels'].sort()
+        legendColors = clusterColors[annotation];
+        labels = clusterColors['labels'].sort()
         labels = labels.filter((s) => s.toString().toLowerCase() !== 'nan');
 
     } else {
-        const unorderedLegendColors = {};
-    
         Object.values(clusterColors[annotation]).forEach((metadatum) => {
             legendColors[metadatum.label] = metadatum.clusters_color;
         });
     
-        // Object.keys(unorderedLegendColors).sort().forEach((key) => {
-        //     legendColors[key] = unorderedLegendColors[key];
-        // });
         labels = Object.keys(legendColors).filter((s) => s.toLowerCase() !== 'nan');
     }
     
