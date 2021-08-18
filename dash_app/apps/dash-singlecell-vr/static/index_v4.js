@@ -22,7 +22,7 @@ let fullDataset;
 const resultElements = ["result1", "result2", "result3"];
 const velocity_cutoff = 3000
 let isGrid = false;
-const API_URL='http://0.0.0.0:8000';
+const API_URL='http://0.0.0.0:8080';
 
 // --------------------------------------------------------
 
@@ -88,12 +88,12 @@ const renderLegend = async (annotation, clusterColors) => {
         const unorderedLegendColors = {};
     
         Object.values(clusterColors[annotation]).forEach((metadatum) => {
-            unorderedLegendColors[metadatum.label] = metadatum.clusters_color;
+            legendColors[metadatum.label] = metadatum.clusters_color;
         });
     
-        Object.keys(unorderedLegendColors).sort().forEach((key) => {
-            legendColors[key] = unorderedLegendColors[key];
-        });
+        // Object.keys(unorderedLegendColors).sort().forEach((key) => {
+        //     legendColors[key] = unorderedLegendColors[key];
+        // });
         labels = Object.keys(legendColors).filter((s) => s.toLowerCase() !== 'nan');
     }
     
@@ -252,7 +252,7 @@ const createCellMetadataObject = (metadata) => {
 const adjustT = async (t) => {
     const el = document.getElementById('velocity');
     const coords = await (await fetch(API_URL + '/features?db_name=' + dataset_name + '&feature=velocity&embed=umap&time=' + t)).json();
-    gridStartPositions = Array.from(coords.velocity.map((cell) => [cell.x0, cell.y0, cell.z0])); 
+    gridStartPositions = Array.from(coords.velocity.map((cell) => [cell.x, cell.y, cell.z])); 
     gridEndPositions = Array.from(coords.velocity.map((cell) => [cell.x1, cell.y1, cell.z1])); 
     const count = el.getAttribute('velocity').count;
     el.setAttribute('velocity', {count: count, positions: gridStartPositions, endPositions: gridEndPositions});
@@ -264,10 +264,10 @@ const renderCells = (cells, cellMetadata, scale, radius, velocity) => {
   cellEndPositions = [];
   cells.map((cell) => {
       if (velocity) {
-        cellPositions.push([cell.x0, cell.y0, cell.z0]);
+        cellPositions.push([cell.x, cell.y, cell.z]);
         cellEndPositions.push([cell.x1, cell.y1, cell.z1])
       } else {
-        cellPositions.push([cell.x0, cell.y0, cell.z0]);
+        cellPositions.push([cell.x, cell.y, cell.z]);
       }
       colors.push(cellMetadata[Object.keys(cellMetadata)[0]][cell.cell_id].clusters_color);
   });  
@@ -286,7 +286,7 @@ const renderGridArrows = (gridpoints, colors, scale, radius) => {
     cellPositions = [];
     cellEndPositions = [];
     gridpoints.map((point) => {
-        cellPositions.push([point.x0, point.y0, point.z0]);
+        cellPositions.push([point.x, point.y, point.z]);
         cellEndPositions.push([point.x1, point.y1, point.z1])
     });
     const el = document.createElement('a-entity');
@@ -363,8 +363,8 @@ const renderSeurat = (scatter, metadata) => {
   const xValues = []; 
   const yValues = [];
   Object.values(scatter).forEach(obj => { 
-    xValues.push(obj.x0 * .5);
-    yValues.push(obj.y0 * .5);
+    xValues.push(obj.x * .5);
+    yValues.push(obj.y * .5);
   });
   setInitialCameraAndGroundPosition(xValues, yValues);
   delete xValues, yValues;
@@ -384,7 +384,7 @@ const createBranchPoints = (curve) => {
   const labelEntity = document.createElement("a-entity");
   const textValue = `value: ${curve.branch_id}; color:black; align: center; side: double; width: 6`;
   labelEntity.setAttribute("text", textValue);
-  const labelPosition = `${midpoint.x0 * 100} ${midpoint.y0 * 100} ${midpoint.z0 * 100}`;
+  const labelPosition = `${midpoint.x * 100} ${midpoint.y * 100} ${midpoint.z * 100}`;
   labelEntity.setAttribute("position", labelPosition);
   labelEntity.setAttribute("watch", "targetId: player-camera");
   labelEntity.className = curve.branch_id;
@@ -424,8 +424,8 @@ const renderStream = async (curves, cells, metadata) => {
   const xValues = []; 
   const yValues = [];
   Object.values(cells).forEach(obj => { 
-    xValues.push(obj.x0 * 100);
-    yValues.push(obj.y0 * 100);
+    xValues.push(obj.x * 100);
+    yValues.push(obj.y * 100);
   });
   setInitialCameraAndGroundPosition(xValues, yValues);
   delete xValues, yValues;
@@ -466,8 +466,8 @@ const renderVelocity = (scatter, metadata, asCells) => {
   const xValues = []; 
   const yValues = [];
   Object.values(scatter).forEach(obj => { 
-    xValues.push(obj.x0 * .5);
-    yValues.push(obj.y0 * .5);
+    xValues.push(obj.x * .5);
+    yValues.push(obj.y * .5);
   });
   setInitialCameraAndGroundPosition(xValues, yValues);
   const [annotations, clusterColors] = createCellMetadataObject(metadata);

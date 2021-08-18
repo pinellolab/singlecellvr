@@ -34,7 +34,7 @@ DATASET_DIRECTORY = os.path.join(APP_PATH, "app_datasets")
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
 QR_DIRECTORY = os.path.join(APP_PATH, "assets")
 API = 'https://singlecellvr.com'
-
+API = 'http://0.0.0.0:8080'
 
 # "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
 
@@ -63,7 +63,7 @@ server.config['CORS_HEADERS'] = 'Content-Type'
 @server.route("/download/<path:path>")
 def download(path):
     """Serve a file from the upload directory."""
-    return send_from_directory(UPLOAD_DIRECTORY, path, as_attachment=True)
+    return send_from_directory(DATASET_DIRECTORY, path, as_attachment=True)
 
 
 @app.server.route('/view')
@@ -141,13 +141,13 @@ def get_coordinates():
         dict_coord_cells = dict()
         dict_coord_cells["cell_id"] = adata.obs_names[i]
         if get_dataset_type_adata(db_name).lower() in ["scanpy", "paga", "velocity"]:
-            dict_coord_cells["x0"] = str(adata.obsm[f"X_{embed}"][i, 0])
-            dict_coord_cells["y0"] = str(adata.obsm[f"X_{embed}"][i, 1])
-            dict_coord_cells["z0"] = str(adata.obsm[f"X_{embed}"][i, 2])
+            dict_coord_cells["x"] = str(adata.obsm[f"X_{embed}"][i, 0])
+            dict_coord_cells["y"] = str(adata.obsm[f"X_{embed}"][i, 1])
+            dict_coord_cells["z"] = str(adata.obsm[f"X_{embed}"][i, 2])
         elif get_dataset_type_adata(db_name).lower() == "seurat":
-            dict_coord_cells["x0"] = str(adata.obsm[f"{embed}_cell_embeddings"][i, 0])
-            dict_coord_cells["y0"] = str(adata.obsm[f"{embed}_cell_embeddings"][i, 1])
-            dict_coord_cells["z0"] = str(adata.obsm[f"{embed}_cell_embeddings"][i, 2])
+            dict_coord_cells["x"] = str(adata.obsm[f"{embed}_cell_embeddings"][i, 0])
+            dict_coord_cells["y"] = str(adata.obsm[f"{embed}_cell_embeddings"][i, 1])
+            dict_coord_cells["z"] = str(adata.obsm[f"{embed}_cell_embeddings"][i, 2])
         elif get_dataset_type_adata(db_name).lower() == "stream":
             file_path = os.path.join(adata.uns["workdir"], "test")
             if not os.path.exists(file_path):
@@ -169,9 +169,9 @@ def get_coordinates():
                 )
                 dict_coord_curves["xyz"] = [
                     {
-                        "x0": df_coord_curve_i.iloc[j, 0],
-                        "y0": df_coord_curve_i.iloc[j, 1],
-                        "z0": df_coord_curve_i.iloc[j, 2],
+                        "x": df_coord_curve_i.iloc[j, 0],
+                        "y": df_coord_curve_i.iloc[j, 1],
+                        "z": df_coord_curve_i.iloc[j, 2],
                     }
                     for j in range(df_coord_curve_i.shape[0])
                 ]
@@ -184,9 +184,9 @@ def get_coordinates():
                 dict_nodes_i = dict()
                 dict_nodes_i["node_name"] = ft_node_label[node_i]
                 dict_nodes_i["xyz"] = {
-                    "x0": ft_node_pos[node_i][0],
-                    "y0": ft_node_pos[node_i][1],
-                    "z0": ft_node_pos[node_i][2],
+                    "x": ft_node_pos[node_i][0],
+                    "y": ft_node_pos[node_i][1],
+                    "z": ft_node_pos[node_i][2],
                 }
                 dict_nodes[ft_node_label[node_i]] = dict_nodes_i
             for edge_i in flat_tree.edges():
@@ -202,9 +202,9 @@ def get_coordinates():
             for i in range(adata.shape[0]):
                 dict_coord_cells = dict()
                 dict_coord_cells['cell_id'] = adata.obs_names[i]
-                dict_coord_cells['x0'] = adata.obsm['X_dr'][i,0]
-                dict_coord_cells['y0'] = adata.obsm['X_dr'][i,1]
-                dict_coord_cells['z0'] = adata.obsm['X_dr'][i,2]
+                dict_coord_cells['x'] = adata.obsm['X_dr'][i,0]
+                dict_coord_cells['y'] = adata.obsm['X_dr'][i,1]
+                dict_coord_cells['z'] = adata.obsm['X_dr'][i,2]
                 list_cells.append(dict_coord_cells)
             return jsonify(
                 {"nodes": dict_nodes, "edges": list_edges, "graph": list_curves, "cells": list_cells}
@@ -319,9 +319,9 @@ def get_features():
             else:
                 dict_coord_cells["cell_id"] = adata.obs_names[i]
 
-            dict_coord_cells["x0"] = str(adata.obsm[f"X_{embed}"][i, 0])
-            dict_coord_cells["y0"] = str(adata.obsm[f"X_{embed}"][i, 1])
-            dict_coord_cells["z0"] = str(adata.obsm[f"X_{embed}"][i, 2])
+            dict_coord_cells["x"] = str(adata.obsm[f"X_{embed}"][i, 0])
+            dict_coord_cells["y"] = str(adata.obsm[f"X_{embed}"][i, 1])
+            dict_coord_cells["z"] = str(adata.obsm[f"X_{embed}"][i, 2])
 
             if time == "None":
                 dict_coord_cells["x1"] = str(adata.obsm[f"velocity_{embed}"][i, 0])
@@ -348,16 +348,16 @@ def get_features():
             dict_coord_cells = dict()
 
             if time == "None":
-                dict_coord_cells["x0"] = str(adata.uns[f"X_grid"][i, 0])
-                dict_coord_cells["y0"] = str(adata.uns[f"X_grid"][i, 1])
-                dict_coord_cells["z0"] = str(adata.uns[f"X_grid"][i, 2])
+                dict_coord_cells["x"] = str(adata.uns[f"X_grid"][i, 0])
+                dict_coord_cells["y"] = str(adata.uns[f"X_grid"][i, 1])
+                dict_coord_cells["z"] = str(adata.uns[f"X_grid"][i, 2])
                 dict_coord_cells["x1"] = str(adata.uns[f"V_grid"][i, 0])
                 dict_coord_cells["y1"] = str(adata.uns[f"V_grid"][i, 1])
                 dict_coord_cells["z1"] = str(adata.uns[f"V_grid"][i, 2])
             elif time in list(map(str, [0.01, 0.1, 1, 5, 10, 20, 50, 80, 100])):
-                dict_coord_cells["x0"] = str(adata.uns[f"X_grid_{time}"][i, 0])
-                dict_coord_cells["y0"] = str(adata.uns[f"X_grid_{time}"][i, 1])
-                dict_coord_cells["z0"] = str(adata.uns[f"X_grid_{time}"][i, 2])
+                dict_coord_cells["x"] = str(adata.uns[f"X_grid_{time}"][i, 0])
+                dict_coord_cells["y"] = str(adata.uns[f"X_grid_{time}"][i, 1])
+                dict_coord_cells["z"] = str(adata.uns[f"X_grid_{time}"][i, 2])
                 dict_coord_cells["x1"] = str(
                     adata.uns[f"V_grid_{time}"][i, 0]
                 )
@@ -755,8 +755,8 @@ def update_output(value):
             file_id = '10xPBMC_Seurat'
         elif(value=="Pancrease"):
             file_id = 'Pancrease_Velocity'
-        elif(value=='nestorowa'):
-            file_id = 'nestorowa_Velocity'
+        else:
+            file_id = value + '_scvr'
         save_qr_image(file_id)
         print("Value " + str(value))
         return ['You have selected "{}"'.format(value),
@@ -773,13 +773,13 @@ def update_output(value):
 @app.callback(
     Output('output-container-button', 'children'),
     [Input('intermediate-value', 'children'),Input('intermediate-value2', 'children')])
-def update_output(unique_id,file_id):
+def update_output(unique_id, file_id):
     if not unique_id and not file_id:
         return dbc.Button("Please choose or upload dataset!", id='button', className="fly-button", color="link", disabled=True,n_clicks=0)
-    if unique_id:
+    if 'scvr' in file_id:
         return html.A(dbc.Button("Let's fly!", id='button',disabled=False,n_clicks=0, color="link", className="fly-button"),
-                                    href="/view?dataset="+str(unique_id) + "&fulldataset=false")
-    if file_id:     
+                                    href="/view?dataset="+str(file_id) + "&fulldataset=false")
+    else:     
         return html.A(dbc.Button("Let's fly!", id='button',disabled=False,n_clicks=0, color="link", className="fly-button"),
                                     href="/view?dataset="+str(file_id) + "&fulldataset=true")
   
