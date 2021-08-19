@@ -77,38 +77,36 @@ const initializeMenu = () => {
 }
 
 const renderLegend = async (annotation, clusterColors) => {
-    let legendColors = {};
+    const legendColors = {};
+    let colors_labels = Object.values(clusterColors[annotation]).map(cell => {
+        legendColors[cell.label] = cell.clusters_color;
+        return [cell.clusters_color, cell.label]
+    }).sort((a, b) => a[1] >= b[1])
+    let colors = [];
     let labels = [];
-    if (fullDataset && annotation !== 'clusters') {
-        legendColors = clusterColors[annotation];
-        labels = clusterColors['labels'].sort()
-        labels = labels.filter((s) => s.toString().toLowerCase() !== 'nan');
+    colors_labels.forEach(val => {
+        colors.push(val[0])
+        labels.push(val[1])
+    })
+    labels = labels.filter((s) => s.toString().toLowerCase() !== 'nan');
 
-    } else {
-        Object.values(clusterColors[annotation]).forEach((metadatum) => {
-            legendColors[metadatum.label] = metadatum.clusters_color;
-        });
-    
-        labels = Object.keys(legendColors).filter((s) => s.toLowerCase() !== 'nan');
-    }
-    
     const legend = document.getElementById('legend');
     if (labels.every((n) => Number.isFinite(n))) {
       const maxLabel = Math.ceil(Math.max(...labels) * 100) / 100; 
       const minLabel = Math.ceil(Math.min(...labels) * 100) / 100; 
       const medianLabel = Math.ceil(labels[Math.floor(labels.length / 2)] * 100) / 100;
-      const colorbar = Utils.htmlToElement(`<a-entity color-gradient="colors: ${Object.values(legendColors)}; maxLabel: ${maxLabel}; minLabel: ${minLabel}; medianLabel: ${medianLabel}; height: 4; width: 1; verticalOffset: 0" position="0 -2.5 0"></a-entity>`);
+      const colorbar = Utils.htmlToElement(`<a-entity color-gradient="colors: ${colors}; maxLabel: ${maxLabel}; minLabel: ${minLabel}; medianLabel: ${medianLabel}; height: 4; width: 1; verticalOffset: 0" position="0 -2.5 0"></a-entity>`);
       legend.appendChild(colorbar);
       legend.setAttribute('opacity', 0);
-    } else if (labels.length < 100) {
-      labels.forEach((label) => {
+    } else if (Object.keys(legendColors).length < 100) {
+      Object.keys(legendColors).forEach(key => {
         const el = document.createElement("a-gui-label");
         el.setAttribute("width", "2.5");
         el.setAttribute("height", ".25");
-        el.setAttribute("value", label);
+        el.setAttribute("value", key);
         el.setAttribute("font-width", 6);
         el.setAttribute("font-color", "black");
-        el.setAttribute("background-color", legendColors[label]);
+        el.setAttribute("background-color", legendColors[key]);
         legend.appendChild(el);
         legend.setAttribute('opacity', 0.7);
       });
