@@ -78,10 +78,19 @@ const initializeMenu = () => {
 
 const renderLegend = async (annotation, clusterColors) => {
     const legendColors = {};
-    let colors_labels = Object.values(clusterColors[annotation]).map(cell => {
+    let colors_labels = await Object.values(clusterColors[annotation]).map(cell => {
         legendColors[cell.label] = cell.clusters_color;
         return [cell.clusters_color, cell.label]
-    }).sort((a, b) => a[1] >= b[1])
+    })
+    colors_labels = colors_labels.sort((a, b) => {
+	if (a[1] > b[1]) {
+    		return 1
+  	} else if (a[1] < b[1]) {
+   		return -1 
+  	} else {
+    		return 0
+  	}
+    })
     let colors = [];
     let labels = [];
     colors_labels.forEach(val => {
