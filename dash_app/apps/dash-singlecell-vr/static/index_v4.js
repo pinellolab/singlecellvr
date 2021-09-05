@@ -24,6 +24,8 @@ const velocity_cutoff = 3000
 let isGrid = false;
 const API_URL = 'https://singlecellvr.pinellolab.partners.org'
 // const API_URL = 'http://0.0.0.0:8080';
+// Use this to toggle button state
+const BUTTONS = [];
 
 // --------------------------------------------------------
 
@@ -71,9 +73,13 @@ const summonMenus = () => {
 // Menu elements won't show up without this.
 const initializeMenu = () => {
   document.getElementById("search_input").setAttribute('value', "");
-  document.getElementById("result1").setAttribute('value', "");
-  document.getElementById("result2").setAttribute('value', "");
-  document.getElementById("result3").setAttribute('value', "");
+  const res1 = document.getElementById("result1");
+  const res2 = document.getElementById("result2");
+  const res3 = document.getElementById("result3");
+  res1.setAttribute('value', "");
+  res2.setAttribute('value', "");
+  res3.setAttribute('value', "");
+  BUTTONS.push(res1, res2, res3);
 }
 
 const renderLegend = async (annotation, clusterColors) => {
@@ -144,6 +150,7 @@ const initializeAnnotationMenu = async (annotations, clusterColors) => {
     el.setAttribute("id", `${annotation}-selector`);
     el.setAttribute("toggle", true);
     annotation_menu.appendChild(el);
+    BUTTONS.push(el);
   });
 
   // add click event after all buttons have been added in order toggle active button status
@@ -152,11 +159,7 @@ const initializeAnnotationMenu = async (annotations, clusterColors) => {
     el.addEventListener('click', () => {
       const value = el.getAttribute("text").value;
       changeAnnotation(value, clusterColors);
-      annotations.forEach(an => {
-        if (an !== annotation) {
-          document.getElementById(`${an}-selector`).components['gui-button'].setActiveState(false);
-        }
-      })
+      BUTTONS.forEach(button => button.components['gui-button'].setActiveState(false));
     });
   });
 }
@@ -781,6 +784,8 @@ resultElements.forEach((element) => {
     } else {
         viewGene('gene_' + result.getAttribute('gui-button').text, 'color');
     }
+    BUTTONS.forEach(button => button.components['gui-button'].setActiveState(false));
+    result.components['gui-button'].setActiveState(true);
   });
 });
 
