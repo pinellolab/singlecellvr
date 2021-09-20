@@ -190,7 +190,11 @@ def output_paga_cells(adata,ann_list,reportdir='./paga_report',gene_list=None):
     output_scanpy_cells(adata,ann_list,reportdir=reportdir,gene_list=gene_list)
 
 
-def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=None):
+def output_seurat_cells(adata,
+                        ann_list,
+                        reportdir='./seurat_report',
+                        gene_list=None,
+                        layer='norm_data'):
     assert (adata.obsm['umap_cell_embeddings'].shape[1]>=3),\
     '''The embedding space should have at least three dimensions. 
     please set `n.component = 3` in `RunUMAP()`'''
@@ -240,7 +244,7 @@ def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=Non
 
         ## output gene expression of cells
         if(gene_list is not None):
-            df_genes = pd.DataFrame(adata.layers['norm_data'].toarray() if isspmatrix(adata.layers['norm_data']) else adata.layers['norm_data'],
+            df_genes = pd.DataFrame(adata.layers[layer].toarray() if isspmatrix(adata.layers[layer]) else adata.layers[layer],
                                     index=adata.obs_names,
                                     columns=adata.var_names)
             cm = mpl.cm.get_cmap('viridis',512)
