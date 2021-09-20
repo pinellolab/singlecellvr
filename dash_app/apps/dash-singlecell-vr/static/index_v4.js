@@ -598,21 +598,23 @@ const initialize = async (uuid, isFullDataset) => {
   };
   // Hide this until the loading screen goes away
   document.getElementById("hud").setAttribute('visible', false);
-  const tool = await getDatasetType(fullDataset, uuid);
   
-  if (tool === 'velocity') {
-    velocity = true;
-  }
-
+  let tool;
   let genes;
   if (fullDataset) {
+    tool = await getDatasetType(fullDataset, uuid);
     const geneResponse = await fetch(API_URL + '/genes?db_name=' + uuid)
     genes = await geneResponse.json()
   } else {
     report = await Utils.unzip(uuid);
+    const index = await report.file("index.json").async("string");
+    tool = JSON.parse(index).tool.toLowerCase();	
   }
   geneList = getGeneList(genes, isFullDataset); 
   fuse = new Fuse(geneList, FUSE_SEARCH_OPTIONS);
+  if (tool === 'velocity') {
+    velocity = true;
+  }
 
   if (tool === "paga") {
     if (fullDataset) {

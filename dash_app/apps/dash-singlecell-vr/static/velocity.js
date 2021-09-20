@@ -86,7 +86,7 @@ AFRAME.registerComponent('velocity', {
             mesh.updateWorldMatrix(true, true);
             mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
             geometry = mesh.geometry;
-            geometry.applyMatrix4(mesh.matrixWorld);
+            geometry.applyMatrix(mesh.matrixWorld);
             mesh.rotation.set(0,0,0);
 
             const color = new THREE.Color();    
