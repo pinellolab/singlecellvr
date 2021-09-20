@@ -10,6 +10,7 @@
     <script src="/static/tween.umd.js"></script>
     <script src="/static/jszip.min.js"></script>
     <script src="/static/bab_utils.js"></script>
+    <script src="/static/view-indicator.js"></script>
     <script src="/static/color-gradient-component.js"></script>
     <script src="/static/mimic-rotation-component.js"></script>
     <script src="/static/points.js"></script>
@@ -36,6 +37,9 @@
                     <a-entity scale=".01 .01 .01" id="graph-map" mimic-rotation="masterId: graph-container;"></a-entity>
                 </a-entity>
               </a-entity>
+
+              <a-entity id="view-indicator" view-indicator text="value: ; color: black;"></a-entity>
+              
               <a-gui-cursor id="myCursor"
                     raycaster="objects: [gui-interactable]"
                     fuse="true" fuse-timeout="2000"
@@ -59,7 +63,7 @@
           
           <a-image src="/assets/SCVR_logo_512x256.png" position="2 4 0" width="6" height="3"></a-image>
 
-          <a-gui-flex-container flex-direction="column" justify-content="center" align-items="center" component-padding="0.1" opacity="0.7" width=".85" height="4.8"
+          <a-gui-flex-container flex-direction="column" justify-content="center" align-items="center" component-padding="0.1" opacity="0.7" width=".85" height="5.4"
           position="-4.15 0 0" rotation="0 0 0">
             <a-gui-button
               id="increaseSpeed"
@@ -120,6 +124,15 @@
               font-size="300px"
               font-weight="bold"
               value="↓t">
+            </a-gui-button>
+            <a-gui-button
+              onclick="toggleCameraInfo()"
+              width=".7" height="0.75"
+              background-color="#22252a"
+              font-color="#d3d3d4"
+              font-size="180px"
+              font-weight="bold"
+              value="xyz">
             </a-gui-button>
           </a-gui-flex-container>
 
@@ -190,9 +203,12 @@
           </a-gui-flex-container>
 
           <a-entity id="keyboard" super-keyboard="hand: #myCursor; imagePath: /assets; width: 8; multipleInputs: true; show: true" position="3.5 0 4"></a-entity>
-
+          
         </a-entity>   
+       
       </a-entity>
+
+     
 
       <a-entity id="loadingBuffer"></a-entity>
 

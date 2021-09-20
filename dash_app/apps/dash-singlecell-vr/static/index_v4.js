@@ -23,7 +23,7 @@ const resultElements = ["result1", "result2", "result3"];
 const velocity_cutoff = 3000
 let isGrid = false;
 const API_URL = 'https://singlecellvr.pinellolab.partners.org'
-// const API_URL = 'http://0.0.0.0:8080';
+// const API_URL = 'https://0.0.0.0:8080';
 // Use this to toggle button state
 const BUTTONS = [];
 
@@ -52,8 +52,12 @@ const visibleWidthAtZDepth = ( depth ) => {
   return width;
 };
 
-const setHudPosition = ( fovWidth, fovHeight, depth) => {
+const setHudPosition = ( fovWidth, fovHeight, depth ) => {
   document.getElementById('hud').object3D.position.set(-fovWidth/2 + .25, fovHeight/2 - .25, depth);
+}
+
+const setViewIndicatorPosition = ( fovWidth, fovHeight, depth ) => {
+  document.getElementById('view-indicator').object3D.position.set(-fovWidth/2 + .25, -(fovHeight/2) + .1, depth);
 }
 
 // -----------------------------------------------------------
@@ -566,6 +570,11 @@ const toggleHelp = () => {
   helpEl.setAttribute('help', 'show', !helpEl.getAttribute('help').show)
 }
 
+const toggleCameraInfo = () => {
+  const viewIndEl = document.getElementById('view-indicator');
+  viewIndEl.setAttribute('view-indicator', 'active', !viewIndEl.getAttribute('view-indicator')['active']);
+}
+
 const getDatasetType = async (isFullDataset, uuid) => {
     let tool;
     if (isFullDataset) {
@@ -664,6 +673,7 @@ const initialize = async (uuid, isFullDataset) => {
   toggleKeyboard();
 
   document.getElementById("loadingHelp").setAttribute('loading', {'show': false});
+  setViewIndicatorPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1)
 }
 
 window.onload = () => {
@@ -754,6 +764,7 @@ document.getElementById("keyboard").addEventListener('superkeyboardinput', (e) =
 
 document.querySelector('a-scene').addEventListener('enter-vr', () => {
   setHudPosition(visibleWidthAtZDepth(-1) - .5, visibleHeightAtZDepth(-1), -1);
+  setViewIndicatorPosition(visibleWidthAtZDepth(-1) - .5, visibleHeightAtZDepth(-1), -1);
   if (Utils.mobilecheck()) {
     document.getElementById('hud').object3D.visible = false;
   }
@@ -761,6 +772,7 @@ document.querySelector('a-scene').addEventListener('enter-vr', () => {
 
 document.querySelector('a-scene').addEventListener('exit-vr', () => {
   setHudPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1);
+  setViewIndicatorPosition(visibleWidthAtZDepth(-1), visibleHeightAtZDepth(-1), -1)
 });
 
 document.body.addEventListener('keyup', (e) => {

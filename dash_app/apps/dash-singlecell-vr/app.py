@@ -34,7 +34,7 @@ DATASET_DIRECTORY = os.path.join(APP_PATH, "app_datasets")
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
 QR_DIRECTORY = os.path.join(APP_PATH, "assets")
 API = 'https://singlecellvr.pinellolab.partners.org'
-#API = 'http://0.0.0.0:8080'
+# API = 'https://0.0.0.0:8080'
 
 # "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
 
