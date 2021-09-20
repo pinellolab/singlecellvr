@@ -63,8 +63,10 @@ server.config['CORS_HEADERS'] = 'Content-Type'
 @server.route("/download/<path:path>")
 def download(path):
     """Serve a file from the upload directory."""
-    return send_from_directory(DATASET_DIRECTORY, path, as_attachment=True)
-
+    if os.path.exists(os.path.join(DATASET_DIRECTORY, path)):
+    	return send_from_directory(DATASET_DIRECTORY, path, as_attachment=True)
+    else:
+        return send_from_directory(UPLOAD_DIRECTORY, path, as_attachment=True)
 
 @app.server.route('/view')
 def serve_static():
@@ -641,13 +643,16 @@ app.layout = dbc.Container(
     [Input('dropdown-container', 'n_clicks')]
 )
 def update_options(n_clicks):
-    return datasets_payload()
+    datasets = datasets_payload()
+    datasets.reverse()
+    return datasets
 
 
 def save_file(name, content):
     """Decode and store a file uploaded with Plotly Dash."""
     data = content.encode("utf8").split(b";base64,")[1]
     unique_id = str(uuid.uuid1())
+    unique_id = unique_id + '_scvr'
     with open(os.path.join(UPLOAD_DIRECTORY, unique_id+'.zip'), "wb") as fp:
         fp.write(base64.decodebytes(data))
     return unique_id
@@ -732,6 +737,7 @@ def update_output(unique_id, file_id):
         return html.A(dbc.Button("Let's fly!", id='button',disabled=False,n_clicks=0, color="link", className="fly-button"),
                                     href=API + "/view?dataset="+str(file_id) + "&fulldataset=false")
     elif unique_id and 'scvr' in unique_id:
+        #unique_id = unique_id.split('_')[0]
         return html.A(dbc.Button("Let's fly!", id='button',disabled=False,n_clicks=0, color="link", className="fly-button"),
                                     href=API + "/view?dataset="+str(unique_id) + "&fulldataset=false")
     else:     
@@ -747,8 +753,8 @@ def update_output(uploaded_filenames, uploaded_file_contents):
 
     if uploaded_filenames is not None and uploaded_file_contents is not None:
         for name, data in zip(uploaded_filenames, uploaded_file_contents):
-            save_file(name, data)
-            return [[html.P('File ' + name + ' has been uploaded.')],name.split('.')[0]]
+            unique_id = save_file(name, data)
+            return [[html.P('File ' + name + ' has been uploaded.')],unique_id]
     else:
     	return [[html.P("")],None]
 
