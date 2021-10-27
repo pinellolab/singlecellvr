@@ -11,7 +11,7 @@ __tool_name__='scvr'
 
 import pandas as pd
 import anndata as ad
-# import scvelo as scv
+import scvelo as scv
 import json
 import argparse
 import os
