@@ -191,9 +191,17 @@ def output_paga_cells(adata,ann_list,reportdir='./paga_report',gene_list=None):
 
 
 def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=None):
-    assert (adata.obsm['umap_cell_embeddings'].shape[1]>=3),\
-    '''The embedding space should have at least three dimensions. 
-    please set `n.component = 3` in `RunUMAP()`'''
+    if 'umap_cell_embeddings' in adata.obsm:
+        assert (adata.obsm['umap_cell_embeddings'].shape[1]>=3),\
+        '''The embedding space should have at least three dimensions. 
+        please set `n.component = 3` in `RunUMAP()`'''
+    elif 'X_umap' in adata.obsm:
+        print(adata.obsm['X_umap'].shape)
+        assert (adata.obsm['X_umap'].shape[1]>=3),\
+        '''The embedding space should have at least three dimensions. 
+        please set `n.component = 3` in `RunUMAP()`'''
+    else:
+        raise
     ###remove duplicate keys
     ann_list = list(dict.fromkeys(ann_list))
     ### make sure all labels exist
