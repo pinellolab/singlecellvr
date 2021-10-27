@@ -216,9 +216,14 @@ def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=Non
         for i in range(adata.shape[0]):
             dict_coord_cells = dict()
             dict_coord_cells['cell_id'] = adata.obs_names[i]
-            dict_coord_cells['x'] = str(adata.obsm['umap_cell_embeddings'][i,0])
-            dict_coord_cells['y'] = str(adata.obsm['umap_cell_embeddings'][i,1])
-            dict_coord_cells['z'] = str(adata.obsm['umap_cell_embeddings'][i,2])
+            if 'umap_cell_embeddings' in adata.obsm: # Seurat 3.x as.loom
+                dict_coord_cells['x'] = str(adata.obsm['umap_cell_embeddings'][i,0])
+                dict_coord_cells['y'] = str(adata.obsm['umap_cell_embeddings'][i,1])
+                dict_coord_cells['z'] = str(adata.obsm['umap_cell_embeddings'][i,2])
+            else:
+                dict_coord_cells['x'] = str(adata.obsm['X_umap'][i,0])
+                dict_coord_cells['y'] = str(adata.obsm['X_umap'][i,1])
+                dict_coord_cells['z'] = str(adata.obsm['X_umap'][i,2])
             list_cells.append(dict_coord_cells)
         with open(os.path.join(reportdir,'scatter.json'), 'w') as f:
             json.dump(list_cells, f)
@@ -240,9 +245,14 @@ def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=Non
 
         ## output gene expression of cells
         if(gene_list is not None):
-            df_genes = pd.DataFrame(adata.layers['norm_data'].toarray() if isspmatrix(adata.layers['norm_data']) else adata.layers['norm_data'],
-                                    index=adata.obs_names,
-                                    columns=adata.var_names)
+            if 'umap_cell_embeddings' in adata.obsm: # Seurat 3.x as.loom
+                df_genes = pd.DataFrame(adata.layers['norm_data'].toarray() if isspmatrix(adata.layers['norm_data']) else adata.layers['norm_data'],
+                                        index=adata.obs_names,
+                                        columns=adata.var_names)
+            else: # Seurat 4.0.x
+                df_genes = pd.DataFrame(adata.X.toarray() if isspmatrix(adata.X) else adata.X,
+                                        index=adata.obs_names,
+                                        columns=adata.var_names)
             cm = mpl.cm.get_cmap('viridis',512)
             for g in gene_list:
                 list_genes = []
