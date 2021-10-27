@@ -24,7 +24,7 @@ Usage
 `$ scvr --help`
 
 ```
-usage: scvr [-h] -f FILE -t {scanpy,paga,seurat,stream} -a ANNOTATIONS [-g GENES] [-o OUTPUT]
+usage: scvr [-h] -f FILE -t {scanpy,paga,seurat,stream} -a ANNOTATIONS [-g GENES] [-o OUTPUT] [--layer]
 
 scvr Parameters
 
@@ -44,6 +44,8 @@ optional arguments:
                         to visualize in one column (default: None)
   -o OUTPUT, --output OUTPUT
                         Output folder name (default: scvr_report)
+  --layer LAYER         The name of layer in Anndata object for gene
+                        expression (default: norm_data)
   -h, --help            show this help message and exit
 ```
 
@@ -72,12 +74,18 @@ scvr -f ./paga_result/paga3d_paul15.h5ad -t paga -a annotations.txt -g genes.txt
 * To generate the `paga3d_paul15.h5ad`, check out [PAGA analysis](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/examples/paga_paul15.ipynb?flush_cache=true). *(Make sure set `n_components=3` in `sc.tl.umap(adata,n_components=3)`)*
 
 ### Seurat:  
-To get single cell VR report for Seurat :  
+To get single cell VR report for Seurat scRNA-seq analysis:  
 ```bash
 scvr -f ./seurat_result/seurat3d_10xpbmc.loom -t seurat -a annotations.txt -g genes.txt -o seurat_report
 ```
 * Input files can be found [here](https://www.dropbox.com/sh/tpk4qfm5qsjpffn/AADmKmyDx7rhzKBOpIlAgMEUa?dl=0) 
 * To generate the `seurat3d_10xpbmc.loom`, check out [Seurat analysis](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/examples/seurat_10xpbmc.ipynb?flush_cache=true). *(Make sure set `n.components = 3` in `pbmc <- RunUMAP(pbmc, dims = 1:10, n.components = 3)`)*
+
+To get single cell VR report for Seurat scRNA-seq integration analysis:
+```bash
+scvr -f ./seurat_integration_result/seurat3d_integration.loom -t seurat -a annotations.txt -g genes.txt -o seurat_integration_report --layer scale_data
+```  
+* To generate the `seurat3d_10xpbmc.loom`, check out [Seurat integration analysis](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/examples/seurat_integration.ipynb?flush_cache=true). *(Make sure set `n.components = 3` in `RunUMAP(immune.combined, reduction = "pca", dims = 1:30, n.components = 3)`)*
 
 ### Velocity:
 To get single cell velocity report for scvelo:

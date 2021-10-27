@@ -7,7 +7,7 @@ import networkx as nx
 import matplotlib as mpl
 from scipy.sparse import isspmatrix
 from pandas.api.types import is_string_dtype,is_numeric_dtype
-import scvelo as scv
+# import scvelo as scv
 
 from . import palettes
 
@@ -36,7 +36,7 @@ def get_colors(adata,ann):
             elif length <= len(palettes.default_102):  # 103 colors
                 palette = palettes.default_102
             else:
-                rgb_rainbow = cm.rainbow(np.linspace(0,1,length))
+                rgb_rainbow = mpl.cm.rainbow(np.linspace(0,1,length))
                 palette = [mpl.colors.rgb2hex(rgb_rainbow[i,:-1]) for i in range(length)]
         for i,x in enumerate(categories):
             id_cells = np.where(adata.obs[ann]==x)[0]
@@ -202,6 +202,7 @@ def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=Non
         please set `n.component = 3` in `RunUMAP()`'''
     else:
         raise
+
     ###remove duplicate keys
     ann_list = list(dict.fromkeys(ann_list))
     ### make sure all labels exist

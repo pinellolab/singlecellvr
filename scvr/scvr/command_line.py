@@ -11,7 +11,7 @@ __tool_name__='scvr'
 
 import pandas as pd
 import anndata as ad
-import scvelo as scv
+# import scvelo as scv
 import json
 import argparse
 import os
@@ -35,6 +35,8 @@ def main():
                         help="Gene list file name. It contains the genes to visualize in one column.")
     parser.add_argument("-o","--output",dest="output", default='vr_report',
                         help="Output folder name")
+    parser.add_argument("--layer", dest="layer", default='norm_data',
+                        help="The name of layer in Anndata object for gene expression")
 
     args = parser.parse_args()
     filename = args.filename
@@ -42,6 +44,7 @@ def main():
     genes = args.genes
     output = args.output #work directory
     annotations = args.annotations
+    layer=args.layer
 
     if(annotations is None):
         raise Exception("Annotation file must be specified when %s is chosen." % (toolname))

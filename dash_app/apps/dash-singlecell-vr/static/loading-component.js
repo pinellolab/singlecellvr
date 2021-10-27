@@ -1,6 +1,6 @@
 AFRAME.registerComponent('loading', {
     schema: {
-        time: {type: 'number', default: 10},
+        time: {type: 'number', default: .1},
         show: {type: 'boolean', default: true},
         zDepth: {type: 'number', default: -1}
     },

@@ -8,3 +8,4 @@ dash_bootstrap_components
 qrcode
 pillow
 requests
+matplotlib

@@ -1,7 +1,9 @@
 class Utils {
+    API = 'http://0.0.0.0:8080'
+    #API = 'https://singlecellvr.pinellolab.partners.org'
     static unzip = async (uuid) => {
         const zipper = new JSZip();
-        const response = await fetch('/download/' + uuid + '.zip');
+        const response = await fetch(API + '/download/' + uuid + '.zip');
         const blob = await response.blob();
         const result = await zipper.loadAsync(blob)
         return result;

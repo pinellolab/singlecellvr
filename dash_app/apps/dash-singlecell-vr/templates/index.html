@@ -2,20 +2,23 @@
   <head>
     <link rel="manifest" href="/static/manifest.json">
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
-    <script src="https://rawgit.com/protyze/aframe-curve-component/master/dist/aframe-curve-component.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.4.5/fuse.min.js"></script>
-    <script src="https://rawgit.com/andreasplesch/aframe-meshline-component/master/dist/aframe-meshline-component.min.js"></script>
+    <script src="https://raw.githack.com/andreasplesch/aframe-meshline-component/master/dist/aframe-meshline-component.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
     <script src="https://unpkg.com/aframe-button-controls@^1.1.0/aframe-button-controls.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/davidfstein/aframe-super-keyboard@6549be7948f31fff99f82db274d1cfd95eb1e0c3/dist/aframe-super-keyboard.min.js"></script>
+    <script src="/static/aframe-super-keyboard.min.js"></script>
+    <script src="/static/tween.umd.js"></script>
     <script src="/static/jszip.min.js"></script>
     <script src="/static/bab_utils.js"></script>
+    <script src="/static/view-indicator.js"></script>
     <script src="/static/color-gradient-component.js"></script>
     <script src="/static/mimic-rotation-component.js"></script>
     <script src="/static/points.js"></script>
+    <script src="/static/velocity.js"></script>
     <script src="/static/watch-component.js"></script>
     <script src="/static/remove-light-component.js"></script>
     <script src="/static/aframe-gui.min.js"></script>
+    <script src="/static/aframe-curve-component.min.js"></script>
     <script src="/static/gamepad-movement-controls.js"></script>
     <script src="/static/loading-component.js"></script>
     <script src="/static/help-component.js"></script>
@@ -34,18 +37,22 @@
                     <a-entity scale=".01 .01 .01" id="graph-map" mimic-rotation="masterId: graph-container;"></a-entity>
                 </a-entity>
               </a-entity>
-              <a-gui-cursor id="cursor"
+
+              <a-entity id="view-indicator" view-indicator text="value: ; color: black;"></a-entity>
+              
+              <a-gui-cursor id="myCursor"
                     raycaster="objects: [gui-interactable]"
                     fuse="true" fuse-timeout="2000"
                     design="ring"
               >
               </a-gui-cursor>
+              
           </a-entity>
       </a-entity>
 
 
       <a-entity id="mainContainer">
-        <a-entity id="drawContainer" animation="property: rotation; dir: reverse; easing: linear; to: 0 360 0; loop: true; dur: 60000">
+        <a-entity id="drawContainer" animation="property: rotation; dir: reverse; easing: linear; to: 0 360 0; loop: true; dur: 60000;">
           <a-entity id="curve-container"></a-entity>
           <a-entity id="graph-container"></a-entity> 
           <a-entity id="cells-container"></a-entity>
@@ -55,7 +62,8 @@
         <a-entity id="menuContainer" position="10 0 0" watch="targetId: player-camera">
           
           <a-image src="/assets/SCVR_logo_512x256.png" position="2 4 0" width="6" height="3"></a-image>
-          <a-gui-flex-container flex-direction="column" justify-content="center" align-items="center" component-padding="0.1" opacity="0.7" width=".85" height="2.4"
+
+          <a-gui-flex-container flex-direction="column" justify-content="center" align-items="center" component-padding="0.1" opacity="0.7" width=".85" height="5.4"
           position="-4.15 0 0" rotation="0 0 0">
             <a-gui-button
               id="increaseSpeed"
@@ -86,6 +94,45 @@
               background-color="#22252a"
               font-color="#d3d3d4"
               text="value: ?; width: 10; color: #d3d3d4; align: center; zOffset: .1">
+            </a-gui-button>
+
+            <a-gui-button
+              onclick="adjustT(100)"
+              width=".7" height="0.75"
+              background-color="#22252a"
+              font-color="#d3d3d4"
+              font-size="300px"
+              font-weight="bold"
+              value="↑t"
+            >
+            </a-gui-button>
+            <a-gui-button
+              onclick="adjustT(1)"
+              width=".7" height="0.75"
+              background-color="#22252a"
+              font-color="#d3d3d4"
+              font-size="300px"
+              font-weight="bold"
+              value="t"
+            >
+            </a-gui-button>
+            <a-gui-button
+              onclick="adjustT(0.01)"
+              width=".7" height="0.75"
+              background-color="#22252a"
+              font-color="#d3d3d4"
+              font-size="300px"
+              font-weight="bold"
+              value="↓t">
+            </a-gui-button>
+            <a-gui-button
+              onclick="toggleCameraInfo()"
+              width=".7" height="0.75"
+              background-color="#22252a"
+              font-color="#d3d3d4"
+              font-size="180px"
+              font-weight="bold"
+              value="xyz">
             </a-gui-button>
           </a-gui-flex-container>
 
@@ -119,19 +166,19 @@
             <a-gui-button
               id="result1"
               width="2.7" height="0.75" background-color='#d3d3d4' font-weight="bold"
-              font-color="black" border-color="#2c3037" font-size="100px"
+              font-color="black" border-color="#2c3037" font-size="100px" toggle='true'
             >
             </a-gui-button>
             <a-gui-button
               id="result2"
               width="2.7" height="0.75" background-color='#d3d3d4' font-weight="bold"
-              font-color="black" border-color="#2c3037" font-size="100px"
+              font-color="black" border-color="#2c3037" font-size="100px" toggle='true'
             >
             </a-gui-button>
             <a-gui-button
               id="result3"
               width="2.7" height="0.75" background-color='#d3d3d4' font-weight="bold"
-              font-color="black" border-color="#2c3037" font-size="100px"
+              font-color="black" border-color="#2c3037" font-size="100px" toggle='true'
             >
             </a-gui-button>
           </a-gui-flex-container>
@@ -155,15 +202,18 @@
             position="5.55 0 0" rotation="0 0 0" id="legend">
           </a-gui-flex-container>
 
-          <a-entity id="keyboard" super-keyboard="hand: #cursor; imagePath: /assets; width: 8; multipleInputs: true; show: true" position="12 0 0"></a-entity>
-
+          <a-entity id="keyboard" super-keyboard="hand: #myCursor; imagePath: /assets; width: 8; multipleInputs: true; show: true" position="3.5 0 4"></a-entity>
+          
         </a-entity>   
+       
       </a-entity>
+
+     
 
       <a-entity id="loadingBuffer"></a-entity>
 
       <a-entity environment="skyType: atmosphere; dressing: none; lighting: none; groundTexture: checkerboard; groundColor: #c9c4c4; groundColor2: #c9c4c4; grid: none; shadow: false" remove-lighting></a-entity>
     </a-scene>
-    <script src="/static/index_v3.js"></script>
+    <script src="/static/index_v4.js"></script>
   </body>
 </html>
