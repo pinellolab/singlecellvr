@@ -79,7 +79,7 @@ To get single cell VR report for Seurat scRNA-seq analysis:
 scvr -f ./seurat_result/seurat3d_10xpbmc.loom -t seurat -a annotations.txt -g genes.txt -o seurat_report
 ```
 * Input files can be found [here](https://www.dropbox.com/sh/tpk4qfm5qsjpffn/AADmKmyDx7rhzKBOpIlAgMEUa?dl=0) 
-* To generate the `seurat3d_10xpbmc.loom`, check out [Seurat analysis](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/examples/seurat_10xpbmc.ipynb?flush_cache=true). *(Make sure set `n.components = 3` in `pbmc <- RunUMAP(pbmc, dims = 1:10, n.components = 3)`)*
+* To generate the `seurat3d_10xpbmc.loom`, check out [Seurat analysis](https://nbviewer.jupyter.org/github/pinellolab/singlecellvr/blob/master/examples/seurat_10xpbmc.ipynb?flush_cache=true). *(Make sure set `n.components = 3` in `pbmc <- RunUMAP(pbmc, dims = 1:10, n.components = 3)`)*. NOTE the notebook is designed for Seurat 3.x based analysis, if you have installed Seurat 4.0.x, please use the [Seurat4 analysis](https://github.com/qinqian/singlecellvr/blob/master/examples/seurat4_pbmc3k.ipynb). 
 
 To get single cell VR report for Seurat scRNA-seq integration analysis:
 ```bash
@@ -90,9 +90,9 @@ scvr -f ./seurat_integration_result/seurat3d_integration.loom -t seurat -a annot
 ### Velocity:
 To get single cell velocity report for scvelo:
 ``` bash
-scvr -t velocity -f pancrease_velocity.h5ad -a clusters
+scvr -t velocity -f pancrease_velocity_updated.h5ad -a clusters
 ```
-* To generate the `pancrease_velocity.h5ad`, check out examples/velocity_3d.ipynb.
+* To generate the `pancrease_velocity_updated.h5ad`, check out examples/velocity_3d.ipynb and examples/velocity_3d_scale.ipynb.
 
 ### STREAM:  
 To get single cell VR report for STREAM : 
