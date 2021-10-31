@@ -10,6 +10,17 @@ http://www.singlecellvr.com/
 
 SingleCellVR can be used with our preprocessed datasets found at the link above or by following the steps below to process your own dataset.
 
+## Running singlecellVR locally
+
+singlecellVR is available to be run locally with Docker. In order to run singlecellVR locally run the following:
+`docker run --rm --network host scvr {url} {frontend-port} {backend-port}`
+where `{url}` is the url at which you would like to host singlecellVR and `{frontend-port}` and `{backend-port}` are two available ports on your system. 
+
+For example:
+`docker run --rm --network host scvr https://localhost 8000 8080`
+
+Note: To enable VR capabilities the urls must be served over https. 
+
 ## SingleCellVR Preprocess:  
 
 Prepare your data for the visualization on Single Cell VR website <https://singlecellvr.com/>

@@ -39,7 +39,10 @@ API = 'https://singlecellvr.pinellolab.partners.org'
 # "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
 
 if not os.path.exists(UPLOAD_DIRECTORY):
-    os.makedirs(UPLOAD_DIRECTORY)
+    try:
+        os.makedirs(UPLOAD_DIRECTORY)
+    except:
+        pass
 
 # Normally, Dash creates its own Flask server internally. By creating our own,
 # we can create a route for downloading files directly:
