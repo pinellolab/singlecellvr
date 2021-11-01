@@ -11,7 +11,7 @@ __tool_name__='scvr'
 
 import pandas as pd
 import anndata as ad
-# import scvelo as scv
+import scvelo as scv
 import json
 import argparse
 import os
@@ -90,9 +90,12 @@ def main():
             scvr.output_paga_graph(adata,reportdir=output)
             scvr.output_paga_cells(adata,ann_list,gene_list=gene_list,reportdir=output)
         if(toolname=='seurat'):
-            assert (filename.lower().endswith(('.loom'))), "For Seurat only .loom file is supported."
+            assert (filename.lower().endswith(('.loom'))) or (filename.lower().endswith(('.h5ad'))), "For Seurat only .loom .h5ad file is supported."
             print('reading in loom file ...')
-            adata = ad.read_loom(filename)
+            if filename.lower().endswith(('.loom')):
+                adata = ad.read_loom(filename)
+            else:
+                adata = ad.read(filename)
             scvr.output_seurat_cells(adata,ann_list,gene_list=gene_list,reportdir=output,layer=layer)
         with open(os.path.join(output,'index.json'), 'w') as f:
                 json.dump({ "tool": toolname }, f)

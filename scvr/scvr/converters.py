@@ -195,9 +195,17 @@ def output_seurat_cells(adata,
                         reportdir='./seurat_report',
                         gene_list=None,
                         layer='norm_data'):
-    assert (adata.obsm['umap_cell_embeddings'].shape[1]>=3),\
-    '''The embedding space should have at least three dimensions. 
-    please set `n.component = 3` in `RunUMAP()`'''
+    if 'umap_cell_embeddings' in adata.obsm:
+        assert (adata.obsm['umap_cell_embeddings'].shape[1]>=3),\
+        '''The embedding space should have at least three dimensions. 
+        please set `n.component = 3` in `RunUMAP()`'''
+    elif 'X_umap' in adata.obsm:
+        print(adata.obsm['X_umap'].shape)
+        assert (adata.obsm['X_umap'].shape[1]>=3),\
+        '''The embedding space should have at least three dimensions. 
+        please set `n.component = 3` in `RunUMAP()`'''
+    else:
+        raise
     ###remove duplicate keys
     ann_list = list(dict.fromkeys(ann_list))
     ### make sure all labels exist
@@ -220,9 +228,14 @@ def output_seurat_cells(adata,
         for i in range(adata.shape[0]):
             dict_coord_cells = dict()
             dict_coord_cells['cell_id'] = adata.obs_names[i]
-            dict_coord_cells['x'] = str(adata.obsm['umap_cell_embeddings'][i,0])
-            dict_coord_cells['y'] = str(adata.obsm['umap_cell_embeddings'][i,1])
-            dict_coord_cells['z'] = str(adata.obsm['umap_cell_embeddings'][i,2])
+            if 'umap_cell_embeddings' in adata.obsm: # Seurat 3.x as.loom
+                dict_coord_cells['x'] = str(adata.obsm['umap_cell_embeddings'][i,0])
+                dict_coord_cells['y'] = str(adata.obsm['umap_cell_embeddings'][i,1])
+                dict_coord_cells['z'] = str(adata.obsm['umap_cell_embeddings'][i,2])
+            else:
+                dict_coord_cells['x'] = str(adata.obsm['X_umap'][i,0])
+                dict_coord_cells['y'] = str(adata.obsm['X_umap'][i,1])
+                dict_coord_cells['z'] = str(adata.obsm['X_umap'][i,2])
             list_cells.append(dict_coord_cells)
         with open(os.path.join(reportdir,'scatter.json'), 'w') as f:
             json.dump(list_cells, f)
@@ -244,9 +257,14 @@ def output_seurat_cells(adata,
 
         ## output gene expression of cells
         if(gene_list is not None):
-            df_genes = pd.DataFrame(adata.layers[layer].toarray() if isspmatrix(adata.layers[layer]) else adata.layers[layer],
-                                    index=adata.obs_names,
-                                    columns=adata.var_names)
+            if 'umap_cell_embeddings' in adata.obsm: # Seurat 3.x as.loom
+                df_genes = pd.DataFrame(adata.layers['norm_data'].toarray() if isspmatrix(adata.layers['norm_data']) else adata.layers['norm_data'],
+                                        index=adata.obs_names,
+                                        columns=adata.var_names)
+            else: # Seurat 4.0.x
+                df_genes = pd.DataFrame(adata.X.toarray() if isspmatrix(adata.X) else adata.X,
+                                        index=adata.obs_names,
+                                        columns=adata.var_names)
             cm = mpl.cm.get_cmap('viridis',512)
             for g in gene_list:
                 list_genes = []
@@ -266,6 +284,7 @@ def output_seurat_cells(adata,
 
 
 def output_velocity_cells(adata, ann_field, gene_list=None,
+                          time=None, grid=True,
                           reportdir='./velocity_report'):
 
     if gene_list is not None:
@@ -286,16 +305,47 @@ def output_velocity_cells(adata, ann_field, gene_list=None,
             dict_coord_cells['y0'] = str(adata.obsm['X_umap'][i,1])
             dict_coord_cells['z0'] = str(adata.obsm['X_umap'][i,2])
 
-            dict_coord_cells['x1'] = str(adata.obsm['velocity_umap'][i,0])
-            dict_coord_cells['y1'] = str(adata.obsm['velocity_umap'][i,1])
-            dict_coord_cells['z1'] = str(adata.obsm['velocity_umap'][i,2])
+            if time is None:
+                dict_coord_cells['x1'] = str(adata.obsm['velocity_umap'][i,0])
+                dict_coord_cells['y1'] = str(adata.obsm['velocity_umap'][i,1])
+                dict_coord_cells['z1'] = str(adata.obsm['velocity_umap'][i,2])
+            else:
+                dict_coord_cells['x1'] = str(adata.obsm[f'absolute_velocity_umap_{time}s'][i,0])
+                dict_coord_cells['y1'] = str(adata.obsm[f'absolute_velocity_umap_{time}s'][i,1])
+                dict_coord_cells['z1'] = str(adata.obsm[f'absolute_velocity_umap_{time}s'][i,2])
             list_cells.append(dict_coord_cells)
         with open(os.path.join(reportdir, 'scatter.json'), 'w') as f:
             json.dump(list_cells, f)
 
         list_metadata = []
-        print(adata.uns)
-
+        if grid:
+            from sklearn.neighbors import NearestNeighbors
+            X_emb = adata.obsm['X_umap']
+            X_grid = []
+            grs = []
+            grid_num = 50 * 0.5
+            for dim_i in range(3):
+                m, M = np.min(X_emb[:, dim_i]), \
+                       np.max(X_emb[:, dim_i])
+                m = m - .025 * np.abs(M - m) # .01
+                M = M + .025 * np.abs(M - m) # .01
+                gr = np.linspace(m, M, int(grid_num))
+                grs.append(gr)
+                print(m, M)
+            meshes_tuple = np.meshgrid(*grs)
+            scale   = np.mean([(g[1] - g[0]) for g in grs]) * 0.5
+            X_grid  = np.vstack([i.flat for i in meshes_tuple]).T
+            nn = NearestNeighbors(n_neighbors=30, n_jobs=-1)                              
+            nn.fit(X_emb)
+            dists, neighs = nn.kneighbors(X_grid)            
+            # evaluate cell density filter
+            from scipy.stats import norm as normal
+            weight = normal.pdf(x=dists, scale=scale)
+            p_mass = weight.sum(1)
+            V_grid = (adata.obsm['velocity_umap'][:, :3][neighs] * weight[:, :, None]).sum(1) / \
+                                    np.maximum(1, p_mass)[:, None]
+            adata.uns['X_grid'] = X_grid[p_mass > 1]
+            adata.uns['V_grid'] = V_grid[p_mass > 1]
         dict_colors = {ann_field: dict(zip(adata.obs[ann_field].cat.categories,
                                            adata.uns[f'{ann_field}_colors']))}
         print(dict_colors)
