@@ -97,14 +97,14 @@ def main():
             else:
                 adata = ad.read(filename)
             scvr.output_seurat_cells(adata,ann_list,gene_list=gene_list,reportdir=output)
+        if toolname == 'velocity':
+            assert (filename.lower().endswith('.h5ad') or filename.lower().endswith('.loom')), 'Velocity supports .h5ad or .loom.'
+            adata = scv.read(filename)
+            scvr.output_velocity_cells(adata, ann_field=annotations, gene_list=gene_list, reportdir=output)
         with open(os.path.join(output,'index.json'), 'w') as f:
                 json.dump({ "tool": toolname }, f)
         shutil.make_archive(base_name=output, format='zip',root_dir=output)
         shutil.rmtree(output)
-    if toolname == 'velocity':
-        assert (filename.lower().endswith('.h5ad') or filename.lower().endswith('.loom')), 'Velocity supports .h5ad or .loom.'
-        adata = scv.read(filename)
-        scvr.output_velocity_cells(adata, ann_field=annotations, gene_list=gene_list, reportdir=output)
     if(toolname=='stream'):
         try:
             import stream as st
