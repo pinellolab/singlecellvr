@@ -1,15 +1,8 @@
-FROM continuumio/miniconda3
+from pinellolab/stream
 
-RUN conda install python=3.6 && \
-    pip install scvr dash_bootstrap_components && \
-    conda install -c conda-forge dash>=1.0.0 plotly>=3.10.0 \
-                  gunicorn>=19.7.1 numpy>=1.14.0 pandas>=0.22.0 \
-                qrcode pillow && \
-    conda install -c bioconda cufflinks 
+RUN pip install networkx pandas matplotlib scvelo numpy dash dash-bootstrap-components flask flask-cors qrcode scvr scanpy pillow gunicorn && apt update --allow-releaseinfo-change -y && apt install -y libnss3-tools wget && wget https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64 && chmod +x mkcert-v1.4.3-linux-amd64 && ./mkcert-v1.4.3-linux-amd64 -install && ./mkcert-v1.4.3-linux-amd64 localhost
 
 WORKDIR /app
 ADD . /app
 
-EXPOSE 8000
-
-ENTRYPOINT [ "gunicorn", "--bind", "0.0.0.0:8000", "--pythonpath", "dash_app/apps/dash-singlecell-vr", "app:server", "--timeout", "300" ]
+ENTRYPOINT ["/bin/bash", "/app/start.sh"] 

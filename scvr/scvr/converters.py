@@ -202,7 +202,6 @@ def output_seurat_cells(adata,ann_list,reportdir='./seurat_report',gene_list=Non
         please set `n.component = 3` in `RunUMAP()`'''
     else:
         raise
-
     ###remove duplicate keys
     ann_list = list(dict.fromkeys(ann_list))
     ### make sure all labels exist
