@@ -302,14 +302,16 @@ def output_velocity_cells(adata, ann_field, gene_list=None,
             dict_coord_cells['y0'] = str(adata.obsm['X_umap'][i,1])
             dict_coord_cells['z0'] = str(adata.obsm['X_umap'][i,2])
 
-            if time is None:
-                dict_coord_cells['x1'] = str(adata.obsm['velocity_umap'][i,0])
-                dict_coord_cells['y1'] = str(adata.obsm['velocity_umap'][i,1])
-                dict_coord_cells['z1'] = str(adata.obsm['velocity_umap'][i,2])
-            else:
-                dict_coord_cells['x1'] = str(adata.obsm[f'absolute_velocity_umap_{time}s'][i,0])
-                dict_coord_cells['y1'] = str(adata.obsm[f'absolute_velocity_umap_{time}s'][i,1])
-                dict_coord_cells['z1'] = str(adata.obsm[f'absolute_velocity_umap_{time}s'][i,2])
+            dict_coord_cells['x1'] = str(adata.obsm['velocity_umap'][i,0])
+            dict_coord_cells['y1'] = str(adata.obsm['velocity_umap'][i,1])
+            dict_coord_cells['z1'] = str(adata.obsm['velocity_umap'][i,2])
+            for key in adata.obsm.keys():
+                if key.startswith("absolute_velocity_umap"):
+                    print(key)
+                    t = key.replace("absolute_velocity_umap_", "")
+                    dict_coord_cells[f'x1_{t}'] = str(adata.obsm[key][i,0])
+                    dict_coord_cells[f'y1_{t}'] = str(adata.obsm[key][i,1])
+                    dict_coord_cells[f'z1_{t}'] = str(adata.obsm[key][i,2])
             list_cells.append(dict_coord_cells)
         with open(os.path.join(reportdir, 'scatter.json'), 'w') as f:
             json.dump(list_cells, f)
@@ -343,7 +345,6 @@ def output_velocity_cells(adata, ann_field, gene_list=None,
                                     np.maximum(1, p_mass)[:, None]
             adata.uns['X_grid'] = X_grid[p_mass > 1]
             adata.uns['V_grid'] = V_grid[p_mass > 1]
-        print(adata.uns)
         dict_colors = {ann_field: dict(zip(adata.obs[ann_field].cat.categories,
                                            adata.uns[f'{ann_field}_colors']))}
         print(dict_colors)
