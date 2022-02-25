@@ -35,7 +35,8 @@ For example:
 mkdir singlecell_data
 cd singlecell_data
 wget https://www.dropbox.com/sh/4zoaost27ky91ob/AADMJXKdhgBpuO9qJfBgJ_V6a?dl=1
-docker run --rm -v $(pwd):/app/dash_app/apps/dash-singlecell-vr/app_datasets/ -p 0.0.0.0:8080:8080 -p 0.0.0.0:8000:8000 pinellolab/singlecellvr https://0.0.0.0 8000 8080```
+docker run --rm -v $(pwd):/app/dash_app/apps/dash-singlecell-vr/app_datasets/ -p 0.0.0.0:8080:8080 -p 0.0.0.0:8000:8000 pinellolab/singlecellvr https://0.0.0.0 8000 8080
+```
 
 Note: To enable VR capabilities the urls must be served over https. 
 
