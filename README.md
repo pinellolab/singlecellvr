@@ -15,7 +15,7 @@ SingleCellVR can be used with our preprocessed datasets found at the link above 
 singlecellVR is available to be run locally with Docker. The following steps demonstrate how to use singlecellVR with Docker.
 
 ### Step 1:
-Create a directory and move your datasets into it. The datasets are your h5ad, loom, pkl, or scvr converted zip files containing your single cell data.
+Create a directory and move your datasets into it. The datasets are your h5ad, loom, pkl, or scvr converted zip files containing your single-cell data.
 
 ### Step 2:
 Run the docker image. In order to serve the singlecellVR webapp locally with Docker, you will need two free ports on your system. The docker run command requires
