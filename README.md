@@ -15,7 +15,7 @@ SingleCellVR can be used with our preprocessed datasets found at the link above 
 singlecellVR is available to be run locally with Docker. The following steps demonstrate how to use singlecellVR with Docker.
 
 ### Step 1:
-Create a directory and move your datasets into it. The datasets are your h5ad, loom, pkl, or scvr converted zip files containing your single-cell data.
+Create a directory and move your datasets into it. The datasets are your h5ad, loom, pkl, or scvr converted zip files containing your single-cell data. THe datasets referenced in the singlecellVR manuscript are available for download here: https://www.dropbox.com/sh/4zoaost27ky91ob/AADMJXKdhgBpuO9qJfBgJ_V6a?dl=1.
 
 ### Step 2:
 Run the docker image. In order to serve the singlecellVR webapp locally with Docker, you will need two free ports on your system. The docker run command requires
@@ -31,7 +31,11 @@ The docker image may be run as follows
 The -v flag allows you to make your local datasets visible to the docker container. 
 
 For example:
-`docker run --rm -v /home/PinelloLab/singlecell_datasets/:/app/dash_app/apps/dash-singlecell-vr/app_datasets/ -p 0.0.0.0:8080:8080 -p 0.0.0.0:8000:8000 pinellolab/singlecellvr https://0.0.0.0 8000 8080`
+```
+mkdir singlecell_data
+cd singlecell_data
+wget https://www.dropbox.com/sh/4zoaost27ky91ob/AADMJXKdhgBpuO9qJfBgJ_V6a?dl=1
+docker run --rm -v $(pwd):/app/dash_app/apps/dash-singlecell-vr/app_datasets/ -p 0.0.0.0:8080:8080 -p 0.0.0.0:8000:8000 pinellolab/singlecellvr https://0.0.0.0 8000 8080```
 
 Note: To enable VR capabilities the urls must be served over https. 
 
