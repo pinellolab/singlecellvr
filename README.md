@@ -13,13 +13,25 @@ SingleCellVR can be used with our preprocessed datasets found at the link above 
 ## Running singlecellVR locally
 
 singlecellVR is available to be run locally with Docker. In order to run singlecellVR locally run the following:
-`docker run --rm -v {full-path-to-data}:/app/dash_app/apps/dash-singlecell-vr/app_datasets/ -p {url}:{frontend-port}:{frontend-port} -p {url}:{backend-port}:{backend-port} scvr {url} {frontend-port} {backend-port}`
-where `{url}` is the url at which you would like to host singlecellVR and `{frontend-port}` and `{backend-port}` are two available ports on your system. 
-The -v flag allows you to make your local datasets visible to the docker container. `{full-path-to-data}` should be the absolute path to the 
-directory containing your datasets on your system.
+
+#Step 1:
+Create a directory and move your datasets into it. The datasets are your h5ad, loom, pkl, or scvr converted zip files containing your single cell data.
+
+#Step 2:
+Run the docker image. In order to serve the singlecellVR webapp locally with Docker, you will need two free ports on your system. The docker run command requires
+the following arguments:
+  - {path}, the absolute path to the directory you created in step 1, e.g. "/Users/david/singlecell/"
+  - {backend-port}, a free port on your system over which to serve the singlecellVR backend, e.g. 8000
+  - {frontend-port}, a free port on your system over which to serve the singlecellVR frontend, e.g. 8080
+  - {host-address}, the host address at which to serve singlecellVR, e.g. 0.0.0.0
+
+The docker image may be run as follows 
+`docker run --rm -v {path}:/app/dash_app/apps/dash-singlecell-vr/app_datasets/ -p {host-address}:{frontend-port}:{frontend-port} -p {host-address}:{backend-port}:{backend-port} pinellolab/singlecellvr {host-address} {frontend-port} {backend-port}`
+
+The -v flag allows you to make your local datasets visible to the docker container. 
 
 For example:
-`docker run --rm -v /home/PinelloLab/singlecell_datasets/:/app/dash_app/apps/dash-singlecell-vr/app_datasets/ -p 0.0.0.0:8080:8080 -p 0.0.0.0:8000:8000 scvr https://0.0.0.0 8000 8080`
+`docker run --rm -v /home/PinelloLab/singlecell_datasets/:/app/dash_app/apps/dash-singlecell-vr/app_datasets/ -p 0.0.0.0:8080:8080 -p 0.0.0.0:8000:8000 pinellolab/singlecellvr https://0.0.0.0 8000 8080`
 
 Note: To enable VR capabilities the urls must be served over https. 
 
