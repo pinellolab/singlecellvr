@@ -34,12 +34,20 @@ For example:
 ```
 mkdir singlecell_data
 cd singlecell_data
-wget -O- https://www.dropbox.com/sh/4zoaost27ky91ob/AADMJXKdhgBpuO9qJfBgJ_V6a?dl=1 > singlecellvr_data.zip
-unzip singlecellvr_data.zip; rm singlecellvr_data.zip
-docker run --rm -v $(pwd):/app/dash_app/apps/dash-singlecell-vr/app_datasets/ -p 0.0.0.0:8080:8080 -p 0.0.0.0:8000:8000 pinellolab/singlecellvr https://0.0.0.0 8000 8080
+wget https://www.dropbox.com/sh/4zoaost27ky91ob/AADMJXKdhgBpuO9qJfBgJ_V6a?dl=1 -O singlecellvr_data.zip
+
+# if you are on a Window machine extract the file manually or use this command line version:  wget http://stahlworks.com/dev/unzip.exe -O unzip.exe
+./unzip singlecellvr_data.zip
+
+# on windows you need to type instead:.\unzip singlecellvr_data.zip
+
+rm singlecellvr_data.zip
+docker run --rm -v ${PWD}:/app/dash_app/apps/dash-singlecell-vr/app_datasets/ -p 0.0.0.0:8080:8080 -p 0.0.0.0:8000:8000 pinellolab/singlecellvr https://0.0.0.0 8000 8080
 ```
 
 Note: To enable VR capabilities the urls must be served over https. 
+
+Now open the browser and open https://localhost:8080 to run a local version of singlecellvr on your machine
 
 ## SingleCellVR Preprocess:  
 
