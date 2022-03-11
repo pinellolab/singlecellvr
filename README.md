@@ -12,14 +12,42 @@ SingleCellVR can be used with our preprocessed datasets found at the link above 
 
 ## Running singlecellVR locally
 
-singlecellVR is available to be run locally with Docker. In order to run singlecellVR locally run the following:
-`docker run --rm --network host scvr {url} {frontend-port} {backend-port}`
-where `{url}` is the url at which you would like to host singlecellVR and `{frontend-port}` and `{backend-port}` are two available ports on your system. 
+singlecellVR is available to be run locally with Docker. The following steps demonstrate how to use singlecellVR with Docker.
+
+### Step 1:
+Create a directory and move your datasets into it. The datasets are your h5ad, loom, pkl, or scvr converted zip files containing your single-cell data. The datasets referenced in the singlecellVR manuscript are available for download here: https://www.dropbox.com/sh/4zoaost27ky91ob/AADMJXKdhgBpuO9qJfBgJ_V6a?dl=1.
+
+### Step 2:
+Run the docker image. In order to serve the singlecellVR webapp locally with Docker, you will need two free ports on your system. The docker run command requires
+the following arguments:
+  - {path}, the absolute path to the directory you created in step 1, e.g. "/Users/david/singlecell/"
+  - {backend-port}, a free port on your system over which to serve the singlecellVR backend, e.g. 8000
+  - {frontend-port}, a free port on your system over which to serve the singlecellVR frontend, e.g. 8080
+  - {host-address}, the host address at which to serve singlecellVR, e.g. 0.0.0.0
+
+The docker image may be run as follows 
+`docker run --rm -v {path}:/app/dash_app/apps/dash-singlecell-vr/app_datasets/ -p {host-address}:{frontend-port}:{frontend-port} -p {host-address}:{backend-port}:{backend-port} pinellolab/singlecellvr {host-address} {frontend-port} {backend-port}`
+
+The -v flag allows you to make your local datasets visible to the docker container. 
 
 For example:
-`docker run --rm --network host scvr https://localhost 8000 8080`
+```
+mkdir singlecell_data
+cd singlecell_data
+wget https://www.dropbox.com/sh/4zoaost27ky91ob/AADMJXKdhgBpuO9qJfBgJ_V6a?dl=1 -O singlecellvr_data.zip
+
+# if you are on a Window machine extract the file manually or use this command line version:  wget http://stahlworks.com/dev/unzip.exe -O unzip.exe
+./unzip singlecellvr_data.zip
+
+# on windows you need to type instead:.\unzip singlecellvr_data.zip
+
+rm singlecellvr_data.zip
+docker run --rm -v ${PWD}:/app/dash_app/apps/dash-singlecell-vr/app_datasets/ -p 0.0.0.0:8080:8080 -p 0.0.0.0:8000:8000 pinellolab/singlecellvr https://0.0.0.0 8000 8080
+```
 
 Note: To enable VR capabilities the urls must be served over https. 
+
+Now open the browser and open https://localhost:8080 to run a local version of singlecellvr on your machine
 
 ## SingleCellVR Preprocess:  
 
