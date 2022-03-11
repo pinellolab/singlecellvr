@@ -67,7 +67,7 @@ server.config['CORS_HEADERS'] = 'Content-Type'
 def download(path):
     """Serve a file from the upload directory."""
     if os.path.exists(os.path.join(DATASET_DIRECTORY, path)):
-    	return send_from_directory(DATASET_DIRECTORY, path, as_attachment=True)
+        return send_from_directory(DATASET_DIRECTORY, path, as_attachment=True)
     else:
         return send_from_directory(UPLOAD_DIRECTORY, path, as_attachment=True)
 
