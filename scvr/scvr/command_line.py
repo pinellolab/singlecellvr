@@ -77,7 +77,7 @@ def main():
 
     print("Converting '%s' analysis result ..." % toolname)
     
-    if(toolname in ['scanpy','paga','seurat']):
+    if(toolname in ['scanpy','paga','seurat','velocity']):
         if(toolname=='scanpy'):
             assert (filename.lower().endswith(('.h5ad'))), "For PAGA only .h5ad file is supported."
             print('reading in h5ad file ...')

@@ -260,9 +260,19 @@ const createCellMetadataObject = (metadata) => {
 
 const adjustT = async (t) => {
     const el = document.getElementById('velocity');
-    const coords = await (await fetch(API_URL + '/features?db_name=' + dataset_name + '&feature=velocity&embed=umap&time=' + t)).json();
-    gridStartPositions = Array.from(coords.velocity.map((cell) => [cell.x, cell.y, cell.z])); 
-    gridEndPositions = Array.from(coords.velocity.map((cell) => [cell.x1, cell.y1, cell.z1])); 
+    let coords;
+    if (fullDataset) {
+      coords = await (await fetch(API_URL + '/features?db_name=' + dataset_name + '&feature=velocity&embed=umap&time=' + t)).json();
+      coords = coords.velocity;
+    } else {
+      coords = JSON.parse(await report.file("scatter.json").async("string"));
+      coords = coords.map(c => {
+        return {'cell_id': c['cell_id'], 'x': c['x'], 'y': c['y'], 'z': c['z'], 
+                "x1": c[`x1_${t}s`], "y1": c[`y1_${t}s`], "z1": c[`z1_${t}s`] } 
+      })
+    }
+    gridStartPositions = Array.from(coords.map((cell) => [cell.x, cell.y, cell.z])); 
+    gridEndPositions = Array.from(coords.map((cell) => [cell.x1, cell.y1, cell.z1])); 
     const count = el.getAttribute('velocity').count;
     el.setAttribute('velocity', {count: count, positions: gridStartPositions, endPositions: gridEndPositions});
 }
@@ -650,6 +660,10 @@ const initialize = async (uuid, isFullDataset) => {
       metadata = await (await fetch(API_URL + '/features?db_name=' + uuid + '&feature=clusters')).json();
     } else {
       coords = JSON.parse(await report.file("scatter.json").async("string"));
+      coords_start = coords.map(c => {
+        return {'cell_id': c['cell_id'], 'x': c['x'], 'y': c['y'], 'z': c['z'], 
+                "x1": c['x1_1s'], "y1": c['y1_1s'], "z1": c['z1_1s'] } 
+      })
       metadata = JSON.parse(await report.file("metadata.json").async("string"));
     }
     if (fullDataset && coords.velocity.length > velocity_cutoff) {
@@ -662,7 +676,7 @@ const initialize = async (uuid, isFullDataset) => {
         if (fullDataset) {
           renderVelocity(coords.velocity, metadata.clusters); 
         } else {
-          renderVelocity(coords, metadata);
+          renderVelocity(coords_start, metadata);
         }
     }
   } else {

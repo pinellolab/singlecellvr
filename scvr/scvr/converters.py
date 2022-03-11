@@ -297,18 +297,20 @@ def output_velocity_cells(adata, ann_field, gene_list=None,
         for i in range(adata.shape[0]):
             dict_coord_cells = dict()
             dict_coord_cells['cell_id'] = adata.obs_names[i]
-            dict_coord_cells['x0'] = str(adata.obsm['X_umap'][i,0])
-            dict_coord_cells['y0'] = str(adata.obsm['X_umap'][i,1])
-            dict_coord_cells['z0'] = str(adata.obsm['X_umap'][i,2])
+            dict_coord_cells['x'] = str(adata.obsm['X_umap'][i,0])
+            dict_coord_cells['y'] = str(adata.obsm['X_umap'][i,1])
+            dict_coord_cells['z'] = str(adata.obsm['X_umap'][i,2])
 
-            if time is None:
-                dict_coord_cells['x1'] = str(adata.obsm['velocity_umap'][i,0])
-                dict_coord_cells['y1'] = str(adata.obsm['velocity_umap'][i,1])
-                dict_coord_cells['z1'] = str(adata.obsm['velocity_umap'][i,2])
-            else:
-                dict_coord_cells['x1'] = str(adata.obsm[f'absolute_velocity_umap_{time}s'][i,0])
-                dict_coord_cells['y1'] = str(adata.obsm[f'absolute_velocity_umap_{time}s'][i,1])
-                dict_coord_cells['z1'] = str(adata.obsm[f'absolute_velocity_umap_{time}s'][i,2])
+            dict_coord_cells['x1'] = str(adata.obsm['velocity_umap'][i,0])
+            dict_coord_cells['y1'] = str(adata.obsm['velocity_umap'][i,1])
+            dict_coord_cells['z1'] = str(adata.obsm['velocity_umap'][i,2])
+            for key in adata.obsm.keys():
+                if key.startswith("absolute_velocity_umap"):
+                    print(key)
+                    t = key.replace("absolute_velocity_umap_", "")
+                    dict_coord_cells[f'x1_{t}'] = str(adata.obsm[key][i,0])
+                    dict_coord_cells[f'y1_{t}'] = str(adata.obsm[key][i,1])
+                    dict_coord_cells[f'z1_{t}'] = str(adata.obsm[key][i,2])
             list_cells.append(dict_coord_cells)
         with open(os.path.join(reportdir, 'scatter.json'), 'w') as f:
             json.dump(list_cells, f)
