@@ -34,7 +34,7 @@ DATASET_DIRECTORY = os.path.join(APP_PATH, "app_datasets")
 UPLOAD_DIRECTORY = os.path.join(APP_PATH, "app_uploaded_files")
 QR_DIRECTORY = os.path.join(APP_PATH, "assets")
 API = 'https://singlecellvr.pinellolab.partners.org'
-# API = 'https://0.0.0.0:8080'
+# API = 'https://localhost:8080'
 
 # "./dash_app/apps/dash-singlecell-vr/app_uploaded_files"
 
@@ -764,4 +764,4 @@ def update_output(uploaded_filenames, uploaded_file_contents):
 
 if __name__ == "__main__":
     # app.run_server(port=os.environ['PORT'])
-    app.run_server(port=8050,debug=True,host='0.0.0.0',ssl_context='adhoc')
+    app.run_server(port=8050,host='0.0.0.0',ssl_context='adhoc')

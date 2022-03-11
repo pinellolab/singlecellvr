@@ -93,7 +93,7 @@ const renderLegend = async (annotation, clusterColors) => {
         return [cell.clusters_color, cell.label]
     })
     colors_labels = colors_labels.sort((a, b) => {
-	if (a[1] > b[1]) {
+	  if (a[1] > b[1]) {
     		return 1
   	} else if (a[1] < b[1]) {
    		return -1 
@@ -643,16 +643,27 @@ const initialize = async (uuid, isFullDataset) => {
       }
   } else if (tool === "velocity") {
     document.getElementById('drawContainer').setAttribute('animation', 'enabled', 'false');
-    const coords = await (await fetch(API_URL + '/features?db_name=' + uuid + '&feature=velocity&embed=umap&time=1')).json();
-    const metadata = await (await fetch(API_URL + '/features?db_name=' + uuid + '&feature=clusters')).json();
-    if (coords.velocity.length > velocity_cutoff) {
+    let coords;
+    let metadata;
+    if (fullDataset) {
+      coords = await (await fetch(API_URL + '/features?db_name=' + uuid + '&feature=velocity&embed=umap&time=1')).json();
+      metadata = await (await fetch(API_URL + '/features?db_name=' + uuid + '&feature=clusters')).json();
+    } else {
+      coords = JSON.parse(await report.file("scatter.json").async("string"));
+      metadata = JSON.parse(await report.file("metadata.json").async("string"));
+    }
+    if (fullDataset && coords.velocity.length > velocity_cutoff) {
         isGrid = true;
         const grid = await (await fetch(API_URL + '/features?db_name=' + uuid + '&feature=velocity_grid&embed=umap&time=1')).json();
         renderGrid(grid.velocity_grid);
         renderVelocity(coords.velocity, metadata.clusters, true);
     }
     else { 
-        renderVelocity(coords.velocity, metadata.clusters);
+        if (fullDataset) {
+          renderVelocity(coords.velocity, metadata.clusters); 
+        } else {
+          renderVelocity(coords, metadata);
+        }
     }
   } else {
     if (fullDataset) {
