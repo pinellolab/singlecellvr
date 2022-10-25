@@ -344,7 +344,6 @@ def output_velocity_cells(adata, ann_field, gene_list=None,
                                     np.maximum(1, p_mass)[:, None]
             adata.uns['X_grid'] = X_grid[p_mass > 1]
             adata.uns['V_grid'] = V_grid[p_mass > 1]
-        print(adata.uns)
         dict_colors = {ann_field: dict(zip(adata.obs[ann_field].cat.categories,
                                            adata.uns[f'{ann_field}_colors']))}
         print(dict_colors)
